@@ -25,6 +25,8 @@
 
   virtualisation.docker.enable = true;
 
+  security.sudo.wheelNeedsPassword = false;
+
   nix.nrBuildUsers = 32;
 
   # Select internationalisation properties.
