@@ -385,4 +385,12 @@
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDmUqhU3Eg6zPJ8MEKpCcBkYRHXd/FVBxmy0DOj3GD5Hdxd/+cBDk/mfIJOy+r4HG2qQJBls9EvvZzcSnF3mqqURfWUDfKJ+fNZ+0vdeTodmgHiOERO5pUyf4h1YxqbxX+cVfELxpPwkGjtWIsvdt+CKuQ1b1rauKgv33YVkm1VJHCBJk8mh/JN5jsplnyu0nR5sPOJQ8rnDOr3vRGa0nGc+G7S03bAUBTmgjbEsRUOG2TJ1TPmkXoCVlR1I4yWUmgSMiKAO8nOFEwQaOQbLhLsvcYF7T4KzF86BUIG6hkm3qfHLPCmdbOfXfFnp8oNZiBq/S0nrHMLT9BGXjfXdbGv sm101" ];
   };
     
+  users.extraUsers.kellabyte = {
+    isNormalUser = true;
+    uid = 1040;
+    description = "Kelly Sommers";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIYvOmMBJniB7gPN8wO5Fla2JpuWZSUdhkE6IengiKLB9H/fS7Uu5GoT94CHOa5gg891eeM/MRDNGW+C+9x5UWbOiioaZoICQ9/srnSGHEHranTUL/z6AAJIhfRk+aeTdu7HI+wZv8ukMLWPyfsAAEcLQAK0tD0Nq8xqez5XloumASqzV1mPb0hHWlGw/Wx/Z+FJwfpvBkKULwWzD8kzFQWCBXlsk9vvQKgT4QBCXIjsvvAUhQLkkrXJI1Zi8G17zimcCS1TxEv9VPcf9vqTR9JtDawVtJZFIrSoi9SYDAoiZtR0RQ5dttbcL/IA+IFqBrRPygSLPC5Up9B7MEJ8Sj kell.sommers@gmail.com" ];
+  };
+
 }
