@@ -400,4 +400,13 @@
     extraGroups = [ "wheel" "docker" ];
     openssh.authorizedKeys.keys = [ "ssh-dss AAAAB3NzaC1kc3MAAACBAMdlCk1NNT2O+np4uzFWFDHP+zTS8uAC6c0mv2miSgAgJxFyfZpJH+HbOuLALCoyPrQbAPb+yPeXvl7xQwAUd94QW3dsX8B70skaxGQMXJdvEu3iDSnpxdeNMW+Ctl4JDHwNoZ93dCxqUqiF5tIE9ock8r1vEZ4d4Xy/LWe+mneVAAAAFQCZ3YEG7uDAfKRxcIK7v4XJyCknCwAAAIA4l8xAexLrEiheg8w8YYGvTtTV20xDaFObLI0fWFpYM0n6g80xkGoM409/1ne6PPqOydCp6dfNcbqf2vCq2WxffjEetMSE5BNk02JctdafO8wiGVFnQd39I+n70SCU/48s/NX+RqWcRgTlwDzp034ZiclDrmrBGVmz5TAJWXT8BgAAAIBbYv/+kxyNdM0HLiQn6/ShTCqK6gkhumDn3a/SS0nHx3LpdlACX9x49a7VTf4tYqctW6LUkE9ei0cvsHWq2ec6Q00UAypCaTtwUjt7vr7HmwuTKV6XOsLkupnEED5jtRgeEz5fuWPIMH6Xg/GENJ5z7N/6AlaOz3Emu6TQtkdwPw== mwiget@mwiget-mba13" ];
   };
+
+  users.extraUsers.nnikolaev = {
+    isNormalUser = true;
+    uid = 1042;
+    description = "Nikolay Nikolaev";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDc87+h/CtgYjY0YIVqOAoqSCSmRdBevs1VecbZiw3u7HT4MkKEvd7ycP33eDYEL+pkMtEI7FVwZC3UoQCfEX1Dhu4TODzOUimgDawAej7dDYQ++K+3jUahDjnh+PmowTd9VTO8qjRJpJrsEuFBBOjK4p59H7VEh2JO08XZgrB4hk1NKgL2Jbal6zps6j6+gj5XvEjROOE5U66YXZSfD/pesvhId/XrQTs5baXSvF1d+Hdl7iKMsB6u/8i/g/+Xh9yPlgIrPw1d4q4jiQ1uKvtIGybhBjTRkIzD+RSfRyNpn4spFlT2keCtsUT1pBdg+0Bos3PT8oC5qxeLlOjAKDiL n.nikolaev@virtualopensystems.com" ];
+  };
+
 }
