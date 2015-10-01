@@ -49,10 +49,8 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
-    gcc
-    git
-    gnumake
-    wget
+    gcc git gnumake wget
+    emacs vim
     docker
   ];
 
