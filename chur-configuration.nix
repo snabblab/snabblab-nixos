@@ -33,6 +33,7 @@
   # networking.wireless.enable = true;  # Enables wireless.
 
   virtualisation.docker.enable = true;
+  virtualisation.docker.storageDriver = "devicemapper";
 
   security.sudo.wheelNeedsPassword = false;
 
