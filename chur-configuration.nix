@@ -417,4 +417,12 @@
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDc87+h/CtgYjY0YIVqOAoqSCSmRdBevs1VecbZiw3u7HT4MkKEvd7ycP33eDYEL+pkMtEI7FVwZC3UoQCfEX1Dhu4TODzOUimgDawAej7dDYQ++K+3jUahDjnh+PmowTd9VTO8qjRJpJrsEuFBBOjK4p59H7VEh2JO08XZgrB4hk1NKgL2Jbal6zps6j6+gj5XvEjROOE5U66YXZSfD/pesvhId/XrQTs5baXSvF1d+Hdl7iKMsB6u/8i/g/+Xh9yPlgIrPw1d4q4jiQ1uKvtIGybhBjTRkIzD+RSfRyNpn4spFlT2keCtsUT1pBdg+0Bos3PT8oC5qxeLlOjAKDiL n.nikolaev@virtualopensystems.com" ];
   };
 
+ users.extraUsers.capr = {
+    isNormalUser = true;
+    uid = 1043;
+    description = "Cosmin Apreutesei";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIBNkVXq4TnTim93FeXi15Du+EkY3LkNvNRk2qKWW5Cbiv8fwqr3fxLwAr14EgY94mUEetLjj1yLXuIXjDP4PnybTA8jY4ejCoqLHX9k2Uas6x8ZDTtIfGOH7l0F8Wo8x9QUwx4jpNrnOCRjwYKThgeuvOFyiWziFfR3rvYO31bMWw== cosmin.apreutesei@gmail.com" ];
+  };
+
 }
