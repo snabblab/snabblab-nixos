@@ -17,6 +17,7 @@
   # Disable IOMMU for Snabb Switch.
   # chur has a Sandy Bridge CPU and these are known to have
   # performance problems in their IOMMU.
+  boot.kernelPackages = pkgs.linuxPackages_4_2;
   boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
 
   # Enable kernel MSR module
