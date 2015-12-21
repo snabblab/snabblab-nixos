@@ -434,4 +434,12 @@
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7CTy+OMdA1IfR3EEuL/8c9tWZvfzzDH9cYE1Fq8eFsSfcoFKtb/0tAcUrhYmQMJDV54J7cLvltaoA4MV788uKl+rlqy17rKGji4gC94dvtB9eIH11p/WadgGORnjdiIV1Df29Zmjlm5zqNo2sZUxs0Nya2I4Dpa2tdXkw6piVgMtVrqPCM4W5uorX8CE+ecOUzPOi11lyfCwLcdg0OugXBVrNNSfnJ2/4PrLm7rcG4edbonjWa/FvMAHxN7BBU5+aGFC5okKOi5LqKskRkesxKNcIbsXHJ9TOsiqJKPwP0H2um/7evXiMVjn3/951Yz9Sc8jKoxAbeH/PcCmMOQz+8z7cJXm2LI/WIkiDUyAUdTFJj8CrdWOpZNqQ9WGiYQ6FHVOVfrHaIdyS4EOUG+XXY/dag0EBueO51i8KErrL17zagkeCqtI84yNvZ+L2hCSVM7uDi805Wi9DTr0pdWzh9jKNAcF7DqN16inklWUjtdRZn04gJ8N5hx55g2PAvMYWD21QoIruWUT1I7O9xbarQEfd2cC3yP+63AHlimo9Aqmj/9Qx3sRB7ycieQvNZEedLE9xiPOQycJzzZREVSEN1EK1xzle0Hg6I7U9L5LDD8yXkutvvppFb27dzlr5MTUnIy+reEHavyF9RSNXHTo57myffl8zo2lPjcmFkffLZQ== ielectric@kaki" ];
   };
 
+ users.extraUsers.hb9cwp = {
+    isNormalUser = true;
+    uid = 1045;
+    description = "Rolf Sommerhalder";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AAAAB3NzaC1kc3MAAACBAO92/aGijCVcucSmnK702ZP+9ayahp2eerK/ykhyfMW7YCK4oPTmwWM3wdl0QULMtUDG1O5utBnI7JSk7YEodAmJy5V1C38xqd+vBM1eHylribvqrhi8F2QrFTVorcI3ZMcnKHwxq9JSmgQewKGiTIsE9Q0LlQWEsX7jViSFjTA3AAAAFQDLcnzCTJmO5udub54VEjIsGuWyiwAAAIBKH9g7NaTWpfZQAsbpM/0Q5LO5uuwOhHg5E33hOZ5r7C+Mxn1X5x7lBaQGlvr0eBuv4zwytJalfuuu9GVPptkxngPr9F8QWbRXsbVD0fmgIY2dEyW8fUd71JXLq9rUBv2odfdOatpkkC8Xu4WReFN3V5UMfabkNp4fkH2RT6CeJgAAAIB75VEM8lCS98XZCs4J3zDCHSz1BiUsMvX4+KoC1HpLYiBXfXu0R7v031AkvJXsRs1izunMOsnpeGT8cE4lVbN0iXgj+TMEGGyexqYScLP6/LEYiBn+Sz+9U6kbccoaBooOvMGqsMqo5QSWDNewyVhfVb79TJJ7CEVha2hX66udKg== rs@greif.maur.crosscom" ];
+  };
+
 }
