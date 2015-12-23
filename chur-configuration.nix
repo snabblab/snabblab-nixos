@@ -441,5 +441,13 @@
     extraGroups = [ "wheel" "docker" ];
     openssh.authorizedKeys.keys = [ "ssh-dss AAAAB3NzaC1kc3MAAACBAO92/aGijCVcucSmnK702ZP+9ayahp2eerK/ykhyfMW7YCK4oPTmwWM3wdl0QULMtUDG1O5utBnI7JSk7YEodAmJy5V1C38xqd+vBM1eHylribvqrhi8F2QrFTVorcI3ZMcnKHwxq9JSmgQewKGiTIsE9Q0LlQWEsX7jViSFjTA3AAAAFQDLcnzCTJmO5udub54VEjIsGuWyiwAAAIBKH9g7NaTWpfZQAsbpM/0Q5LO5uuwOhHg5E33hOZ5r7C+Mxn1X5x7lBaQGlvr0eBuv4zwytJalfuuu9GVPptkxngPr9F8QWbRXsbVD0fmgIY2dEyW8fUd71JXLq9rUBv2odfdOatpkkC8Xu4WReFN3V5UMfabkNp4fkH2RT6CeJgAAAIB75VEM8lCS98XZCs4J3zDCHSz1BiUsMvX4+KoC1HpLYiBXfXu0R7v031AkvJXsRs1izunMOsnpeGT8cE4lVbN0iXgj+TMEGGyexqYScLP6/LEYiBn+Sz+9U6kbccoaBooOvMGqsMqo5QSWDNewyVhfVb79TJJ7CEVha2hX66udKg== rs@greif.maur.crosscom" ];
   };
+  
+ users.extraUsers.vovailchenko = {
+    isNormalUser = true;
+    uid = 1046;
+    description = "Vova Ilchenko";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAxH0pWAIb1uaCv5/jzXoz/DiJD2NY9sIIgVD12o4RU5seYABdaKryf0qV8SF25SMnqUiYH1DHA0DliGMb1azzOlEcTsPDlKyA7xFe73dJZnjGfkQmNU/FPD9yc8PtBCaMYUFrcTOpOhCEx1XIjvtGilKOirdLDL6Pc4XNvyoAVDjjCtyVoRhkSxqN8n9JGE+z/xrPuaEl3a+/6EK/ibZy8BhpwG+irmx7HHbq4Yt8T+VZ3Ww+x3b0QYWZpRV+upYmKPoXyivNw7cuoF8jWJQftigI8baeDISu1WPxNOofaLADC5s3yRmUDoWS4Tb6O9YMRTaZ07fo50hEVdwSc4eToQ== vova.ilchenko@gmail.com" ];
+  };
 
 }
