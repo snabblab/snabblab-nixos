@@ -442,4 +442,12 @@
     openssh.authorizedKeys.keys = [ "ssh-dss AAAAB3NzaC1kc3MAAACBAO92/aGijCVcucSmnK702ZP+9ayahp2eerK/ykhyfMW7YCK4oPTmwWM3wdl0QULMtUDG1O5utBnI7JSk7YEodAmJy5V1C38xqd+vBM1eHylribvqrhi8F2QrFTVorcI3ZMcnKHwxq9JSmgQewKGiTIsE9Q0LlQWEsX7jViSFjTA3AAAAFQDLcnzCTJmO5udub54VEjIsGuWyiwAAAIBKH9g7NaTWpfZQAsbpM/0Q5LO5uuwOhHg5E33hOZ5r7C+Mxn1X5x7lBaQGlvr0eBuv4zwytJalfuuu9GVPptkxngPr9F8QWbRXsbVD0fmgIY2dEyW8fUd71JXLq9rUBv2odfdOatpkkC8Xu4WReFN3V5UMfabkNp4fkH2RT6CeJgAAAIB75VEM8lCS98XZCs4J3zDCHSz1BiUsMvX4+KoC1HpLYiBXfXu0R7v031AkvJXsRs1izunMOsnpeGT8cE4lVbN0iXgj+TMEGGyexqYScLP6/LEYiBn+Sz+9U6kbccoaBooOvMGqsMqo5QSWDNewyVhfVb79TJJ7CEVha2hX66udKg== rs@greif.maur.crosscom" ];
   };
 
+ users.extraUsers.petebristow = {
+    isNormalUser = true;
+    uid = 1046;
+    description = "Pete Bristow";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCrOPZ6znKltSSFu73PcRr0jwi9l+a3ci/HiKdhKY1YMkMB/gEoJbhaOVgcdd9P1I6pagax5Xr28RxWVBcUMJNYCc1Oq2P2piAuknKAOFCDujj7ZIUXbc9rY8o4wHdkHHJHfvTSMVmGN4l4oGnuJI95ljOwKi69cQAjc6C/Ol6fa9Y5Mlz8PNUF5twX7qPmdARMlBNnHIEZFISnzhM0HhIZs44gV0B6g4JtSKyFboqKYZjutMrEnoPMLygK2RH8wWQ61jQvi4c2jypZ4MMxxnO+Aw4/fCgQJ3x1bBp7lUtiLp6Yz5w49NQJ5tKYApNJEzq062WAuh+PrqNfdo/i5F9uBy0P7KZ8e9FGOveydqidBzW2eV2c3nCI4jCVNsNm/VAB3AXp2ikz4JRsDvVqWNbwKnIjQdcuhT5+NuRS6+RoTG5tQ1Xw8ExIT8d1uR8+RwFD0jeHbexOKYZmMCwPGyx9ms+1xF+j6ncjkqlzHAhKUDzyI+8VACfemLsBm9tO1HsEqBx1w2YZ/s+UcCbrTpsE5wJ2Ny8qcHPl8NgFkBR9VVDyPYojhsRyfafQV1y1Ii5Is8an+TJelni1t3xC5hPpqZDWeGv6E6btFvJzfhv33J3/1xxF7inou8NK5dhSkBE5NaUdUjxu+847Df+aKeR0Nk99O3Co9fGENw7EyVZzCQ== pete.bristow@gmail.com" ];
+  };
+
 }
