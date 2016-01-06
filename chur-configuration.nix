@@ -19,6 +19,7 @@
   # performance problems in their IOMMU.
   boot.kernelPackages = pkgs.linuxPackages_4_2;
   boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
+  boot.blacklistedKernelModules = [ "i40e" ];
 
   # Enable kernel MSR module
   nixpkgs.config = {
