@@ -451,4 +451,12 @@
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCrOPZ6znKltSSFu73PcRr0jwi9l+a3ci/HiKdhKY1YMkMB/gEoJbhaOVgcdd9P1I6pagax5Xr28RxWVBcUMJNYCc1Oq2P2piAuknKAOFCDujj7ZIUXbc9rY8o4wHdkHHJHfvTSMVmGN4l4oGnuJI95ljOwKi69cQAjc6C/Ol6fa9Y5Mlz8PNUF5twX7qPmdARMlBNnHIEZFISnzhM0HhIZs44gV0B6g4JtSKyFboqKYZjutMrEnoPMLygK2RH8wWQ61jQvi4c2jypZ4MMxxnO+Aw4/fCgQJ3x1bBp7lUtiLp6Yz5w49NQJ5tKYApNJEzq062WAuh+PrqNfdo/i5F9uBy0P7KZ8e9FGOveydqidBzW2eV2c3nCI4jCVNsNm/VAB3AXp2ikz4JRsDvVqWNbwKnIjQdcuhT5+NuRS6+RoTG5tQ1Xw8ExIT8d1uR8+RwFD0jeHbexOKYZmMCwPGyx9ms+1xF+j6ncjkqlzHAhKUDzyI+8VACfemLsBm9tO1HsEqBx1w2YZ/s+UcCbrTpsE5wJ2Ny8qcHPl8NgFkBR9VVDyPYojhsRyfafQV1y1Ii5Is8an+TJelni1t3xC5hPpqZDWeGv6E6btFvJzfhv33J3/1xxF7inou8NK5dhSkBE5NaUdUjxu+847Df+aKeR0Nk99O3Co9fGENw7EyVZzCQ== pete.bristow@gmail.com" ];
   };
 
+ users.extraUsers.farinacci = {
+    isNormalUser = true;
+    uid = 1047;
+    description = "Dino Farinacci";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA2ymCHUteHoztZF0oRmVo8oPUSLBb0hwu6gvapOJFizEIA/59Sj9YIz4p6HJfbPuAnjT+ROL3J7m44maMUjTzLKxsjorSjOMiujuCiSF1YFnCM+85uR59X6wL+hLI5lw/kTpu4l4YyQmFTLLAfIIr1G07+/kbHFOWYaNzMnNjw2Z+BsEfhQmHs+QtM6xgX8UcF9e+hEY+oLhTLLokRYvi89mMhPKpEGfvN8tjuT0cMjbKKAaEfPRvmb+AMfKQda8fHfSHBzbkYma6mPA4sByoeNLo3adf+Z9Q8ce0t1LJ6zZ7pGNg7shOKJNrq3RMs194i7WUayqDafGUt+/ob/1NpQ== dino@dino-lnx" ];
+  };
+
 }
