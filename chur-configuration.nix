@@ -459,4 +459,12 @@
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA2ymCHUteHoztZF0oRmVo8oPUSLBb0hwu6gvapOJFizEIA/59Sj9YIz4p6HJfbPuAnjT+ROL3J7m44maMUjTzLKxsjorSjOMiujuCiSF1YFnCM+85uR59X6wL+hLI5lw/kTpu4l4YyQmFTLLAfIIr1G07+/kbHFOWYaNzMnNjw2Z+BsEfhQmHs+QtM6xgX8UcF9e+hEY+oLhTLLokRYvi89mMhPKpEGfvN8tjuT0cMjbKKAaEfPRvmb+AMfKQda8fHfSHBzbkYma6mPA4sByoeNLo3adf+Z9Q8ce0t1LJ6zZ7pGNg7shOKJNrq3RMs194i7WUayqDafGUt+/ob/1NpQ== dino@dino-lnx" ];
   };
 
+ users.extraUsers.ciberkot = {
+    isNormalUser = true;
+    uid = 1048;
+    description = "Konstantin Dunaev";
+    extraGroups = [ "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDeYW1j7oIqonlmEH6NV/iQ1GrNg8XiXi7jsaT+hEUNF8yocCyhNlv2cjdOC1GHiN+GMR/WPH24J73fPHpA6t+KSKUu5psOGnxJj7aIBrb4lG1h7XWUt4Tdbp0Ql2lauT4vpXXE1/1FlY833MJLRZrQIlFfjGiG65vgCdnRKMhVXQ== ciberkot@gmail.com" ];
+  };
+
 }
