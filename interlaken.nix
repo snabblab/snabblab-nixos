@@ -6,8 +6,9 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./interlaken-hardware-configuration.nix
+      ./modules/common.nix
     ];
 
   # Use the GRUB 2 boot loader.

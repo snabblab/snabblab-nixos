@@ -7,11 +7,6 @@ let
   };
 in
 {
-  #virtualisation.docker.enable = true;
-  #virtualisation.docker.storageDriver = "devicemapper";
-
-  #services.openssh.enable = true;
-
   users.extraUsers.luke = {
     uid = 1000;
     description = "Luke Gorrie";

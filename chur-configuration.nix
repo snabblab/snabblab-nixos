@@ -6,10 +6,11 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./chur-hardware-configuration.nix
       ./modules/users.nix
       ./modules/lab-configuration.nix
+      ./modules/common.nix
     ];
 
   # Use the gummiboot efi boot loader.
@@ -39,20 +40,4 @@
   security.sudo.wheelNeedsPassword = false;
 
   nix.nrBuildUsers = 32;
-
-  # Select internationalisation properties.
-  # i18n = {
-  #   consoleFont = "lat9w-16";
-  #   consoleKeyMap = "us";
-  #   defaultLocale = "en_US.UTF-8";
-  # };
-
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
-  environment.systemPackages = with pkgs; [
-    gcc git gnumake wget
-    emacs vim
-    docker
-  ];
-
 }
