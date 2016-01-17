@@ -5,13 +5,11 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [
-      ./chur-hardware-configuration.nix
-      ./modules/users.nix
-      ./modules/lab-configuration.nix
-      ./modules/common.nix
-    ];
+  require = [
+    ./chur-hardware-configuration.nix
+    ./modules/common.nix
+    ./modules/lab-configuration.nix
+  ];
 
   # Use the gummiboot efi boot loader.
   boot.loader.gummiboot.enable = true;
