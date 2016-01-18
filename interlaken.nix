@@ -8,7 +8,7 @@
   imports =
     [
       ./interlaken-hardware-configuration.nix
-      ./modules/common.nix
+      ./modules/lab-configuration.nix
     ];
 
   # Use the GRUB 2 boot loader.
