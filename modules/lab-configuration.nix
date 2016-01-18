@@ -6,6 +6,8 @@
   ];
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "devicemapper";
+  # https://github.com/NixOS/nixpkgs/issues/11478
+  virtualisation.docker.socketActivation = true;
   environment.systemPackages = with pkgs; [ docker ];
 
   services.openssh.enable = true;
