@@ -34,9 +34,9 @@ let
 
               services.openssh.enable = true;
               services.openssh.permitRootLogin = "yes";
-              users.extraUsers.root.initialHashedPassword = lib.mkForce "OhPha3gu";
+              users.extraUsers.root.initialPassword = lib.mkForce "OhPha3gu";
 
-              # this is set for installed not to ask for password
+              # this is set for install not to ask for password
               users.mutableUsers = false;
 
               fileSystems = [
@@ -46,10 +46,12 @@ let
            '';
            partitions = pkgs.writeText "partitions" ''
              clearpart --all --initlabel --drives=sda
-             part swap --recommended --ondisk=sda
+             part swap --size=512 --ondisk=sda
              part / --fstype=ext4 --label=root --grow --ondisk=sda
            '';
          in {
+           services.openssh.permitRootLogin = "yes";
+           users.extraUsers.root.initialPassword = lib.mkForce "OhPha3gu";
            systemd.services.inception = {
              description = "Self-bootstrap a NixOS installation";
              wantedBy = [ "multi-user.target" ];
