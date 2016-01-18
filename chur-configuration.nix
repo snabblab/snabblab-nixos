@@ -7,7 +7,6 @@
 {
   require = [
     ./chur-hardware-configuration.nix
-    ./modules/common.nix
     ./modules/lab-configuration.nix
   ];
 
