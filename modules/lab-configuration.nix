@@ -10,6 +10,9 @@
 
   services.openssh.enable = true;
 
+  # lets users use sudo without password
+  security.sudo.wheelNeedsPassword = false;
+
   # crashes with NICs
   boot.blacklistedKernelModules = [ "i40e" ];
 }

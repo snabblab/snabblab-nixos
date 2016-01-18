@@ -5,7 +5,7 @@
     ./users.nix
   ];
 
-  # less paranoia 
+  # less paranoia
   networking.firewall.allowPing = true;
 
   environment.systemPackages = with pkgs; [
