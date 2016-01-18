@@ -15,4 +15,11 @@
 
   # crashes with NICs
   boot.blacklistedKernelModules = [ "i40e" ];
+
+  # Luke: it's a PITA for benchmarking because it introduces variation that's hard to control
+  # The annoying thing is that Turbo Boost will unpredictably increase the clock speed
+  # above its normal value based on stuff like how many cores are in use or temperature of the data center or ...
+  boot.postBootCommands = ''
+    echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo`
+  '';
 }
