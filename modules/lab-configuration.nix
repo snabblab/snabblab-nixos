@@ -15,6 +15,11 @@
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;
 
+  # Disable IOMMU for Snabb Switch.
+  # chur has a Sandy Bridge CPU and these are known to have
+  # performance problems in their IOMMU.
+  boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
+
   # crashes with NICs
   boot.blacklistedKernelModules = [ "i40e" ];
 

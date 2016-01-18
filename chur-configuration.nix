@@ -14,13 +14,6 @@
   boot.loader.gummiboot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Disable IOMMU for Snabb Switch.
-  # chur has a Sandy Bridge CPU and these are known to have
-  # performance problems in their IOMMU.
-  boot.kernelPackages = pkgs.linuxPackages_4_2;
-  boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
-  boot.blacklistedKernelModules = [ "i40e" ];
-
   # Enable kernel MSR module
   nixpkgs.config = {
     packageOverrides = pkgs: {
@@ -33,8 +26,6 @@
   networking.hostName = "chur"; # Define your hostname.
   networking.hostId = "1ab1e8b1";
   # networking.wireless.enable = true;  # Enables wireless.
-
-  security.sudo.wheelNeedsPassword = false;
 
   nix.nrBuildUsers = 32;
 }
