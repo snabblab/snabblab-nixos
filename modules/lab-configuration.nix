@@ -12,6 +12,9 @@
 
   services.openssh.enable = true;
 
+  # use latests kernel
+  boot.kernelPackages = pkgs.linuxPackages_4_3;
+
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;
 
