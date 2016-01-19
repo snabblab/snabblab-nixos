@@ -12,7 +12,8 @@
     # develoment tools
     gcc git gnumake wget nmap screen tmux
     # editors
-    emacs vim
+    vim
+    (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
   ];
 
   # direct root access with pub key
