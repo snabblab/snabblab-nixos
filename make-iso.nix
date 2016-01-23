@@ -5,16 +5,16 @@
 # HOWTO: Use IPMIView to connect to machines using iKVM (to be able to boot this ISO)
 
 # (remotely) To launch an X framebuffer do
-# $ nix-shell -p xorg.xorgserver "Xvfb -screen 0 1024x768x16 -ac"
+# $ nix-shell -p xorg.xorgserver --command "Xvfb -screen 0 1024x768x16 -ac"
 
 # (remotely) Start IPMIView (patchelf patched for Nix)
-# $ DISPLAY=:0 ./IPMIView20
+# $ DISPLAY=:0 nix-shell -p ipmiview --command "IPMIView"
 
 # (locally) Setup VNC over SSH tunnel
 # $ ssh -L 5900:localhost:5900 eiger 'x11vnc -localhost -display :0 -ncache 10'
 
 # (locally) Fire up VNC session and login
-# $ vncviewer localhost
+# $ nix-shell -p tightvnc --command "vncviewer localhost"
 
 
 let
