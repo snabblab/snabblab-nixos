@@ -4,6 +4,8 @@
   require = [
     ./common.nix
   ];
+
+  # Docker support
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "devicemapper";
   # https://github.com/NixOS/nixpkgs/issues/11478

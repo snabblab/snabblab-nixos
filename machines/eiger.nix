@@ -3,7 +3,7 @@
 
   eiger = { config, pkgs, ... }: {
     require = [
-      ./modules/common.nix
+      ./../modules/common.nix
     ];
 
     services.openssh = {
