@@ -6,6 +6,15 @@
       ./../modules/common.nix
     ];
 
+    # User for nixops deployments
+    users.extraUsers.deploy = {
+      uid = 2001;
+      description = "deploy";
+      group = "deploy";
+      isNormalUser = true;
+    };
+    users.extraGroups.deploy.gid = 2001;
+
     services.openssh = {
       enable = true;
     };
@@ -35,7 +44,8 @@
       '';
     };
 
-    # For IPMIView
-    environment.systemPackages = with pkgs; [ x11vnc ];
+    environment.systemPackages = with pkgs; [
+      nixops
+    ];
   };
 }

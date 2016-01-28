@@ -16,6 +16,9 @@
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
   ];
 
+  # lets users use sudo without password
+  security.sudo.wheelNeedsPassword = false;
+
   # direct root access with pub key
   users.extraUsers.root.openssh.authorizedKeys.keys = config.users.extraUsers.domenkozar.openssh.authorizedKeys.keys;
 }
