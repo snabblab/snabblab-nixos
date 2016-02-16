@@ -301,4 +301,10 @@ in
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDeYW1j7oIqonlmEH6NV/iQ1GrNg8XiXi7jsaT+hEUNF8yocCyhNlv2cjdOC1GHiN+GMR/WPH24J73fPHpA6t+KSKUu5psOGnxJj7aIBrb4lG1h7XWUt4Tdbp0Ql2lauT4vpXXE1/1FlY833MJLRZrQIlFfjGiG65vgCdnRKMhVXQ== ciberkot@gmail.com" ];
   } // commonUserAttrs;
 
+ users.extraUsers.rme = {
+    uid = 1049;
+    description = "R. Matthew Emerson";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDC3jDHD8TRiCmlTEVXtUhoRF5m9NFfpYWpSGwqxJvjvgWsxWME/wvYeiD6rStqf9KItilQnPznXjTKKcLttga74Ea26Uf80jbfwT4TYPJM3n/yU8Sp8DhTKiqBAg2glOL4LOLlkj3zTT+HDV8pMbqXaOAs0nE1l35qYy4ab7czOhij6gJsSK1lkRVj1s8ieZhCm8g/iF3d1cc5u/07ZIBgfm/WTTx4nHZMXItYJz8rhOCCXTplFx4U42g6wM7EJETLBIwtJ1XM3JFNfPLJsBONAoWFUlRt/T45t7FxJkbc4sYLfB9dOQfEpHpaT2M5kczNjYisuu/APLIn3uI2RrAV rme@nightfly.local" ];
+  } // commonUserAttrs;
+
 }
