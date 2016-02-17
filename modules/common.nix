@@ -16,6 +16,9 @@
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
   ];
 
+  # allow users to use nix-env
+  nix.nixPath = [ "nixpkgs=http://nixos.org/releases/nixos/unstable-small/nixos-16.03pre77014.1c8a21d/nixexprs.tar.xz" ];
+
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;
 
