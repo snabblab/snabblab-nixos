@@ -11,7 +11,7 @@
 # $ DISPLAY=:0 nix-shell -p ipmiview --command "IPMIView"
 
 # (locally) Setup VNC over SSH tunnel
-# $ ssh -L 5900:localhost:5900 eiger 'x11vnc -localhost -display :0 -ncache 10'
+# $ ssh -L 5900:localhost:5900 eiger 'nix-shell -p x11vnc --command "x11vnc -localhost -display :0 -ncache 10"'
 
 # (locally) Fire up VNC session and login
 # $ nix-shell -p tightvnc --command "vncviewer localhost"
