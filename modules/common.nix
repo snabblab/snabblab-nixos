@@ -10,7 +10,7 @@
 
   environment.systemPackages = with pkgs; [
     # develoment tools
-    gcc glibc git gnumake wget nmap screen tmux
+    gcc glibc git gnumake wget nmap screen tmux pciutils
     # editors
     vim
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
