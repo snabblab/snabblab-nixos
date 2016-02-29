@@ -10,7 +10,12 @@
   virtualisation.docker.storageDriver = "devicemapper";
   # https://github.com/NixOS/nixpkgs/issues/11478
   virtualisation.docker.socketActivation = true;
-  environment.systemPackages = with pkgs; [ docker ];
+
+  environment.systemPackages = with pkgs; [
+    docker
+    # snabbswitch development libraries/tools
+    which qemu
+  ];
 
   services.openssh.enable = true;
 
