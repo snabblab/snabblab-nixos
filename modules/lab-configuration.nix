@@ -14,10 +14,10 @@
   environment.systemPackages = with pkgs; [
     docker
     # snabbswitch development libraries/tools
-    which qemu
+    which qemu jq
   ];
 
-  services.openssh.enable = true;
+  environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
 
   services.openssh.enable = true;
 
