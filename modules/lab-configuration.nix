@@ -19,8 +19,7 @@
 
   services.openssh.enable = true;
 
-  # allow users to use nix-env
-  nix.nixPath = [ "nixpkgs=https://nixos.org/channels/nixos-unstable/nixexprs.tar.xz" ];
+  services.openssh.enable = true;
 
   # use latests kernel
   boot.kernelPackages = pkgs.linuxPackages_4_3;
