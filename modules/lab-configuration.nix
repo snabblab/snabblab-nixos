@@ -29,6 +29,9 @@
   # performance problems in their IOMMU.
   boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
 
+  # Used by snabb
+  boot.kernelModules = [ "msr" ];
+
   # crashes with NICs
   boot.blacklistedKernelModules = [ "i40e" ];
 
