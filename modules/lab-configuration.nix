@@ -3,6 +3,7 @@
 {
   require = [
     ./common.nix
+    ./hydra-slave.nix
   ];
 
   # Docker support
