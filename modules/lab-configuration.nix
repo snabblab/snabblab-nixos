@@ -15,14 +15,13 @@
     docker
     # snabbswitch development libraries/tools
     which qemu jq
+    # lock command for sharing snabb resources
+    lock
   ];
 
   environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
 
   services.openssh.enable = true;
-
-  # use latests kernel
-  boot.kernelPackages = pkgs.linuxPackages_4_3;
 
   # Disable IOMMU for Snabb Switch.
   # chur has a Sandy Bridge CPU and these are known to have

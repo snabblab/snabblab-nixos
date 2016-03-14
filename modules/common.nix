@@ -5,6 +5,17 @@
     ./users.nix
   ];
 
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  # use nix sandboxing for greater determinism
+  nix.useChroot = true;
+
+  # make sure we have enough build users
+  nix.nrBuildUsers = 30;
+
+  # let's make sure only NixOS can handle users
+  users.mutableUsers = false;
+
   # less paranoia
   networking.firewall.allowPing = true;
 
