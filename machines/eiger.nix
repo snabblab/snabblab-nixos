@@ -4,6 +4,7 @@
   eiger = { config, pkgs, ... }: {
     require = [
       ./../modules/common.nix
+      ./../modules/hydra-master.nix
     ];
 
     # User for nixops deployments
