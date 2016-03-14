@@ -13,6 +13,11 @@
   # make sure we have enough build users
   nix.nrBuildUsers = 30;
 
+  # extend nixpkgs with our own package
+  nixpkgs.config.packageOverrides = pkgs: {
+    inherit (import ./../pkgs { inherit pkgs; });
+  };
+
   # let's make sure only NixOS can handle users
   users.mutableUsers = false;
 
