@@ -15,7 +15,7 @@
 
   # extend nixpkgs with our own package
   nixpkgs.config.packageOverrides = pkgs: {
-    inherit (import ./../pkgs { inherit pkgs; });
+    inherit (import ./../pkgs { inherit pkgs; }) snabbpkgs;
   };
 
   # let's make sure only NixOS can handle users
@@ -31,6 +31,7 @@
     # editors
     vim
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
+    snabbpkgs.lock
   ];
 
   # allow users to use nix-env
