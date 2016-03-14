@@ -26,7 +26,8 @@
 
   environment.systemPackages = with pkgs; [
     # develoment tools
-    gcc glibc git gnumake wget nmap screen tmux pciutils
+    gcc glibc git gnumake wget nmap screen tmux pciutils tcpdump curl strace htop
+    file cpulimit numactl speedtest-cli w3m psmisc xterm
     # editors
     vim
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
