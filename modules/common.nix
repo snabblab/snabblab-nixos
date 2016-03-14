@@ -28,6 +28,7 @@
     # develoment tools
     gcc glibc git gnumake wget nmap screen tmux pciutils tcpdump curl strace htop
     file cpulimit numactl speedtest-cli w3m psmisc xterm
+    config.boot.kernelPackages.perf
     # editors
     vim
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
@@ -36,6 +37,11 @@
 
   # allow users to use nix-env
   nix.nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-unstable/nixexprs.tar.xz" ];
+
+  # make sure channel information is updated from above
+  system.activationScripts.snabblab = ''
+    /run/current-system/sw/bin/nix-channel --update
+  '';
 
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;

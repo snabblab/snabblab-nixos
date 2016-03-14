@@ -16,8 +16,6 @@
     docker
     # snabbswitch development libraries/tools
     which qemu jq
-    # lock command for sharing snabb resources
-    lock
   ];
 
   environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
