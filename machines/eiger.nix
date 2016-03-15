@@ -13,6 +13,7 @@
       description = "deploy";
       group = "deploy";
       isNormalUser = true;
+      openssh.authorizedKeys.keys = config.users.extraUsers.domenkozar.openssh.authorizedKeys.keys;
     };
     users.extraGroups.deploy.gid = 2001;
 
