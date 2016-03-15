@@ -306,5 +306,11 @@ in
     description = "R. Matthew Emerson";
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDC3jDHD8TRiCmlTEVXtUhoRF5m9NFfpYWpSGwqxJvjvgWsxWME/wvYeiD6rStqf9KItilQnPznXjTKKcLttga74Ea26Uf80jbfwT4TYPJM3n/yU8Sp8DhTKiqBAg2glOL4LOLlkj3zTT+HDV8pMbqXaOAs0nE1l35qYy4ab7czOhij6gJsSK1lkRVj1s8ieZhCm8g/iF3d1cc5u/07ZIBgfm/WTTx4nHZMXItYJz8rhOCCXTplFx4U42g6wM7EJETLBIwtJ1XM3JFNfPLJsBONAoWFUlRt/T45t7FxJkbc4sYLfB9dOQfEpHpaT2M5kczNjYisuu/APLIn3uI2RrAV rme@nightfly.local" ];
   } // commonUserAttrs;
+  
+ users.extraUsers.rme = {
+    uid = 1050;
+    description = "turchetti";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDq55S/9rdsGlgYvOfCRKeWt6FnHHfNb2YJWAb/0nPDIrarLKcjLS1xY5KeDaaRPwNFPRQwRmFV+4EHYrLrL2AdEPtGbQZt737M/kXsfLyUZ+xJ6iBxKloxeCwQnVo4oCyqd7ZHhkLb0fxiyf2+uxxiCfVzKhZ6a3ANBw8Ne8kjq1aEG3JCvST1AZfsu2NrSFRGkXuKmJVbtmLXSdu/3t/5ckYg2dBqsXdIbv4kINpVyJ9+4mhRkrYkINJQkY6QRzSCyVaOMA2qKHdNHSmFdGjzIRyiOaF5ojejNB5w1b//Kar60/I6R49sokyvnW1/OX7HrC/yLbxSrvbjpJt54TpJ" ];
+  } // commonUserAttrs;
 
 }
