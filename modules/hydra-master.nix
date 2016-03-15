@@ -48,7 +48,7 @@ in {
     hydraURL = "http://hydra.snabb.co";
     notificationSender = "hydra@hydra.snabb.co";
     port = 8080;
-    extraConfig = "binary_cache_secret_key_file = /etc/nix/hydra.example.org-1/secret";
+    extraConfig = "binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret";
     logo = (pkgs.fetchurl {
       url    = "http://snabb.co/snabb_screen.png";
       sha256 = "1akz7viw47x0rba24y98d9yz14za8h1g8zsxpd27yhzjyyckkl8k";
@@ -71,11 +71,11 @@ in {
     script = ''
       if [ ! -e ~hydra/.setup-is-complete ]; then
         # create signing keys
-        /run/current-system/sw/bin/install -d -m 551 /etc/nix/hydra.example.org-1
-        /run/current-system/sw/bin/nix-store --generate-binary-cache-key hydra.example.org-1 /etc/nix/hydra.example.org-1/secret /etc/nix/hydra.example.org-1/public
-        /run/current-system/sw/bin/chown -R hydra:hydra /etc/nix/hydra.example.org-1
-        /run/current-system/sw/bin/chmod 440 /etc/nix/hydra.example.org-1/secret
-        /run/current-system/sw/bin/chmod 444 /etc/nix/hydra.example.org-1/public
+        /run/current-system/sw/bin/install -d -m 551 /etc/nix/hydra.snabb.co-1
+        /run/current-system/sw/bin/nix-store --generate-binary-cache-key hydra.snabb.co-1 /etc/nix/hydra.snabb.co-1/secret /etc/nix/hydra.snabb.co-1/public
+        /run/current-system/sw/bin/chown -R hydra:hydra /etc/nix/hydra.snabb.co-1
+        /run/current-system/sw/bin/chmod 440 /etc/nix/hydra.snabb.co-1/secret
+        /run/current-system/sw/bin/chmod 444 /etc/nix/hydra.snabb.co-1/public
         # done
         touch ~hydra/.setup-is-complete
       fi
