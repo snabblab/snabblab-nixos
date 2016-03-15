@@ -30,10 +30,15 @@ in {
     distributedBuilds = true;
     buildCores = 0;
     buildMachines = [
-      ({
+      (commonBuildMachineOpt // {
         hostName = "lugano-3.snabb.co";
         maxJobs = 6;
-      } // commonBuildMachineOpt)
+      })
+      (commonBuildMachineOpt // {
+        hostName = "localhost";
+        maxJobs = 2;
+        supportedFeatures = [ ];  # let's not build tests here
+      })
     ];
     extraOptions = "auto-optimise-store = true";
   };
