@@ -31,8 +31,40 @@ in {
     buildCores = 0;
     buildMachines = [
       (commonBuildMachineOpt // {
+        hostName = "lugano-1.snabb.co";
+        maxJobs = 1;
+        requiredFeatures = [ "performance" ];
+      })
+      (commonBuildMachineOpt // {
+        hostName = "lugano-2.snabb.co";
+        maxJobs = 1;
+        requiredFeatures = [ "performance" ];
+      })
+      (commonBuildMachineOpt // {
         hostName = "lugano-3.snabb.co";
-        maxJobs = 6;
+        maxJobs = 1;
+        requiredFeatures = [ "openstack" "performance" ];
+      })
+      (commonBuildMachineOpt // {
+        hostName = "lugano-4.snabb.co";
+        maxJobs = 1;
+        requiredFeatures = [ "performance" ];
+      })
+      (commonBuildMachineOpt // {
+        hostName = "build-1.snabb.co";
+        maxJobs = 8;
+      })
+      (commonBuildMachineOpt // {
+        hostName = "build-2.snabb.co";
+        maxJobs = 8;
+      })
+      (commonBuildMachineOpt // {
+        hostName = "build-3.snabb.co";
+        maxJobs = 8;
+      })
+      (commonBuildMachineOpt // {
+        hostName = "build-4.snabb.co";
+        maxJobs = 8;
       })
       (commonBuildMachineOpt // {
         hostName = "localhost";
