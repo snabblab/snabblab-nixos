@@ -1,4 +1,12 @@
-{
+let
+  build-slave = { config, pkgs, ... }: {
+    require = [
+      ./../modules/common.nix
+      ./../modules/hydra-slave.nix
+    ];
+    services.openssh.enable = true;
+  };
+in {
   network.description = "Snabb Lab supporting server";
 
   eiger = { config, pkgs, ... }: {
@@ -17,9 +25,7 @@
     };
     users.extraGroups.deploy.gid = 2001;
 
-    services.openssh = {
-      enable = true;
-    };
+    services.openssh.enable = true;
 
     # samba is used for ISO booting for lab servers
     users.extraUsers.smbguest = {
@@ -50,4 +56,8 @@
       nixops
     ];
   };
+  build1 = build-slave;
+  build2 = build-slave;
+  build3 = build-slave;
+  build4 = build-slave;
 }

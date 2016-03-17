@@ -1,7 +1,7 @@
-{
-  eiger = { config, pkgs, lib, ... }: {
+let
+  mkMachine = ip: { config, pkgs, lib, ... }: {
     deployment.targetEnv = "hetzner";
-    deployment.hetzner.mainIPv4 = "136.243.111.220";
+    deployment.hetzner.mainIPv4 = ip;
     deployment.hetzner.partitions = ''
       clearpart --all --initlabel --drives=sda,sdb
 
@@ -14,4 +14,11 @@
       raid swap --level=1 --fstype=swap --device=md1 raid.3 raid.4
     '';
   };
+in {
+  eiger  = mkMachine "136.243.111.220";
+
+  build1 = mkMachine "46.4.65.79";
+  build2 = mkMachine "78.46.84.196";
+  build3 = mkMachine "78.46.98.22";
+  build4 = mkMachine "46.4.108.125";
 }
