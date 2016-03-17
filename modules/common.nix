@@ -7,12 +7,6 @@
 
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # use nix sandboxing for greater determinism
-  nix.useChroot = true;
-
-  # make sure we have enough build users
-  nix.nrBuildUsers = 30;
-
   # extend nixpkgs with our own package
   nixpkgs.config.packageOverrides = pkgs: {
     inherit (import ./../pkgs { inherit pkgs; }) snabbpkgs;
@@ -35,8 +29,21 @@
     snabbpkgs.lock
   ];
 
-  # allow users to use nix-env
-  nix.nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03-beta/nixexprs.tar.xz" ];
+  nix = rec {
+    # allow users to use nix-env
+    nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03-beta/nixexprs.tar.xz" ];
+
+    # use nix sandboxing for greater determinism
+    useChroot = true;
+
+    # make sure we have enough build users
+    nrBuildUsers = 30;
+
+    # use our hydra builds
+    trustedBinaryCaches = [ "https://cache.nixos.org" "https://hydra.snabb.co" ];
+    binaryCaches = trustedBinaryCaches;
+    binaryCachePublicKeys = [ "hydra.snabb.co-1:zPzKSJ1mynGtYEVbUR0QVZf9TLcaygz/OyzHlWo5AMM=" ];
+  };
 
   # make sure channel information is updated from above
   system.activationScripts.snabblab = ''
