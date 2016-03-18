@@ -75,6 +75,12 @@ in {
     extraOptions = "auto-optimise-store = true";
   };
 
+
+  # let's auto-accept fingerprints on first connection
+  programs.ssh.extraConfig = ''
+    StrictHostKeyChecking no
+  '';
+
   services.hydra = {
     enable = true;
     hydraURL = "http://hydra.snabb.co";
