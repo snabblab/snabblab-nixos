@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   hydraSrc = builtins.fetchTarball https://github.com/NixOS/hydra/tarball/993647d1e3b43f1f9b7dc2ebce889b475d156bb9;
@@ -13,12 +13,12 @@ in {
   imports = [ "${hydraSrc}/hydra-module.nix" ];
 
   # make sure we're using the platform on which hydra is supposed to run
-  assertions = pkgs.lib.singleton {
+  assertions = lib.singleton {
     assertion = pkgs.system == "x86_64-linux";
     message = "unsupported system ${pkgs.system}";
   };
 
-  environment.etc = pkgs.lib.singleton {
+  environment.etc = lib.singleton {
     target = "nix/id_buildfarm";
     source = ../secrets/id_buildfarm;
     uid = config.ids.uids.hydra;
@@ -33,22 +33,22 @@ in {
       (commonBuildMachineOpt // {
         hostName = "lugano-1.snabb.co";
         maxJobs = 1;
-        requiredFeatures = [ "performance" ];
+        mandatoryFeatures = [ "performance" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-2.snabb.co";
         maxJobs = 1;
-        requiredFeatures = [ "performance" ];
+        mandatoryFeatures = [ "performance" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-3.snabb.co";
         maxJobs = 1;
-        requiredFeatures = [ "openstack" "performance" ];
+        mandatoryFeatures = [ "openstack" "performance" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-4.snabb.co";
         maxJobs = 1;
-        requiredFeatures = [ "performance" ];
+        mandatoryFeatures = [ "performance" ];
       })
       (commonBuildMachineOpt // {
         hostName = "build-1.snabb.co";
