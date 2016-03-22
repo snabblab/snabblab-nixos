@@ -36,7 +36,7 @@
   ];
 
   # allow users to use nix-env
-  nix.nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-unstable/nixexprs.tar.xz" ];
+  nix.nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03-beta/nixexprs.tar.xz" ];
 
   # make sure channel information is updated from above
   system.activationScripts.snabblab = ''
