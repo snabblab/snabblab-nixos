@@ -39,6 +39,11 @@
     # make sure we have enough build users
     nrBuildUsers = 30;
 
+    # if our hydra is down, don't wait forever
+    extraOptions = ''
+      connect-timeout = 10
+    '';
+
     # use our hydra builds
     trustedBinaryCaches = [ "https://cache.nixos.org" "https://hydra.snabb.co" ];
     binaryCaches = trustedBinaryCaches;
