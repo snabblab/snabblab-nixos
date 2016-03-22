@@ -43,7 +43,7 @@ in {
       (commonBuildMachineOpt // {
         hostName = "lugano-3.snabb.co";
         maxJobs = 1;
-        mandatoryFeatures = [ "openstack" "performance" ];
+        mandatoryFeatures = [ "openstack" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-4.snabb.co";
