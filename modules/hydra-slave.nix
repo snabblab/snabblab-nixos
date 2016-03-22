@@ -9,6 +9,6 @@
   };
 
   users.extraUsers.root.openssh.authorizedKeys.keys = pkgs.lib.singleton ''
-    command="nice -n20 nix-store --serve --write" ${pkgs.lib.readFile ./../secrets/id_buildfarm.pub}
+    command="nice -n20 ${pkgs.utillinux}/bin/flock -s /var/lock/lab nix-store --serve --write" ${pkgs.lib.readFile ./../secrets/id_buildfarm.pub}
   '';
 }
