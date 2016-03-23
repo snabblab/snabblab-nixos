@@ -89,7 +89,7 @@ in {
     extraConfig = "binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret";
     logo = (pkgs.fetchurl {
       url    = "http://snabb.co/snabb_screen.png";
-      sha256 = "1akz7viw47x0rba24y98d9yz14za8h1g8zsxpd27yhzjyyckkl8k";
+      sha256 = "0xz0qr59b4fi2x9rwszlrj3020isbzqir68gvsj0yfab0jpj8mbc";
     });
   };
 
