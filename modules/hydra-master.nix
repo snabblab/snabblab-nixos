@@ -121,6 +121,8 @@ in {
   };
 
   users.users.hydra.uid = config.ids.uids.hydra;
+  users.users.hydra-www.uid = config.ids.uids.hydra-www;
+  users.users.hydra-queue-runner.uid = config.ids.uids.hydra-queue-runner;
   users.groups.hydra.gid = config.ids.gids.hydra;
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
