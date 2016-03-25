@@ -4,6 +4,7 @@
   require = [
     ./common.nix
     ./hydra-slave.nix
+    ./sudo-in-builds.nix
   ];
 
   # Docker support
