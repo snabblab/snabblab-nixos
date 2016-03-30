@@ -87,7 +87,11 @@ in {
     hydraURL = "http://hydra.snabb.co";
     notificationSender = "hydra@hydra.snabb.co";
     port = 8080;
-    extraConfig = "binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret";
+    # max output is 4GB because of openstack image
+    extraConfig = ''
+      binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret
+      max-output-size = 4294967296
+    '';
     logo = (pkgs.fetchurl {
       url    = "http://snabb.co/snabb_screen.png";
       sha256 = "0xz0qr59b4fi2x9rwszlrj3020isbzqir68gvsj0yfab0jpj8mbc";
