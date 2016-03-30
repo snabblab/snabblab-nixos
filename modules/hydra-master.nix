@@ -67,11 +67,11 @@ in {
         hostName = "build-4.snabb.co";
         maxJobs = 8;
       })
-      (commonBuildMachineOpt // {
-        hostName = "localhost";
-        maxJobs = 2;
-        supportedFeatures = [ ];  # let's not build tests here
-      })
+      #(commonBuildMachineOpt // {
+      #  hostName = "localhost";
+      #  maxJobs = 2;
+      #  supportedFeatures = [ ];  # let's not build tests here
+      #})
     ];
     extraOptions = "auto-optimise-store = true";
   };
