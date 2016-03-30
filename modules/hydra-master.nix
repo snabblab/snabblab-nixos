@@ -1,7 +1,8 @@
 { config, pkgs, lib, ... }:
 
 let
-  hydraSrc = builtins.fetchTarball https://github.com/NixOS/hydra/tarball/ac23bd1539d222ceda5ec85c054454df2c25a799;
+  # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
+  hydraSrc = builtins.fetchTarball https://github.com/NixOS/hydra/tarball/dc790c5f7eacda1c819ae222bf87674781ae1124;
   commonBuildMachineOpt = {
     speedFactor = 1;
     sshKey = "/etc/nix/id_buildfarm";
