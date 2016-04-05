@@ -34,7 +34,7 @@
 
   nix = rec {
     # allow users to use nix-env
-    nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03-beta/nixexprs.tar.xz" ];
+    nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03/nixexprs.tar.xz" ];
 
     # use nix sandboxing for greater determinism
     useChroot = true;
