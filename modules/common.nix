@@ -23,6 +23,9 @@
     gcc glibc git gnumake wget nmap screen tmux pciutils tcpdump curl strace htop
     file cpulimit numactl speedtest-cli w3m psmisc xterm
     config.boot.kernelPackages.perf
+    # manpages
+    manpages
+    posix_man_pages
     # editors
     vim
     (emacsWithPackages (epkgs: [ epkgs.lua-mode ]))
