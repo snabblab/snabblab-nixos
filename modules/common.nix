@@ -54,9 +54,10 @@
   };
 
   # make sure channel information is updated from above
-  system.activationScripts.snabblab = ''
-    /run/current-system/sw/bin/nix-channel --update
-  '';
+  # TODO: enable once https://github.com/snabblab/snabblab-nixos/issues/14 is fixed
+  #system.activationScripts.snabblab = ''
+  #  /run/current-system/sw/bin/nix-channel --update
+  #'';
 
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;
