@@ -313,4 +313,10 @@ in
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDq55S/9rdsGlgYvOfCRKeWt6FnHHfNb2YJWAb/0nPDIrarLKcjLS1xY5KeDaaRPwNFPRQwRmFV+4EHYrLrL2AdEPtGbQZt737M/kXsfLyUZ+xJ6iBxKloxeCwQnVo4oCyqd7ZHhkLb0fxiyf2+uxxiCfVzKhZ6a3ANBw8Ne8kjq1aEG3JCvST1AZfsu2NrSFRGkXuKmJVbtmLXSdu/3t/5ckYg2dBqsXdIbv4kINpVyJ9+4mhRkrYkINJQkY6QRzSCyVaOMA2qKHdNHSmFdGjzIRyiOaF5ojejNB5w1b//Kar60/I6R49sokyvnW1/OX7HrC/yLbxSrvbjpJt54TpJ" ];
   } // commonUserAttrs;
 
+ users.extraUsers.lperkov = {
+    uid = 1051;
+    description = "lperkov";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDrGEnng+UYO7EHym1tN74B4mlTWkKu+JftQjE/AZ0kKAumbipi/EQ3n8cv7clnraSVrNAkaX4DSc4t/8t4Uj5ItJsLsIVs0l8ZqdR2NOUZXZrPvPhwf1q49e5/rT+PbW7uZBEO2Zf7xNzT5x+LWX6EYWz85hKxqMzDK72SzCSCUo3ntbrxK3ZeTCt4JAXsFefNT1Ek8BQksn7tOLps7zvp2vQTHqLwacP7hSZL91xT78RRzr7/jxVD25oaBbdkbJzN/wibsq44mDK3x9ECSEZe56AEoDLI/OGVlIj9/lY6qVRwgeYClSUvlykTjGeQINZoPgbOToqob9o7/jm+FR6+NiKbiVf3dNQ0fP/G37WQQBW9mXP6a7EtfIScjN0NHsdOjxwn5v6O+NbkNtnbpMN1vxbOcqDmntjNCSVTF+eTMmvtyjY9VWp455UkTA7JrjdEp9n67hEUyZgYCAc+Bp/CSvnb+9bb1hj+YbRBabGOSEXIRhflRrSIzsWoZwlogqmDpSQK+r54gU5DTbArUzJAs3+dCJGlvOoFV9EobWkC8XlXSfCztAiITDIKhsE0AGgm9O3BlZZlURTKTGmaukO2gkdCKQ9k5v9Vb0kvRooHyF2d8wIzbBoihOrv4uBbR/NtqvYocVUJbM6JWHcw8DCAO5XhBGB2Nh14mhKQhLh1zw==" ];
+  } // commonUserAttrs;
+
 }
