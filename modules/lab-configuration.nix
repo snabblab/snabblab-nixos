@@ -21,6 +21,17 @@
 
   environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
 
+  # mount /hugetlbfs for snabbnfv
+  systemd.mounts = [
+     { where = "/hugetlbfs";
+         enable  = true;
+         what  = "hugetlbfs";
+         type  = "hugetlbfs";
+         options = "pagesize=2M";
+         requiredBy  = ["basic.target"];
+     }
+  ];
+
   services.openssh.enable = true;
 
   # Disable IOMMU for Snabb Switch.
