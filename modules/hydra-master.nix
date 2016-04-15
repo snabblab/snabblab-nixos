@@ -90,7 +90,7 @@ in {
     # max output is 4GB because of openstack image
     extraConfig = ''
       binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret
-      max-output-size = 4294967296
+      max_output_size = 4294967296
     '';
     logo = (pkgs.fetchurl {
       url    = "http://snabb.co/snabb_screen.png";
