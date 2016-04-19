@@ -98,6 +98,9 @@ in {
     });
   };
 
+  # workaround https://github.com/NixOS/hydra/issues/297
+  systemd.services.hydra-queue-runner.serviceConfig.ExecStart = lib.mkForce "@${config.services.hydra.package}/bin/hydra-queue-runner hydra-queue-runner -v";
+
   services.postgresql = {
     package = pkgs.postgresql94;
     dataDir = "/var/db/postgresql-${config.services.postgresql.package.psqlSchema}";
