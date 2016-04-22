@@ -18,6 +18,9 @@
   # less paranoia
   networking.firewall.allowPing = true;
 
+  # see https://github.com/NixOS/nixpkgs/commit/ee8e15fe76a235ae3583d4e8cb4bb370f28c5eae
+  programs.bash.enableCompletion = true;
+
   environment.systemPackages = with pkgs; [
     # develoment tools
     gcc glibc git gnumake wget nmap screen tmux pciutils tcpdump curl strace htop
