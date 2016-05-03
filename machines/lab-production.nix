@@ -56,7 +56,7 @@ in {
   murren-9 = mkHetzner "138.201.65.143";
   murren-10 = mkHetzner "138.201.65.147";
 
-  #eiger  = mkHetzner "136.243.111.220";
+  #eiger = mkHetzner "136.243.111.220";
   #build-1 = mkHetzner "46.4.65.79";
   #build-2 = mkHetzner "78.46.84.196";
   #build-3 = mkHetzner "78.46.98.22";
