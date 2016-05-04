@@ -8,6 +8,7 @@ let
   # our custom packages 
   snabbpkgs = rec {
     lock = pkgs.callPackage ./lock.nix {};
+    mft = pkgs.callPackage ./mft.nix {};
   };
 in pkgs // {
   inherit snabbpkgs;
