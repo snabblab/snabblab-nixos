@@ -14,6 +14,7 @@ rec {
                 , SNABB_PCI_INTEL0
                 , SNABB_PCI_INTEL1
                 , requiredSystemFeatures ? [ "performance" ]
+                , needsTestEnv ? false  # if true, copies over our test env
                 , ...
                 }@attrs:
     stdenv.mkDerivation (rec {
@@ -32,11 +33,10 @@ rec {
         ln -s ${snabb}/bin/snabb src/snabb
         sed -i 's/testlog snabb/testlog/' src/Makefile
 
-        # setup the environment
+        mkdir $out
+      '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
         tar xvzf ${test_env} -C ~/.test_env/
-
-        mkdir $out
       '';
 
       doCheck = true;
