@@ -1,5 +1,4 @@
-{ master ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/master)
-, next ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
+{ snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
 # specify how many times is each benchmark ran
 , numTimesRunBenchmark ? 20
 # specify on what hardware will the benchmarks be ran
@@ -71,27 +70,15 @@ let
     '';
   });
 
-  snabb_master = snabbswitch.overrideDerivation (super: { src = master; name = "snabb-master"; });
-  snabb_next = snabbswitch.overrideDerivation (super: {src = next; name = "snabb-next"; });
+  snabb = import "${snabbSrc}" {};
 
   benchmarks = flatten [
-    (snabbBenchTestBasic snabb_master)
-    (snabbBenchTestBasic snabb_next)
-
-    (snabbBenchTestPacketblaster64 snabb_master)
-    (snabbBenchTestPacketblaster64 snabb_next)
-
-    (snabbBenchTestPacketblasterSynth64 snabb_master)
-    (snabbBenchTestPacketblasterSynth64 snabb_next)
-
-    (snabbBenchTestNFV snabb_master)
-    (snabbBenchTestNFV snabb_next)
-
-    (snabbBenchTestNFVJumbo snabb_master)
-    (snabbBenchTestNFVJumbo snabb_next)
-
-    (snabbBenchTestNFVPacketblaster snabb_master)
-    (snabbBenchTestNFVPacketblaster snabb_next)
+    (snabbBenchTestBasic snabb)
+    (snabbBenchTestPacketblaster64 snabb)
+    (snabbBenchTestPacketblasterSynth64 snabb)
+    (snabbBenchTestNFV snabb)
+    (snabbBenchTestNFVJumbo snabb)
+    (snabbBenchTestNFVPacketblaster snabb)
   ];
 
   benchmark-report = runCommand "snabb-performance-final-report" { preferLocalBuild = true; } ''
