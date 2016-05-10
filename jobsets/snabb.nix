@@ -16,6 +16,7 @@ in rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
   tests = snabblabLib.mkSnabbTest {
+    name = "snabb-tests";
     inherit snabb SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1 requiredSystemFeatures;
     checkPhase = ''
       # run tests

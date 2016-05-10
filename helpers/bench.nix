@@ -1,28 +1,31 @@
 { master ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/master)
 , next ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
+# specify how many times is each benchmark ran
 , numTimesRunBenchmark ? 20
+# specify on what hardware will the benchmarks be ran
+, requiredSystemFeatures ? [ "performance" ]
+, SNABB_PCI0 ? "0000:01:00.0"
+, SNABB_PCI_INTEL0 ? "0000:01:00.0"
+, SNABB_PCI_INTEL1 ? "0000:01:00.1"
 , pkgs ? (import <nixpkgs> {})}:
 
 with pkgs;
 with lib;
+with (import ../lib.nix);
 
 let
-  # buildNTimes: repeat building a derivation for n times
-  # buildNTimes: Derivation -> Int -> [Derivation]
-  buildNTimes = drv: n: map (i: overrideDerivation drv (attrs: { name = attrs.name + "-num-${toString i}"; numRepeat = i; })) (range 1 n);
+  snabbBenchTest = name: snabb: makeOverridable mkSnabbBenchTest {
+    inherit name snabb requiredSystemFeatures SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1;
+    times = numTimesRunBenchmark;
+    checkPhase = ''
+      echo "Running benchmark $numRepeat at $(date)"
+      /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 &> $out/log.txt
+    '';
+  };
 
-  # runs the benchmark without chroot to be able to use pci device assigning
-  mkBenchmarks = { name, snabb, command, times ? numTimesRunBenchmark }: buildNTimes (runCommand "benchmark-${snabb.name}" { benchName = name; requiredSystemFeatures = "performance"; __noChroot = true; } ''
-    mkdir -p $out/nix-support
-    echo "Running benchmark $numRepeat at $(date)"
-    /var/setuid-wrappers/sudo ${command snabb} &> $out/log.txt
-    echo "file log $out/log.txt" >> $out/nix-support/hydra-build-products
-  '') times;
-
-  command = snabb: "${snabb}/bin/snabb snabbmark basic1 100e6";
   benchmarks = flatten [
-    (mkBenchmarks { name = "master"; snabb = snabbswitch.overrideDerivation (super: { src = master; }); inherit command;})
-    (mkBenchmarks { name = "next"; snabb = snabbswitch.overrideDerivation (super: {src = next; }); inherit command;})
+    (snabbBenchTest "master" (snabbswitch.overrideDerivation (super: { src = master; })))
+    (snabbBenchTest "next" (snabbswitch.overrideDerivation (super: {src = next; })))
   ];
 
   benchmark-report = runCommand "snabb-performance-final-report" { preferLocalBuild = true; } ''
@@ -38,7 +41,6 @@ let
 
     mv logs.tar.xz $out/
     echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
-
   '';
 in {
  inherit benchmark-report;
