@@ -64,6 +64,6 @@ rec {
      snabbTest = mkSnabbTest ({
        name = "snabb-benchmark-${name}";
        benchName = name;
-     } // attrs);
+     } // removeAttrs attrs [ "times" ]);
    in buildNTimes snabbTest times;
 }
