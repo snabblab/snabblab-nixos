@@ -87,6 +87,7 @@ let
 
     mv logs.tar.xz $out/
     echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
+    echo "nix-build out $out" >> $out/nix-support/hydra-build-products
   '';
 in {
  inherit benchmark-report;
