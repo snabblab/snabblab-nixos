@@ -13,19 +13,18 @@ with lib;
 with (import ../lib.nix);
 
 let
+  snabb = import "${snabbSrc}" {};
   defaults = {
-    inherit requiredSystemFeatures SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1;
+    inherit requiredSystemFeatures SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1 snabb;
     times = numTimesRunBenchmark;
   };
-  snabbBenchTestBasic = snabb: mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestBasic = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-basic1-100e6";
     checkPhase = ''
       /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
     '';
   });
-  snabbBenchTestPacketblaster64 = snabb:  mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestPacketblaster64 = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-packetblaster-64";
     checkPhase = ''
       cd src
@@ -33,8 +32,7 @@ let
         program/snabbnfv/test_fixtures/pcap/64.pcap "${SNABB_PCI_INTEL0}" |& tee $out/log.txt
     '';
   });
-  snabbBenchTestPacketblasterSynth64 = snabb: mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestPacketblasterSynth64 = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-packetblaster-synth-64";
     checkPhase = ''
       /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
@@ -42,8 +40,7 @@ let
         --duration 1 "${SNABB_PCI_INTEL0}" |& tee $out/log.txt
     '';
   });
-  snabbBenchTestNFV = snabb: mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestNFV = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-nfv";
     needsTestEnv = true;
     checkPhase = ''
@@ -51,8 +48,7 @@ let
       /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
     '';
   });
-  snabbBenchTestNFVJumbo = snabb: mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestNFVJumbo = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-nfv-jumbo";
     needsTestEnv = true;
     checkPhase = ''
@@ -60,8 +56,7 @@ let
       /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench jumbo |& tee $out/log.txt
     '';
   });
-  snabbBenchTestNFVPacketblaster = snabb: mkSnabbBenchTest (defaults // {
-    inherit snabb;
+  snabbBenchTestNFVPacketblaster = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-nfv-packetblaster";
     needsTestEnv = true;
     checkPhase = ''
@@ -70,15 +65,13 @@ let
     '';
   });
 
-  snabb = import "${snabbSrc}" {};
-
   benchmarks = flatten [
-    (snabbBenchTestBasic snabb)
-    (snabbBenchTestPacketblaster64 snabb)
-    (snabbBenchTestPacketblasterSynth64 snabb)
-    (snabbBenchTestNFV snabb)
-    (snabbBenchTestNFVJumbo snabb)
-    (snabbBenchTestNFVPacketblaster snabb)
+    snabbBenchTestBasic
+    snabbBenchTestPacketblaster64
+    snabbBenchTestPacketblasterSynth64
+    snabbBenchTestNFV
+    snabbBenchTestNFVJumbo
+    snabbBenchTestNFVPacketblaster
   ];
 
   benchmark-report = runCommand "snabb-performance-final-report" { preferLocalBuild = true; } ''
