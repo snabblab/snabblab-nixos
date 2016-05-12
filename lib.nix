@@ -15,9 +15,10 @@ rec {
                 , SNABB_PCI_INTEL1
                 , requiredSystemFeatures ? [ "performance" ]
                 , needsTestEnv ? false  # if true, copies over our test env
+                , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
-    stdenv.mkDerivation (rec {
+    stdenv.mkDerivation ({
       src = snabb.src;
 
       # allow sudo in build
@@ -33,7 +34,7 @@ rec {
         ln -s ${snabb}/bin/snabb src/snabb
         sed -i 's/testlog snabb/testlog/' src/Makefile
 
-        mkdir $out
+        mkdir -p $out/nix-support
       '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
         tar xvzf ${test_env} -C ~/.test_env/
@@ -41,13 +42,25 @@ rec {
 
       doCheck = true;
 
+      # http://unix.stackexchange.com/questions/14270/get-exit-status-of-process-thats-piped-to-another/73180#73180
+      checkPhase = 
+        lib.optionalString alwaysSucceed ''
+          set +o pipefail
+        '' + ''${checkPhase}'' +
+        lib.optionalString alwaysSucceed ''
+          # if pipe failed, note that so it's eaiser to inspect end result
+          [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
+          set -o pipefail
+      '';
+
       installPhase = ''
         for f in $(ls $out/* | sort); do
-          mkdir -p $out/nix-support
-          echo "file log $f"  >> $out/nix-support/hydra-build-products
+          if [ -f $f ]; then
+            echo "file log $f"  >> $out/nix-support/hydra-build-products
+          fi
         done
       '';
-     } // attrs);
+     } // removeAttrs attrs [ "checkPhase" ]);
   # buildNTimes: repeat building a derivation for n times
   # buildNTimes: Derivation -> Int -> [Derivation]
   buildNTimes = drv: n:

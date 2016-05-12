@@ -17,6 +17,7 @@ let
   defaults = {
     inherit requiredSystemFeatures SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1 snabb;
     times = numTimesRunBenchmark;
+    alwaysSucceed = true;
   };
   snabbBenchTestBasic = mkSnabbBenchTest (defaults // {
     name = "${snabb.name}-basic1-100e6";
