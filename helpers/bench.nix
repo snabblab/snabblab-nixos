@@ -6,9 +6,9 @@
 , SNABB_PCI0 ? "0000:01:00.0"
 , SNABB_PCI_INTEL0 ? "0000:01:00.0"
 , SNABB_PCI_INTEL1 ? "0000:01:00.1"
-, pkgs ? (import <nixpkgs> {})}:
-
-with pkgs;
+, nixpkgs ? null
+}:
+with (import (if nixpkgs == null then fetchTarball https://github.com/NixOS/nixpkgs/archive/d3456dc1e490289094684f97648c6180ee1cc0f0.tar.gz else nixpkgs) {});
 with lib;
 with (import ../lib.nix);
 
