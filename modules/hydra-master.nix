@@ -2,7 +2,7 @@
 
 let
   # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
-  hydraSrc = builtins.fetchTarball https://github.com/NixOS/hydra/tarball/dc790c5f7eacda1c819ae222bf87674781ae1124;
+  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/026f891ed6b040357e120be108b8306b5a2664ec;
   commonBuildMachineOpt = {
     speedFactor = 1;
     sshKey = "/etc/nix/id_buildfarm";
