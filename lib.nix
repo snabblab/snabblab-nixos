@@ -21,14 +21,19 @@ rec {
     stdenv.mkDerivation ({
       src = snabb.src;
 
-      # allow sudo in build
-      __noChroot = true;
+      buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
-      buildInputs = [ git telnet tmux numactl bc iproute which qemu ];
+      patchPhase = ''
+        patchShebangs src
+      '';
 
       buildPhase = ''
         export PATH=$PATH:/var/setuid-wrappers/
         export HOME=$TMPDIR
+
+        # setup expected directories
+        sudo mkdir -p /var/run /hugetlbfs
+        sudo mount -t hugetlbfs none /hugetlbfs
 
         # make sure we reuse the snabb built in another derivation
         ln -s ${snabb}/bin/snabb src/snabb
