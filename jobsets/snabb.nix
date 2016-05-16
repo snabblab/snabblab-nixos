@@ -65,10 +65,10 @@ in rec {
    };
   distro-builds = with diskImages; builtins.listToAttrs (map
     (diskImage: { inherit (diskImage) name; value = runInLinuxImage (snabb // { inherit diskImage; name = "${snabb.name}-${diskImage.name}";});})
-    [ fedora23x86_64 fedora23i386
-      debian8i386 debian8x86_64
-      ubuntu1510x86_64 ubuntu1510i386
-      ubuntu1604x86_64 ubuntu1604i386
+    [ fedora23x86_64
+      debian8x86_64
+      ubuntu1510x86_64
+      ubuntu1604x86_64
       centos65x86_64
     ]);
 }
