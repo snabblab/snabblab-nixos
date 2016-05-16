@@ -1,23 +1,22 @@
 { config, pkgs, lib, ... }:
 
-# TODO: sudo in chroot for determinisim?
-
-# Motivation:
-# 
-# Sometimes it's not possible to execute something as a normal user. For example, pci-assign kernel operation requires root.
-
-# Usage:
-#
-# stdenv.mkDerivation {
-#  __noChroot = true;
-#   buildPhase = "/var/setuid-wrappers/sudo ls";
-
-# }
+# allows sudo in chroots by introducing some impurities
 
 {
-  # Make sure that `__noChroot = true;` is respected
-  nix.useChroot = lib.mkForce "relaxed";
+  nix.chrootDirs = [
+    "/var/setuid-wrappers"
+    "${pkgs.sudo}"
+    "${config.system.path}"
+    "/etc/sudoers"
+    "/etc/passwd"
+    "/etc/pam.d/sudo"
+    "/etc/static/pam.d/sudo"
+    (toString (pkgs.writeText "sudo.pam" config.security.pam.services.sudo.text))
+    "/sys"
+  ];
 
-  # Add all Nix build users to sudoers
+
+  # legacy/deprecated solution (no chroot)
+  nix.useChroot = lib.mkForce "relaxed";
   security.sudo.extraConfig = lib.concatMapStringsSep "\n" (i: "nixbld${toString i} ALL=(ALL) NOPASSWD:ALL") (lib.range 1 config.nix.nrBuildUsers);
 }
