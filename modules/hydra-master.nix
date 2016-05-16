@@ -1,5 +1,7 @@
 { config, pkgs, lib, ... }:
 
+with lib;
+
 let
   # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
   hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/026f891ed6b040357e120be108b8306b5a2664ec;
@@ -52,27 +54,28 @@ in {
         mandatoryFeatures = [ "performance" ];
       })
       (commonBuildMachineOpt // {
-        hostName = "build-1.snabb.co";
-        maxJobs = 8;
+        hostName = "lugano-4.snabb.co";
+        maxJobs = 1;
+        mandatoryFeatures = [ "performance" ];
       })
+    ] ++ (map (i:
       (commonBuildMachineOpt // {
-        hostName = "build-2.snabb.co";
+        hostName = "build-${toString i}.snabb.co";
         maxJobs = 8;
       })
+    ) (range 1 4))
+    ++ (map (i:
       (commonBuildMachineOpt // {
-        hostName = "build-3.snabb.co";
+        hostName = "murren-${toString i}.snabb.co";
         maxJobs = 8;
+        mandatoryFeatures = [ "murren" ];
       })
-      (commonBuildMachineOpt // {
-        hostName = "build-4.snabb.co";
-        maxJobs = 8;
-      })
+    ) (range 1 10));
       #(commonBuildMachineOpt // {
       #  hostName = "localhost";
       #  maxJobs = 2;
       #  supportedFeatures = [ ];  # let's not build tests here
       #})
-    ];
     extraOptions = "auto-optimise-store = true";
   };
 
