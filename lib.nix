@@ -56,7 +56,7 @@ rec {
         mkdir -p $out/nix-support
       '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
-        cp -r ${test_env}/* ~/.test_env/
+        cp --no-preserve=mode -r ${test_env}/* ~/.test_env/
       '';
 
       doCheck = true;
