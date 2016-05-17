@@ -53,11 +53,6 @@ in {
         maxJobs = 1;
         mandatoryFeatures = [ "lugano" ];
       })
-      (commonBuildMachineOpt // {
-        hostName = "lugano-4.snabb.co";
-        maxJobs = 1;
-        mandatoryFeatures = [ "lugano" ];
-      })
     ] ++ (map (i:
       (commonBuildMachineOpt // {
         hostName = "build-${toString i}.snabb.co";
