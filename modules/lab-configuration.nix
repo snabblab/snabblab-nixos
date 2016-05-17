@@ -33,6 +33,17 @@
      }
   ];
 
+  users.motd = ''
+    Welcome to SnabbLab!
+
+    Basic information can be found at http://snabbco.github.io/#snabblab
+
+    If you have any problems/questions, open an issue at https://github.com/snabblab/snabblab-nixos
+
+    Please use `lock` command when executing commands requiring PCI resources.
+
+  '';
+
   services.openssh.enable = true;
 
   # Disable IOMMU for Snabb Switch.
