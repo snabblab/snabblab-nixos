@@ -2,9 +2,10 @@ with (import <nixpkgs> {});
 
 rec {
   # see https://github.com/snabbco/snabb/blob/master/src/doc/testing.md
-  test_env = fetchurl {
+  test_env = fetchzip {
     url = "https://s3.eu-central-1.amazonaws.com/snabb/vm-ubuntu-trusty-14.04-dpdk-snabb.tar.gz";
-    sha256 = "0323591i925jhd6wv8h268wc3ildjpa6j57n4p9yg9d6ikwkw06j";
+    sha256 = "095m9f77pq770lzd5w46rzqqsgyrv8svkqpgmrd756gswb4gd3x2";
+    stripRoot = false;
   };
 
   PCIAssignments = {
@@ -59,7 +60,7 @@ rec {
         mkdir -p $out/nix-support
       '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
-        tar xvzf ${test_env} -C ~/.test_env/
+        cp -r ${test_env}/* ~/.test_env/
       '';
 
       doCheck = true;
