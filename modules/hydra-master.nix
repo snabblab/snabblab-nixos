@@ -36,12 +36,12 @@ in {
       (commonBuildMachineOpt // {
         hostName = "lugano-1.snabb.co";
         maxJobs = 1;
-        mandatoryFeatures = [ "performance" ];
+        mandatoryFeatures = [ "lugano" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-2.snabb.co";
         maxJobs = 1;
-        mandatoryFeatures = [ "performance" ];
+        mandatoryFeatures = [ "lugano" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-3.snabb.co";
@@ -51,12 +51,12 @@ in {
       (commonBuildMachineOpt // {
         hostName = "lugano-4.snabb.co";
         maxJobs = 1;
-        mandatoryFeatures = [ "performance" ];
+        mandatoryFeatures = [ "lugano" ];
       })
       (commonBuildMachineOpt // {
         hostName = "lugano-4.snabb.co";
         maxJobs = 1;
-        mandatoryFeatures = [ "performance" ];
+        mandatoryFeatures = [ "lugano" ];
       })
     ] ++ (map (i:
       (commonBuildMachineOpt // {
