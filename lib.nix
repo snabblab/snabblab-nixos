@@ -3,7 +3,7 @@ with (import <nixpkgs> {});
 rec {
   # see https://github.com/snabbco/snabb/blob/master/src/doc/testing.md
   test_env = fetchurl {
-    url = "http://lab1.snabb.co:2008/~max/assets/vm-ubuntu-trusty-14.04-dpdk-snabb.tar.gz";
+    url = "https://s3.eu-central-1.amazonaws.com/snabb/vm-ubuntu-trusty-14.04-dpdk-snabb.tar.gz";
     sha256 = "0323591i925jhd6wv8h268wc3ildjpa6j57n4p9yg9d6ikwkw06j";
   };
 
