@@ -16,27 +16,23 @@ rec {
     };
   };
 
-  getPCIVars = name:
+  getPCIVars = hardware:
     let
-      pcis = PCIAssignments."${name}" or (throw "No such server group as ${name}");
-    in {
-      inherit pcis;
-      requiredSystemFeatures = [ name ];
+      pcis = PCIAssignments."${hardware}" or (throw "No such server group as ${hardware}");
+    in  pcis  // {
+      requiredSystemFeatures = [ hardware ];
     };
 
   # Function for running commands in environment as Snabb expects tests to run
   mkSnabbTest = { name
                 , snabb  # snabb derivation used
                 , checkPhase # required phase for actually running the test
-                , SNABB_PCI0
-                , SNABB_PCI_INTEL0
-                , SNABB_PCI_INTEL1
-                , requiredSystemFeatures ? [ "snabb" ]
+                , hardware  # on what set of hardware should we run this?
                 , needsTestEnv ? false  # if true, copies over our test env
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
-    stdenv.mkDerivation ({
+    stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];

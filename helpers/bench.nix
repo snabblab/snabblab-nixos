@@ -11,8 +11,8 @@ with (import ../lib.nix);
 
 let
   snabb = import "${snabbSrc}" {};
-  defaults = (getPCIVars hardware) // {
-    inherit snabb;
+  defaults = {
+    inherit snabb hardware;
     times = numTimesRunBenchmark;
     alwaysSucceed = true;
   };
@@ -27,7 +27,7 @@ let
     checkPhase = ''
       cd src
       /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
-        program/snabbnfv/test_fixtures/pcap/64.pcap "${SNABB_PCI_INTEL0}" |& tee $out/log.txt
+        program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
     '';
   });
   snabbBenchTestPacketblasterSynth64 = mkSnabbBenchTest (defaults // {
@@ -35,7 +35,7 @@ let
     checkPhase = ''
       /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
         --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
-        --duration 1 "${SNABB_PCI_INTEL0}" |& tee $out/log.txt
+        --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
     '';
   });
   snabbBenchTestNFV = mkSnabbBenchTest (defaults // {

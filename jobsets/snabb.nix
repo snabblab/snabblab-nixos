@@ -14,6 +14,7 @@ in rec {
   snabb = import "${snabbSrc}" {};
   tests = snabblabLib.mkSnabbTest ({
     name = "snabb-tests";
+    inherit hardware;
     checkPhase = ''
       # run tests
       export FAIL_ON_FIRST=true
@@ -22,7 +23,7 @@ in rec {
       # keep the logs
       cp src/testlog/* $out/
     '';
-  } // (snabblabLib.getPCIVars hardware));
+  });
   distro-builds = with diskImages; builtins.listToAttrs (map
     (diskImage: { inherit (diskImage) name; value = runInLinuxImage (snabb // { inherit diskImage; name = "${snabb.name}-${diskImage.name}";});})
     [ fedora23x86_64
