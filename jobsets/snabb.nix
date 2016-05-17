@@ -14,7 +14,8 @@ in rec {
   snabb = import "${snabbSrc}" {};
   tests = snabblabLib.mkSnabbTest ({
     name = "snabb-tests";
-    inherit hardware;
+    inherit hardware snabb;
+    needsTestEnv = true;
     checkPhase = ''
       # run tests
       export FAIL_ON_FIRST=true
