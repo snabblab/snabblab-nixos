@@ -1,4 +1,6 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
+
+with (import ../lib.nix);
 
 {
   require = [
@@ -16,10 +18,23 @@
 
   environment.systemPackages = with pkgs; [
     docker
-    # snabbswitch development libraries/tools
-    which qemu jq
+    # snabb development libraries/tools
+    git telnet tmux numactl bc iproute which qemu utillinux jq
   ];
 
+  # setup Snabb test fixtures
+  # TODO: use COW images in snabb to avoid this
+  system.activationScripts.snabb = ''
+    mkdir -p /var/lib/snabb-test-fixtures/
+    for f in ${test_env}/*; do
+      export f_name=$(${pkgs.coreutils}/bin/basename $f)
+      if ! ${pkgs.diffutils}/bin/cmp ${test_env}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
+        cp --no-preserve=mode $f /var/lib/snabb-test-fixtures/
+      fi
+    done
+  '';
+
+  environment.variables.SNABB_TEST_FIXTURES = "/var/lib/snabb-test-fixtures/";
   environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
 
   # mount /hugetlbfs for snabbnfv

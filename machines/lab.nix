@@ -1,3 +1,5 @@
+with (import ../lib.nix);
+
 let
   defaults = {
     require = [
@@ -8,16 +10,19 @@ in {
   network.description = "Snabb Lab machines";
 
   lugano-1 = { config, pkgs, lib, ... }: defaults // {
+      environment.variables = PCIAssignments.lugano;
+
       # custom NixOS options here
   };
   lugano-2 = { config, pkgs, lib, ... }: defaults // {
-      require = [
-        ./../modules/lab-configuration.nix
-      ];
+      environment.variables = PCIAssignments.lugano;
+
       # custom NixOS options here
       boot.kernelParams = lib.mkForce [ "intel_iommu=off" "hugepages=4096" "panic=60" ];
   };
   lugano-3 = { config, pkgs, lib, ... }: defaults // {
+      environment.variables = PCIAssignments.lugano;
+
       # custom NixOS options here
       boot.kernelParams = lib.mkForce [ "intel_iommu=off" "hugepages=4096" "panic=60" ];
       #boot.extraModprobeConfig = "options kvm-intel nested=y";
@@ -26,6 +31,8 @@ in {
       #boot.blacklistedKernelModules = [ "ixgbe" ];
   };
   lugano-4 = { config, pkgs, lib, ... }: defaults // {
+      environment.variables = PCIAssignments.lugano;
+
       # custom NixOS options here
   };
   grindelwald = { config, pkgs, lib, ... }: defaults // {
