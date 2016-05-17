@@ -6,6 +6,23 @@ rec {
     url = "http://lab1.snabb.co:2008/~max/assets/vm-ubuntu-trusty-14.04-dpdk-snabb.tar.gz";
     sha256 = "0323591i925jhd6wv8h268wc3ildjpa6j57n4p9yg9d6ikwkw06j";
   };
+
+  PCIAssignments = {
+    lugano = {
+      SNABB_PCI0 = "0000:01:00.0";
+      SNABB_PCI_INTEL0 = "0000:01:00.0";
+      SNABB_PCI_INTEL1 = "0000:01:00.1";
+    };
+  };
+
+  getPCIVars = name:
+    let
+      pcis = PCIAssignments."${name}" or (throw "No such server group as ${name}");
+    in {
+      inherit pcis;
+      requiredSystemFeatures = [ name ];
+    };
+
   # Function for running commands in environment as Snabb expects tests to run
   mkSnabbTest = { name
                 , snabb  # snabb derivation used
@@ -13,7 +30,7 @@ rec {
                 , SNABB_PCI0
                 , SNABB_PCI_INTEL0
                 , SNABB_PCI_INTEL1
-                , requiredSystemFeatures ? [ "performance" ]
+                , requiredSystemFeatures ? [ "snabb" ]
                 , needsTestEnv ? false  # if true, copies over our test env
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...

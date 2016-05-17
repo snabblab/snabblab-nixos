@@ -2,10 +2,7 @@
 # specify how many times is each benchmark ran
 , numTimesRunBenchmark ? 20
 # specify on what hardware will the benchmarks be ran
-, requiredSystemFeatures ? [ "performance" ]
-, SNABB_PCI0 ? "0000:01:00.0"
-, SNABB_PCI_INTEL0 ? "0000:01:00.0"
-, SNABB_PCI_INTEL1 ? "0000:01:00.1"
+, hardware ? "lugano"
 , nixpkgs ? null
 }:
 with (import (if nixpkgs == null then fetchTarball https://github.com/NixOS/nixpkgs/archive/d3456dc1e490289094684f97648c6180ee1cc0f0.tar.gz else nixpkgs) {});
@@ -14,8 +11,8 @@ with (import ../lib.nix);
 
 let
   snabb = import "${snabbSrc}" {};
-  defaults = {
-    inherit requiredSystemFeatures SNABB_PCI0 SNABB_PCI_INTEL0 SNABB_PCI_INTEL1 snabb;
+  defaults = (getPCIVars hardware) // {
+    inherit snabb;
     times = numTimesRunBenchmark;
     alwaysSucceed = true;
   };
