@@ -11,6 +11,20 @@ All changes are done from `Eiger` server:
     $ sudo su - deploy
     $ cd snabblab-nixos
 
+## Deploying Eiger (supporting server)
+
+    $ nixops deploy -d eiger
+
+
+## Deploying the Lab
+
+Change `machines/lab.nix` and deploy to a single machine:
+
+    $ nixops deploy -d lab-production --include lugano-2
+
+To deploy to all lab server change `modules/lab-configuration.nix` and:
+
+    $ nixops deploy -d lab-production
 
 # Setup (only for bootstrapping a new deployment)
 
@@ -24,18 +38,3 @@ To bootstrap Hetzner machine we need partitions, IP, Hetzner Robot credentials a
 
     $ HETZNER_ROBOT_USER=<user> HETZNER_ROBOT_PASS=<pass> create -d eiger ./eiger.nix ./eiger-hetzner.nix
 
-
-# Deploying Eiger (supporting server)
-
-    $ nixops deploy -d eiger
-
-
-# Deploying the Lab
-
-Change `machines/lab.nix` and deploy to a single machine:
-
-    $ nixops deploy -d lab-production --include lugano-2
-
-To deploy to all lab server change `modules/lab-configuration.nix` and:
-
-    $ nixops deploy -d lab-production
