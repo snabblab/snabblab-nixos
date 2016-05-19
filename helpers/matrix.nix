@@ -59,10 +59,11 @@ let
          url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
          sha256 = hash;
        };
-       patches = super.patches ++ [ (pkgs.fetchurl {
-         url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
-         sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
-       })];
+       # TODO: fails on 2.6.0 and 2.3.1: https://hydra.snabb.co/eval/1181#tabs-still-fail
+       #patches = super.patches ++ [ (pkgs.fetchurl {
+       #  url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
+       #  sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
+       #})];
      });
   snabbs = [
     (buildSnabb "2016.03" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waky")
