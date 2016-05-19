@@ -53,7 +53,7 @@ let
      });
   buildQemu = version: hash:
      qemu.overrideDerivation (attrs: {
-       name = lib.replaceChars ["."] [""] "qemu-${version}";
+       name = "qemu-${version}";
        inherit version;
        src = fetchurl {
           url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
