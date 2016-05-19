@@ -89,4 +89,4 @@ let
   '';
 in {
  inherit benchmark-report;
-} // (builtins.listToAttrs (map (attrs: nameValuePair attrs.name attrs) benchmarks))
+} // (listDrvToAttrs benchmarks)
