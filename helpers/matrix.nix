@@ -51,6 +51,15 @@ let
           sha256 = hash;
         };
      });
+  buildQemu = version: hash:
+     qemu.overrideDerivation (attrs: {
+       name = lib.replaceChars ["."] [""] "qemu-${version}";
+       inherit version;
+       src = fetchurl {
+          url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
+          sha256 = hash;
+        };
+     });
   snabbs = [
     (buildSnabb "2016.03" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waky")
     (buildSnabb "2016.04" "1b5g477zy6cr5d9171xf8zrhhq6wxshg4cn78i5bki572q86kwlx")
@@ -59,7 +68,12 @@ let
   dpdks = [
   ];
   qemus = [
+    (buildQemu "2.3.1" "0qr5aa0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
+    (buildQemu "2.4.1" "0qr5ab0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
+    (buildQemu "2.5.1" "0wr5ac0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
+    (buildQemu "2.6.0" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
   ];
   images = [
   ];
-in listDrvToAttrs snabbs
+in (listDrvToAttrs snabbs)
+// (listDrvToAttrs qemus)
