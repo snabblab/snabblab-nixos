@@ -68,10 +68,10 @@ let
   dpdks = [
   ];
   qemus = [
-    (buildQemu "2.3.1" "0qr5aa0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
-    (buildQemu "2.4.1" "0qr5ab0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
-    (buildQemu "2.5.1" "0wr5ac0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
-    (buildQemu "2.6.0" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waka")
+    (buildQemu "2.3.1" "0px1vhkglxzjdxkkqln98znv832n1sn79g5inh3aw72216c047b6")
+    (buildQemu "2.4.1" "0xx1wc7lj5m3r2ab7f0axlfknszvbd8rlclpqz4jk48zid6czmg3")
+    (buildQemu "2.5.1" "0b2xa8604absdmzpcyjs7fix19y5blqmgflnwjzsp1mp7g1m51q2")
+    (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
   ];
   images = [
   ];
