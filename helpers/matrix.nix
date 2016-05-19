@@ -41,7 +41,7 @@ let
   # build the matrix 
 
   buildSnabb = version: hash:
-     snabbswitch.overrideDerivation (attrs: {
+     snabbswitch.overrideDerivation (super: {
        name = "snabb-${version}";
        inherit version;
        src = fetchFromGitHub {
@@ -52,13 +52,17 @@ let
         };
      });
   buildQemu = version: hash:
-     qemu.overrideDerivation (attrs: {
+     qemu.overrideDerivation (super: {
        name = "qemu-${version}";
        inherit version;
        src = fetchurl {
-          url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-          sha256 = hash;
-        };
+         url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
+         sha256 = hash;
+       };
+       patches = super.patches ++ [ (pkgs.fetchurl {
+         url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
+         sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
+       })];
      });
   snabbs = [
     (buildSnabb "2016.03" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waky")
