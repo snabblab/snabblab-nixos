@@ -67,7 +67,4 @@
 
   # direct root access with pub key
   users.extraUsers.root.openssh.authorizedKeys.keys = config.users.extraUsers.domenkozar.openssh.authorizedKeys.keys;
-
-  # avoid issues like https://github.com/NixOS/nixpkgs/issues/15581
-  fileSystems."/".options = "defaults,noatime,data=journal";
 }
