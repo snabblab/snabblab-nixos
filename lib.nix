@@ -29,6 +29,7 @@ rec {
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
                 , needsTestEnv ? false  # if true, copies over our test env
+                , testEnv ? test_env
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
@@ -56,7 +57,7 @@ rec {
         mkdir -p $out/nix-support
       '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
-        cp --no-preserve=mode -r ${test_env}/* ~/.test_env/
+        cp --no-preserve=mode -r ${testEnv}/* ~/.test_env/
       '';
 
       doCheck = true;
