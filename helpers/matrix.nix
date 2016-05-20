@@ -112,8 +112,7 @@ let
 in (listDrvToAttrs snabbs)
 // (listDrvToAttrs qemus)
 // (listDrvToAttrs dpdks)
-// {
-  snabbBenchTestNFVPacketblaster = listDrvToAttrs (mkSnabbBenchTest (defaults // {
+// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
     name = "${defaults.snabb.name}-nfv-packetblaster";
     needsTestEnv = true;
     testEnv = test_env_nix;
@@ -121,5 +120,34 @@ in (listDrvToAttrs snabbs)
       cd src
       /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
     '';
-  }));
-}
+})))
+// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
+    name = "${defaults.snabb.name}-basic1-100e6";
+    checkPhase = ''
+      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
+    '';
+})))
+// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
+    name = "${defaults.snabb.name}-nfv";
+    needsTestEnv = true;
+    checkPhase = ''
+      cd src
+      /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
+    '';
+})))
+// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
+    name = "${defaults.snabb.name}-packetblaster-64";
+    checkPhase = ''
+      cd src
+      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb packetblaster replay --duration 1 \
+        program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
+    '';
+})))
+// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
+    name = "${defaults.snabb.name}-packetblaster-synth-64";
+    checkPhase = ''
+      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb packetblaster synth \
+        --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
+        --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
+    '';
+})))
