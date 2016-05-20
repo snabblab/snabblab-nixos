@@ -1,5 +1,10 @@
  # Make a matrix out of Snabb + DPDK + QEMU + Linux (for iperf) 
-{}:
+
+{ # specify how many times is each benchmark ran
+  numTimesRunBenchmark ? 1
+# specify on what hardware will the benchmarks be ran
+, hardware ? "lugano"
+}:
 
 with (import <nixpkgs> {});
 with (import ../lib.nix);
@@ -98,8 +103,23 @@ let
     (buildQemu "2.5.1" "0b2xa8604absdmzpcyjs7fix19y5blqmgflnwjzsp1mp7g1m51q2")
     (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
   ];
-  images = [
-  ];
+  defaults = {
+    inherit hardware;
+    times = numTimesRunBenchmark;
+    alwaysSucceed = true;
+    snabb = lib.last snabbs;
+  };
 in (listDrvToAttrs snabbs)
 // (listDrvToAttrs qemus)
 // (listDrvToAttrs dpdks)
+// {
+  snabbBenchTestNFVPacketblaster = listDrvToAttrs (mkSnabbBenchTest (defaults // {
+    name = "${defaults.snabb.name}-nfv-packetblaster";
+    needsTestEnv = true;
+    testEnv = test_env_nix;
+    checkPhase = ''
+      cd src
+      /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
+    '';
+  }));
+}
