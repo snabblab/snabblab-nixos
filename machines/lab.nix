@@ -25,10 +25,6 @@ in {
 
       # custom NixOS options here
       boot.kernelParams = lib.mkForce [ "intel_iommu=off" "hugepages=4096" "panic=60" ];
-      #boot.extraModprobeConfig = "options kvm-intel nested=y";
-      #boot.kernelModules = [ "pci-stub" ];
-      #boot.kernelParams = lib.mkForce [ "intel_iommu=on" "hugepages=4096" ];
-      #boot.blacklistedKernelModules = [ "ixgbe" ];
   };
   lugano-4 = { config, pkgs, lib, ... }: defaults // {
       environment.variables = PCIAssignments.lugano;
@@ -37,6 +33,12 @@ in {
   };
   grindelwald = { config, pkgs, lib, ... }: defaults // {
       # custom NixOS options here
+
+      # OpenStack requirements
+      boot.extraModprobeConfig = "options kvm-intel nested=y";
+      boot.kernelModules = [ "pci-stub" ];
+      boot.kernelParams = lib.mkForce [ "intel_iommu=on" "hugepages=4096" ];
+      boot.blacklistedKernelModules = [ "ixgbe" ];
   };
   interlaken = { config, pkgs, lib, ... }: defaults // {
       fileSystems."/boot" = { 
