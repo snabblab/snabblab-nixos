@@ -31,6 +31,7 @@ in rec {
       debian8x86_64
       ubuntu1510x86_64
       ubuntu1604x86_64
-      centos65x86_64
+      # See https://github.com/snabbco/snabb/pull/899
+      # centos65x86_64
     ]);
 }
