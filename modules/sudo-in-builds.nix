@@ -6,7 +6,6 @@
   nix.chrootDirs = [
     "/var/setuid-wrappers"
     "${pkgs.sudo}"
-    "${config.system.path}"
     "/etc/sudoers"
     "/etc/passwd"
     "/etc/pam.d/sudo"
