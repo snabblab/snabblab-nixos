@@ -98,6 +98,7 @@ in (listDrvToAttrs snabbs)
 // (listDrvToAttrs (mkSnabbBenchTest (defaults // {
     name = "${defaults.snabb.name}-nfv";
     needsTestEnv = true;
+    testEnv = test_env_nix;
     checkPhase = ''
       cd src
       /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
