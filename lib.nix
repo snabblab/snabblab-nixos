@@ -121,9 +121,9 @@ rec {
 
        # settings needed by tests
        #boot.kernelPackages = pkgs.linuxPackages_3_18;
-       networking.firewall.enable = mkOverride 150 false;
+       networking.firewall.enable = lib.mkOverride 150 false;
        services.mingetty.autologinUser = "root";
-       users.extraUsers.root.initialHashedPassword = mkOverride 150 "";
+       users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
        networking.usePredictableInterfaceNames = false;
      })
    ];
