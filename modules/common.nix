@@ -62,6 +62,17 @@
   #  /run/current-system/sw/bin/nix-channel --update
   #'';
 
+
+  programs.ssh.extraConfig = ''
+    Host grindelwald
+        Hostname lab1.snabb.co
+        Port 2010
+
+    Host interlaken
+        Hostname lab1.snabb.co
+        Port 2030
+  '';
+
   # lets users use sudo without password
   security.sudo.wheelNeedsPassword = false;
 
