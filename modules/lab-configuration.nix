@@ -16,6 +16,9 @@ with (import ../lib.nix);
   # https://github.com/NixOS/nixpkgs/issues/11478
   virtualisation.docker.socketActivation = true;
 
+  # Libvirt support for NixOps deployments
+  virtualisation.libvirtd.enable = true;
+
   environment.systemPackages = with pkgs; [
     docker
     # snabb development libraries/tools
