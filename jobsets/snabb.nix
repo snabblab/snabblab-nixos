@@ -18,6 +18,7 @@ rec {
     needsTestEnv = true;
     testEnv = if useNixTestEnv then test_env_nix else test_env;
     alwaysSucceed = true;
+    SNABB_KERNEL_PARAMS = optionalString useNixTestEnv "init=${config.system.build.toplevel}/init";
     checkPhase = ''
       # run tests
       #export FAIL_ON_FIRST=true
