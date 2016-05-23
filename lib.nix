@@ -102,4 +102,42 @@ rec {
 
    # take a list of derivations and make an attribute set of out their names
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (lib.replaceChars ["."] [""] attrs.name) attrs) list);
+
+   # Snabb fixtures
+
+   # modules and NixOS config for plain qemu image
+   snabb_modules = [
+     <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
+     ({config, pkgs, ...}: {
+       environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump netcat iperf ];
+       fileSystems."/".device = "/dev/disk/by-label/nixos";
+       boot.loader.grub.device = "/dev/sda";
+     })
+   ];
+   snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
+
+   # modules and NixOS config gor dpdk qmemu image
+   snabb_modules_dpdk = [
+     ({config, pkgs, lib, ...}: {
+     # TODO
+     })
+   ];
+   snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
+
+   qemu_img = lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
+     inherit lib pkgs;
+     config = snabb_config;
+     partitioned = true;
+     format = "qcow2";
+     diskSize = 2 * 1024;
+   };
+   qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
+
+   # files needed for some tests
+   test_env_nix = runCommand "test-env-nix" {} ''
+     mkdir -p $out
+     ln -s ${qemu_img}/nixos.qcow2 $out/qemu.img
+     ln -s ${qemu_dpdk_img}/nixos.qcow2 $out/qemu-dpdk.img
+     ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
+   '';
 }

@@ -1,21 +1,22 @@
 { pkgs ? (import <nixpkgs> {})
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
 , hardware ? "lugano"
+, useNixTestEnv ? false
 }:
 
 with pkgs;
 with lib;
 with vmTools;
+with (import ../lib.nix);
 
-let
-  snabblabLib = import ../lib.nix;
-in rec {
+rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
-  tests = snabblabLib.mkSnabbTest ({
+  tests = mkSnabbTest ({
     name = "snabb-tests";
     inherit hardware snabb;
     needsTestEnv = true;
+    testEnv = if useNixTestEnv then test_env_nix else test_env;
     checkPhase = ''
       # run tests
       export FAIL_ON_FIRST=true
