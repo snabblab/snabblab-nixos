@@ -28,8 +28,9 @@ rec {
                 , snabb  # snabb derivation used
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
-                , needsTestEnv ? false  # if true, copies over our test env
+                , needsTestEnv ? false  # if true, copies over our testEnv
                 , testEnv ? test_env
+                , useNixTestEnv ? false # if true, copes over our test_env_nix
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
@@ -58,7 +59,12 @@ rec {
       '' + lib.optionalString needsTestEnv ''
         mkdir ~/.test_env
         cp --no-preserve=mode -r ${testEnv}/* ~/.test_env/
+      '' + lib.optionalString useNixTestEnv ''
+        mkdir ~/.test_env
+        cp --no-preserve=mode -r ${test_env_nix}/* ~/.test_env/
       '';
+
+      SNABB_KERNEL_PARAMS = lib.optionalString useNixTestEnv "init=${snabb_config.system.build.toplevel}/init";
 
       doCheck = true;
 
@@ -115,9 +121,9 @@ rec {
 
        # settings needed by tests
        #boot.kernelPackages = pkgs.linuxPackages_3_18;
-       networking.firewall.enable = mkOverride 150 false;
+       networking.firewall.enable = lib.mkOverride 150 false;
        services.mingetty.autologinUser = "root";
-       users.extraUsers.root.initialHashedPassword = mkOverride 150 "";
+       users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
        networking.usePredictableInterfaceNames = false;
      })
    ];

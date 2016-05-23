@@ -14,11 +14,7 @@ rec {
   snabb = import "${snabbSrc}" {};
   tests = mkSnabbTest ({
     name = "snabb-tests";
-    inherit hardware snabb;
-    needsTestEnv = true;
-    testEnv = if useNixTestEnv then test_env_nix else test_env;
-    alwaysSucceed = true;
-    SNABB_KERNEL_PARAMS = optionalString useNixTestEnv "init=${config.system.build.toplevel}/init";
+    inherit hardware snabb useNixTestEnv;
     checkPhase = ''
       # run tests
       #export FAIL_ON_FIRST=true
