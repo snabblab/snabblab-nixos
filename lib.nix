@@ -116,11 +116,28 @@ rec {
    ];
    snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
 
-   # modules and NixOS config gor dpdk qmemu image
+   # modules and NixOS config for dpdk qmemu image
    snabb_modules_dpdk = [
-     ({config, pkgs, lib, ...}: {
-     # TODO
-     })
+     ({config, pkgs, lib, ...}:
+       let
+         dpdk_bind = fetchurl {
+           url = "https://raw.githubusercontent.com/scylladb/dpdk/8ea56fadc9a49c575bee6bb3892bc17dd9ec4ab6/tools/dpdk_nic_bind.py";
+           sha256 = "0z8big9gh49q9kh0jjg1p9g5ywwvb130r3bmhhpbgx7blhk9zb7f";
+         };
+       in {
+         systemd.services.dpdk = {
+           wantedBy = [ "multi-user.target" ];
+           after = [ "network.target" ];
+           path = with pkgs; [ kmod python ];
+           script = ''
+             modprobe uio
+             insmod ${config.boot.kernelPackages.dpdk}/kmod/igb_uio.ko
+             python ${dpdk_bind} --bind=igb_uio 00:03.0
+             ${config.boot.kernelPackages.dpdk.examples}/l2fwd/x86_64-native-linuxapp-gcc/l2fwd -c 0x1 -n1 -- -p 0x1
+           '';
+         };
+       }
+     )
    ];
    snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
 
