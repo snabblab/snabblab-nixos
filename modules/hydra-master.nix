@@ -34,24 +34,19 @@ in {
     buildCores = 0;
     buildMachines = [
       (commonBuildMachineOpt // {
-        hostName = "lugano-1.snabb.co";
-        maxJobs = 1;
-        mandatoryFeatures = [ "lugano" ];
-      })
-      (commonBuildMachineOpt // {
         hostName = "lugano-2.snabb.co";
         maxJobs = 1;
         mandatoryFeatures = [ "lugano" ];
       })
       (commonBuildMachineOpt // {
-        hostName = "lugano-3.snabb.co";
-        maxJobs = 1;
-        mandatoryFeatures = [ "openstack" ];
-      })
-      (commonBuildMachineOpt // {
         hostName = "lugano-4.snabb.co";
         maxJobs = 1;
         mandatoryFeatures = [ "lugano" ];
+      })
+      (commonBuildMachineOpt // {
+        hostName = "grindelwald";
+        maxJobs = 1;
+        mandatoryFeatures = [ "openstack" ];
       })
     ] ++ (map (i:
       (commonBuildMachineOpt // {
