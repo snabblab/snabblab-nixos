@@ -112,6 +112,13 @@ rec {
        environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump netcat iperf ];
        fileSystems."/".device = "/dev/disk/by-label/nixos";
        boot.loader.grub.device = "/dev/sda";
+
+       # settings needed by tests
+       #boot.kernelPackages = pkgs.linuxPackages_3_18;
+       networking.firewall.enable = mkOverride 150 false;
+       services.mingetty.autologinUser = "root";
+       users.extraUsers.root.initialHashedPassword = mkOverride 150 "";
+       networking.usePredictableInterfaceNames = false;
      })
    ];
    snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
