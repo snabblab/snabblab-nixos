@@ -82,8 +82,7 @@ in (listDrvToAttrs snabbs)
 // (listDrvToAttrs dpdks)
 // (listDrvToAttrs (mkSnabbBenchTest (defaults // {
     name = "${defaults.snabb.name}-nfv-packetblaster";
-    needsTestEnv = true;
-    testEnv = test_env_nix;
+    useNixTestEnv = true;
     checkPhase = ''
       cd src
       /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
@@ -97,8 +96,7 @@ in (listDrvToAttrs snabbs)
 })))
 // (listDrvToAttrs (mkSnabbBenchTest (defaults // {
     name = "${defaults.snabb.name}-nfv";
-    needsTestEnv = true;
-    testEnv = test_env_nix;
+    useNixTestEnv = true;
     checkPhase = ''
       cd src
       /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
