@@ -17,9 +17,10 @@ rec {
     inherit hardware snabb;
     needsTestEnv = true;
     testEnv = if useNixTestEnv then test_env_nix else test_env;
+    alwaysSucceed = true;
     checkPhase = ''
       # run tests
-      export FAIL_ON_FIRST=true
+      #export FAIL_ON_FIRST=true
       sudo -E make test -C src/
 
       # keep the logs
