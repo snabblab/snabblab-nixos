@@ -11,38 +11,6 @@ with (import ../lib.nix);
 with vmTools;
 
 let
-  # Snabb fixtures
-
-  # modules and NixOS config for plain qemu image
-  modules = [
-    <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
-    ({config, pkgs, ...}: {
-      environment.systemPackages = with pkgs; [ screen python pciutils ethtool tcpdump netcat iperf ];
-      fileSystems."/".device = "/dev/disk/by-label/nixos";
-      boot.loader.grub.device = "/dev/sda";
-    })
-  ];
-  config = (import <nixpkgs/nixos/lib/eval-config.nix> { inherit modules; }).config;
-  # modules and NixOS config gor dpdk qmemu image
-  modules_dpdk = modules ++ [({config, pkgs, lib, ...}: {
-    # TODO
-  })];
-  config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = modules_dpdk; }).config;
-  # files needed for some tests
-  test_env_nix = runCommand "test-env-nix" {} ''
-    mkdir -p $out
-    ln -s ${qemu_img}/nixos.qcow2 $out/qemu.img
-    ln -s ${qemu_dpdk_img}/nixos.qcow2 $out/qemu-dpdk.img
-    ln -s ${config.system.build.kernel}/bzImage $out/bzImage
-  '';
-  qemu_img = lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
-    inherit lib config pkgs;
-    partitioned = true;
-    format = "qcow2";
-    diskSize = 2 * 1024;
-  };
-  qemu_dpdk_img = qemu_img.override { config = config_dpdk; };
-
   # build the matrix 
 
   buildSnabb = version: hash:
