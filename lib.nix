@@ -152,5 +152,6 @@ rec {
      ln -s ${qemu_img}/nixos.qcow2 $out/qemu.img
      ln -s ${qemu_dpdk_img}/nixos.qcow2 $out/qemu-dpdk.img
      ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
+     ln -s ${snabb_config.system.build.toplevel}/initrd $out/initrd
    '';
 }
