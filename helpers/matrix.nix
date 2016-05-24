@@ -22,7 +22,7 @@ let
           repo = "snabb";
           rev = "v${version}";
           sha256 = hash;
-        };
+       };
      });
   buildQemu = version: hash:
      qemu.overrideDerivation (super: {
@@ -76,6 +76,10 @@ let
     times = numTimesRunBenchmark;
     alwaysSucceed = true;
     snabb = lib.last snabbs;
+    patches = [(fetchurl {
+         url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
+         sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
+    })];
   };
 in (listDrvToAttrs snabbs)
 // (listDrvToAttrs qemus)

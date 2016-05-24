@@ -39,7 +39,7 @@ rec {
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
-      patchPhase = ''
+      prePatch = ''
         patchShebangs src
       '';
 
