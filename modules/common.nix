@@ -18,6 +18,9 @@
   # less paranoia
   networking.firewall.allowPing = true;
 
+  # https://github.com/NixOS/nixpkgs/issues/10101
+  networking.firewall.checkReversePath = false;
+
   # see https://github.com/NixOS/nixpkgs/commit/ee8e15fe76a235ae3583d4e8cb4bb370f28c5eae
   programs.bash.enableCompletion = true;
 

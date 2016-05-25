@@ -3,7 +3,7 @@
 let
   commonUserAttrs = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" ];
+    extraGroups = [ "wheel" "docker" "libvirtd" ];
   };
 in
 {
