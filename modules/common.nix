@@ -25,7 +25,7 @@
     # develoment tools
     gcc glibc git gnumake wget nmap screen tmux pciutils tcpdump curl strace htop
     file cpulimit numactl speedtest-cli w3m psmisc xterm wgetpaste
-    config.boot.kernelPackages.perf nox ipmitool
+    config.boot.kernelPackages.perf nox ipmitool nixops
     # manpages
     manpages
     posix_man_pages
