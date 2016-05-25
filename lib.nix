@@ -120,7 +120,7 @@ rec {
        boot.loader.grub.device = "/dev/sda";
 
        # settings needed by tests
-       #boot.kernelPackages = pkgs.linuxPackages_3_18;
+       boot.kernelPackages = pkgs.linuxPackages_4_1;
        networking.firewall.enable = lib.mkOverride 150 false;
        services.mingetty.autologinUser = "root";
        users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
