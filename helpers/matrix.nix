@@ -87,9 +87,16 @@ in (listDrvToAttrs snabbs)
 // (listDrvToAttrs (mkSnabbBenchTest (defaults // {
     name = "${defaults.snabb.name}-nfv-packetblaster";
     useNixTestEnv = true;
+    __useChroot = false;
     checkPhase = ''
       cd src
-      /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
+
+      # TODO: for NICless run
+      #export SNABB_PCI0=
+      #export SNABB_PCI_INTEL0=
+      #export SNABB_PCI_INTEL1=
+
+      /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
     '';
 })))
 // (listDrvToAttrs (mkSnabbBenchTest (defaults // {
