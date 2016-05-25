@@ -141,9 +141,12 @@ rec {
          systemd.services.dpdk = {
            wantedBy = [ "multi-user.target" ];
            after = [ "network.target" ];
-           path = with pkgs; [ kmod python ];
+           path = with pkgs; [ kmod python pciutils iproute utillinux ];
            script = ''
-             modprobe uio
+             mkdir -p /hugetlbfs
+             mount -t hugetlbfs nodev /hugetlbfs
+             echo 64 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+             MODULE_DIR=/run/current-system/kernel-modules/lib/modules modprobe uio
              insmod ${config.boot.kernelPackages.dpdk}/kmod/igb_uio.ko
              python ${dpdk_bind} --bind=igb_uio 00:03.0
              ${config.boot.kernelPackages.dpdk.examples}/l2fwd/x86_64-native-linuxapp-gcc/l2fwd -c 0x1 -n1 -- -p 0x1
