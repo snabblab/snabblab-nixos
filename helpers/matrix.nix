@@ -1,11 +1,12 @@
  # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
 
-{ # specify how many times is each benchmark ran
-  numTimesRunBenchmark ? 1
+  # specify how many times is each benchmark ran
+{ numTimesRunBenchmark ? 1
+, nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
 }:
 
-with (import <nixpkgs> {});
-with (import ../lib.nix);
+with (import nixpkgs {});
+with (import ../lib.nix { pkgs = (import nixpkgs {}); });
 with vmTools;
 
 let

@@ -1,4 +1,6 @@
-with (import <nixpkgs> {});
+{ pkgs ? import <nixpkgs> {}}:
+
+with pkgs;
 
 rec {
   # see https://github.com/snabbco/snabb/blob/master/src/doc/testing.md

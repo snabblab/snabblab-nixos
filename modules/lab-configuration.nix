@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 
-with (import ../lib.nix);
+with (import ../lib.nix { inherit pkgs; });
 
 {
   require = [

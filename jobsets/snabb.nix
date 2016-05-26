@@ -7,7 +7,7 @@
 with pkgs;
 with lib;
 with vmTools;
-with (import ../lib.nix);
+with (import ../lib.nix { pkgs = pkgs; });
 
 rec {
   manual = import "${snabbSrc}/src/doc" {};
