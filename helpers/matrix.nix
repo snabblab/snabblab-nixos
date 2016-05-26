@@ -2,8 +2,6 @@
 
 { # specify how many times is each benchmark ran
   numTimesRunBenchmark ? 1
-# specify on what hardware will the benchmarks be ran
-, hardware ? "lugano"
 }:
 
 with (import <nixpkgs> {});
@@ -77,7 +75,6 @@ let
 
   # mkSnabbBenchTest defaults
   defaults = {
-    inherit hardware;
     times = numTimesRunBenchmark;
     # TODO: eventually turn this on
     # alwaysSucceed = true;
@@ -92,6 +89,7 @@ let
   mkMatrixBenchBasic = { snabb, ... }@attrs:
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-basic1-100e6";
+      hardware = "murren";
       inherit (attrs) snabb;
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
@@ -102,6 +100,7 @@ let
       name = "${snabb.name}-nfv";
       inherit (attrs) snabb;
       useNixTestEnv = true;
+      hardware = "lugano";
       checkPhase = ''
         cd src
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
@@ -114,6 +113,7 @@ let
       useNixTestEnv = true;
       isDPDK = true;
       __useChroot = false;
+      hardware = "lugano";
       checkPhase = ''
         cd src
 
@@ -129,6 +129,7 @@ let
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-packetblaster-64";
       inherit (attrs) snabb;
+      hardware = "lugano";
       checkPhase = ''
         cd src
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
@@ -139,6 +140,7 @@ let
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-packetblaster-synth-64";
       inherit (attrs) snabb;
+      hardware = "lugano";
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
           --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \

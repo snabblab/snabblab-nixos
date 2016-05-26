@@ -14,11 +14,12 @@ rec {
       SNABB_PCI_INTEL0 = "0000:01:00.0";
       SNABB_PCI_INTEL1 = "0000:01:00.1";
     };
+    murren = {};
   };
 
   getPCIVars = hardware:
     let
-      pcis = PCIAssignments."${hardware}" or (throw "No such server group as ${hardware}");
+      pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments server group as ${hardware}");
     in  pcis  // {
       requiredSystemFeatures = [ hardware ];
     };
