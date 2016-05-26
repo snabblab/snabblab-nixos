@@ -40,7 +40,7 @@ let
 
   buildDpdk = version: hash: kernel:
      kernel.dpdk.overrideDerivation (super: {
-       name = "dpdk-${version}";
+       name = "dpdk-${version}-${kernel.kernel.version}";
        inherit version;
        prePatch = ''
          find . -type f -exec sed -i 's/-Werror//' {} \;
