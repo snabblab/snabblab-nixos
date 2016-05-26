@@ -38,8 +38,8 @@ let
        #})];
      });
 
-  buildDpdk = version: hash:
-     linuxPackages_4_1.dpdk.overrideDerivation (super: {
+  buildDpdk = version: hash: kernel:
+     kernel.dpdk.overrideDerivation (super: {
        name = "dpdk-${version}";
        inherit version;
        prePatch = ''
@@ -58,7 +58,7 @@ let
     (buildSnabb "2016.04" "1b5g477zy6cr5d9171xf8zrhhq6wxshg4cn78i5bki572q86kwlx")
     (buildSnabb "2016.05" "1xd926yplqqmgl196iq9lnzg3nnswhk1vkav4zhs4i1cav99ayh8")
   ];
-  dpdks = [
+  dpdks = kernel: map (x: x kernel) [
     (buildDpdk "16.04" "0yrz3nnhv65v2jzz726bjswkn8ffqc1sr699qypc9m78qrdljcfn")
     (buildDpdk "2.2.0" "03b1pliyx5psy3mkys8j1mk6y2x818j6wmjrdvpr7v0q6vcnl83p")
     (buildDpdk "2.1.0" "0h1lkalvcpn8drjldw50kipnf88ndv2wvflgkkyrmya5ga325czp")
@@ -72,6 +72,11 @@ let
     (buildQemu "2.4.1" "0xx1wc7lj5m3r2ab7f0axlfknszvbd8rlclpqz4jk48zid6czmg3")
     (buildQemu "2.5.1" "0b2xa8604absdmzpcyjs7fix19y5blqmgflnwjzsp1mp7g1m51q2")
     (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
+  ];
+  kernels = [
+    linuxPackages_4_1
+    linuxPackages_4_3
+    linuxPackages_4_4
   ];
 
   # mkSnabbBenchTest defaults
@@ -96,10 +101,11 @@ let
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
       '';
     });
-  mkMatrixBenchNFV = { snabb, ... }@attrs:
+  mkMatrixBenchNFV = { snabb, qemu, kernel, dpdk, ... }@attrs:
    mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-nfv";
+      name = "${snabb.name}-${qemu.name}-${dpdk.name}-nfv";
       inherit (attrs) snabb qemu;
+      testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
       useNixTestEnv = true;
       hardware = "lugano";
       checkPhase = ''
@@ -107,12 +113,14 @@ let
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
    });
-  mkMatrixBenchNFVPacketblaster = { snabb, qemu, ... }@attrs:
+  mkMatrixBenchNFVPacketblaster = { snabb, qemu, kernel, dpdk, ... }@attrs:
     mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-${qemu.name}-nfv-packetblaster";
+      name = "${snabb.name}-${qemu.name}-${dpdk.name}-nfv-packetblaster";
       inherit (attrs) snabb qemu;
       useNixTestEnv = true;
+      testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
       isDPDK = true;
+      # TODO: get rid of this
       __useChroot = false;
       hardware = "lugano";
       checkPhase = ''
@@ -126,9 +134,9 @@ let
         /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
       '';
     });
-  mkMatrixBenchPacketblaster = { snabb, qemu, ... }@attrs:
+  mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
     mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-${qemu.name}-packetblaster-64";
+      name = "${snabb.name}-packetblaster-64";
       inherit (attrs) snabb;
       hardware = "lugano";
       checkPhase = ''
@@ -156,10 +164,12 @@ in {
   # benchmarks using a matrix of software and a number of repeats
   benchmarks = listDrvToAttrs
     # TODO: should probably abstract this out, but for now it does the job
+    (lib.flatten (map (kernel:
+    (lib.flatten (map (dpdk:
     (lib.flatten (map (snabb:
     lib.flatten (map (qemu:
       let
-        params = { inherit snabb qemu; };
+        params = { inherit snabb qemu dpdk kernel; };
       in [
         (mkMatrixBenchBasic params)
         (mkMatrixBenchNFV params)
@@ -167,5 +177,5 @@ in {
         (mkMatrixBenchPacketblaster params)
         (mkMatrixBenchPacketblasterSynth params)
       ]
-    ) qemus)) snabbs));
+    ) qemus)) snabbs))) (dpdks kernel)))) kernels));
 }
