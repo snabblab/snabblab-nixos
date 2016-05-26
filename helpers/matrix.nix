@@ -1,4 +1,4 @@
- # Make a matrix out of Snabb + DPDK + QEMU + Linux (for iperf) 
+ # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
 
 { # specify how many times is each benchmark ran
   numTimesRunBenchmark ? 1
@@ -11,7 +11,7 @@ with (import ../lib.nix);
 with vmTools;
 
 let
-  # build the matrix 
+  # build functions for different software using overrides 
 
   buildSnabb = version: hash:
      snabbswitch.overrideDerivation (super: {
@@ -51,6 +51,9 @@ let
          sha256 = hash;
        };
      });
+
+  # define software stacks
+
   snabbs = [
     (buildSnabb "2016.03" "0wr54m0vr49l51pqj08z7xnm2i97x7183many1ra5bzzg5c5waky")
     (buildSnabb "2016.04" "1b5g477zy6cr5d9171xf8zrhhq6wxshg4cn78i5bki572q86kwlx")
@@ -71,6 +74,8 @@ let
     (buildQemu "2.5.1" "0b2xa8604absdmzpcyjs7fix19y5blqmgflnwjzsp1mp7g1m51q2")
     (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
   ];
+
+  # mkSnabbBenchTest defaults
   defaults = {
     inherit hardware;
     times = numTimesRunBenchmark;
@@ -81,6 +86,9 @@ let
          sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
     })];
   };
+
+  # functions for building benchmark executing
+
   mkMatrixBenchBasic = { snabb, ... }@attrs:
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-basic1-100e6";
