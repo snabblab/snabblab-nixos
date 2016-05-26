@@ -112,6 +112,7 @@ let
       name = "${snabb.name}-nfv-packetblaster";
       inherit (attrs) snabb;
       useNixTestEnv = true;
+      isDPDK = true;
       __useChroot = false;
       checkPhase = ''
         cd src

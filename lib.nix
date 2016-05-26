@@ -30,6 +30,7 @@ rec {
                 , hardware  # on what set of hardware should we run this?
                 , needsTestEnv ? false  # if true, copies over our testEnv
                 , testEnv ? test_env
+                , isDPDK ? false # if true, pass the kernel init for dpdk qemu
                 , useNixTestEnv ? false # if true, copes over our test_env_nix
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
@@ -64,7 +65,10 @@ rec {
         cp --no-preserve=mode -r ${test_env_nix}/* ~/.test_env/
       '';
 
-      SNABB_KERNEL_PARAMS = lib.optionalString useNixTestEnv "init=${snabb_config.system.build.toplevel}/init";
+      SNABB_KERNEL_PARAMS = lib.optionalString useNixTestEnv
+        (if (isDPDK)
+        then "init=${snabb_config_dpdk.system.build.toplevel}/init"
+        else "init=${snabb_config.system.build.toplevel}/init");
 
       doCheck = true;
 
