@@ -29,6 +29,7 @@ rec {
   # Function for running commands in environment as Snabb expects tests to run
   mkSnabbTest = { name
                 , snabb  # snabb derivation used
+                , qemuPkg ? qemu
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
                 , needsTestEnv ? false  # if true, copies over our testEnv
@@ -41,7 +42,7 @@ rec {
     stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
+      buildInputs = [ git telnet tmux numactl bc iproute which qemuPkg utillinux ];
 
       prePatch = ''
         patchShebangs src

@@ -99,7 +99,7 @@ let
   mkMatrixBenchNFV = { snabb, ... }@attrs:
    mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-nfv";
-      inherit (attrs) snabb;
+      inherit (attrs) snabb qemu;
       useNixTestEnv = true;
       hardware = "lugano";
       checkPhase = ''
@@ -109,8 +109,8 @@ let
    });
   mkMatrixBenchNFVPacketblaster = { snabb, ... }@attrs:
     mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-nfv-packetblaster";
-      inherit (attrs) snabb;
+      name = "${snabb.name}-${qemu.name}-nfv-packetblaster";
+      inherit (attrs) snabb qemu;
       useNixTestEnv = true;
       isDPDK = true;
       __useChroot = false;
@@ -128,7 +128,7 @@ let
     });
   mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
     mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-packetblaster-64";
+      name = "${snabb.name}-${qemu.name}-packetblaster-64";
       inherit (attrs) snabb;
       hardware = "lugano";
       checkPhase = ''
@@ -156,8 +156,8 @@ in {
   # benchmarks using a matrix of software and a number of repeats
   benchmarks = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
     (mkMatrixBenchBasic { snabb = lib.last snabbs; })
-    (mkMatrixBenchNFV { snabb = lib.last snabbs; })
-    (mkMatrixBenchNFVPacketblaster { snabb = lib.last snabbs; })
+    (mkMatrixBenchNFV { snabb = lib.last snabbs; qemu = lib.last qemus; })
+    (mkMatrixBenchNFVPacketblaster { snabb = lib.last snabbs; qemu = lib.last qemus; })
     (mkMatrixBenchPacketblaster { snabb = lib.last snabbs; })
     (mkMatrixBenchPacketblasterSynth { snabb = lib.last snabbs; })
   ];
