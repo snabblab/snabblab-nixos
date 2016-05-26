@@ -74,58 +74,79 @@ let
   defaults = {
     inherit hardware;
     times = numTimesRunBenchmark;
-    alwaysSucceed = true;
-    snabb = lib.last snabbs;
+    # TODO: eventually turn this on
+    # alwaysSucceed = true;
     patches = [(fetchurl {
          url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
          sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
     })];
   };
-in (listDrvToAttrs snabbs)
-// (listDrvToAttrs qemus)
-// (listDrvToAttrs dpdks)
-// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
-    name = "${defaults.snabb.name}-nfv-packetblaster";
-    useNixTestEnv = true;
-    __useChroot = false;
-    checkPhase = ''
-      cd src
+  mkMatrixBenchBasic = { snabb, ... }@attrs:
+    mkSnabbBenchTest (defaults // {
+      name = "${snabb.name}-basic1-100e6";
+      inherit (attrs) snabb;
+      checkPhase = ''
+        /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
+      '';
+    });
+  mkMatrixBenchNFV = { snabb, ... }@attrs:
+   mkSnabbBenchTest (defaults // {
+      name = "${snabb.name}-nfv";
+      inherit (attrs) snabb;
+      useNixTestEnv = true;
+      checkPhase = ''
+        cd src
+        /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
+      '';
+   });
+  mkMatrixBenchNFVPacketblaster = { snabb, ... }@attrs:
+    mkSnabbBenchTest (defaults // {
+      name = "${snabb.name}-nfv-packetblaster";
+      inherit (attrs) snabb;
+      useNixTestEnv = true;
+      __useChroot = false;
+      checkPhase = ''
+        cd src
 
-      # TODO: for NICless run
-      #export SNABB_PCI0=
-      #export SNABB_PCI_INTEL0=
-      #export SNABB_PCI_INTEL1=
+        # TODO: for NICless run
+        #export SNABB_PCI0=
+        #export SNABB_PCI_INTEL0=
+        #export SNABB_PCI_INTEL1=
 
-      /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
-    '';
-})))
-// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
-    name = "${defaults.snabb.name}-basic1-100e6";
-    checkPhase = ''
-      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
-    '';
-})))
-// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
-    name = "${defaults.snabb.name}-nfv";
-    useNixTestEnv = true;
-    checkPhase = ''
-      cd src
-      /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
-    '';
-})))
-// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
-    name = "${defaults.snabb.name}-packetblaster-64";
-    checkPhase = ''
-      cd src
-      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb packetblaster replay --duration 1 \
-        program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
-    '';
-})))
-// (listDrvToAttrs (mkSnabbBenchTest (defaults // {
-    name = "${defaults.snabb.name}-packetblaster-synth-64";
-    checkPhase = ''
-      /var/setuid-wrappers/sudo ${defaults.snabb}/bin/snabb packetblaster synth \
-        --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
-        --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
-    '';
-})))
+        /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
+      '';
+    });
+  mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
+    mkSnabbBenchTest (defaults // {
+      name = "${snabb.name}-packetblaster-64";
+      inherit (attrs) snabb;
+      checkPhase = ''
+        cd src
+        /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
+          program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
+      '';
+    });
+  mkMatrixBenchPacketblasterSynth = { snabb, ... }@attrs:
+    mkSnabbBenchTest (defaults // {
+      name = "${snabb.name}-packetblaster-synth-64";
+      inherit (attrs) snabb;
+      checkPhase = ''
+        /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
+          --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
+          --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
+      '';
+    });
+in {
+  # all versions of software used in benchmarks
+  software = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
+    snabbs qemus dpdks
+  ];
+  # benchmarks using a matrix of software and a number of repeats
+  benchmarks = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
+    (mkMatrixBenchBasic { snabb = lib.last snabbs; })
+    (mkMatrixBenchNFV { snabb = lib.last snabbs; })
+    (mkMatrixBenchNFVPacketblaster { snabb = lib.last snabbs; })
+    (mkMatrixBenchPacketblaster { snabb = lib.last snabbs; })
+    (mkMatrixBenchPacketblasterSynth { snabb = lib.last snabbs; })
+  ];
+}
