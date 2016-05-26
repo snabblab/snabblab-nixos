@@ -100,11 +100,11 @@ rec {
   # buildNTimes: Derivation -> Int -> [Derivation]
   buildNTimes = drv: n:
     let
-      repeatDrv = i: lib.overrideDerivation drv (attrs: {
+      repeatDrv = i: lib.hydraJob (lib.overrideDerivation drv (attrs: {
         name = attrs.name + "-num-${toString i}";
         numRepeat = i;
-      });
-    in map repeatDrv (lib.range 1 n);
+      }));
+    in map (repeatDrv) (lib.range 1 n);
 
   # runs the benchmark without chroot to be able to use pci device assigning
   mkSnabbBenchTest = { name, times, ... }@attrs:
