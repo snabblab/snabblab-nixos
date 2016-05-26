@@ -107,7 +107,7 @@ let
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
    });
-  mkMatrixBenchNFVPacketblaster = { snabb, ... }@attrs:
+  mkMatrixBenchNFVPacketblaster = { snabb, qemu, ... }@attrs:
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-${qemu.name}-nfv-packetblaster";
       inherit (attrs) snabb qemu;
@@ -126,7 +126,7 @@ let
         /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
       '';
     });
-  mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
+  mkMatrixBenchPacketblaster = { snabb, qemu, ... }@attrs:
     mkSnabbBenchTest (defaults // {
       name = "${snabb.name}-${qemu.name}-packetblaster-64";
       inherit (attrs) snabb;
@@ -154,11 +154,18 @@ in {
     snabbs qemus dpdks
   ];
   # benchmarks using a matrix of software and a number of repeats
-  benchmarks = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
-    (mkMatrixBenchBasic { snabb = lib.last snabbs; })
-    (mkMatrixBenchNFV { snabb = lib.last snabbs; qemu = lib.last qemus; })
-    (mkMatrixBenchNFVPacketblaster { snabb = lib.last snabbs; qemu = lib.last qemus; })
-    (mkMatrixBenchPacketblaster { snabb = lib.last snabbs; })
-    (mkMatrixBenchPacketblasterSynth { snabb = lib.last snabbs; })
-  ];
+  benchmarks = listDrvToAttrs
+    # TODO: should probably abstract this out, but for now it does the job
+    (lib.flatten (map (snabb:
+    lib.flatten (map (qemu:
+      let
+        params = { inherit snabb qemu; };
+      in [
+        (mkMatrixBenchBasic params)
+        (mkMatrixBenchNFV params)
+        (mkMatrixBenchNFVPacketblaster params)
+        (mkMatrixBenchPacketblaster params)
+        (mkMatrixBenchPacketblasterSynth params)
+      ]
+    ) qemus)) snabbs));
 }

@@ -115,7 +115,7 @@ rec {
    in buildNTimes snabbTest times;
 
    # take a list of derivations and make an attribute set of out their names
-  listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (lib.replaceChars ["."] [""] attrs.name) attrs) list);
+  listDrvToAttrs = l: builtins.listToAttrs (map (attrs: lib.nameValuePair (lib.replaceChars ["."] [""] attrs.name) attrs) l);
 
    # Snabb fixtures
 
