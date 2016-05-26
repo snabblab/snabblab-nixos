@@ -1,7 +1,7 @@
  # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
 
 { # specify how many times is each benchmark ran
-  numTimesRunBenchmark ? 1
+  numTimesRunBenchmark ? 20
 # specify on what hardware will the benchmarks be ran
 , hardware ? "lugano"
 }:
@@ -152,10 +152,6 @@ in {
   ];
   # benchmarks using a matrix of software and a number of repeats
   benchmarks = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
-    (mkMatrixBenchBasic { snabb = lib.last snabbs; })
-    (mkMatrixBenchNFV { snabb = lib.last snabbs; })
     (mkMatrixBenchNFVPacketblaster { snabb = lib.last snabbs; })
-    (mkMatrixBenchPacketblaster { snabb = lib.last snabbs; })
-    (mkMatrixBenchPacketblasterSynth { snabb = lib.last snabbs; })
   ];
 }
