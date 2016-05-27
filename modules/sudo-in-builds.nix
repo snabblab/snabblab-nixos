@@ -1,6 +1,7 @@
 { config, pkgs, lib, ... }:
 
 # allows sudo in chroots by introducing some impurities
+# has to be available on all servers for builds to always have those paths available inside chroot
 
 {
   nix.chrootDirs = [

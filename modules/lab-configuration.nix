@@ -6,7 +6,6 @@ with (import ../lib.nix);
   require = [
     ./common.nix
     ./hydra-slave.nix
-    ./sudo-in-builds.nix
     ./mft.nix
   ];
 
