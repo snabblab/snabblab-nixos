@@ -158,9 +158,9 @@ let
     });
 in {
   # all versions of software used in benchmarks
-  software = lib.foldl (a: b: a // (listDrvToAttrs b)) {} [
-    snabbs qemus dpdks
-  ];
+  software = listDrvToAttrs (lib.flatten [
+    snabbs qemus (map (k: dpdks k)  kernels)
+  ]);
   # benchmarks using a matrix of software and a number of repeats
   benchmarks = listDrvToAttrs
     # TODO: should probably abstract this out, but for now it does the job
