@@ -29,7 +29,7 @@ rec {
   # Function for running commands in environment as Snabb expects tests to run
   mkSnabbTest = { name
                 , snabb  # snabb derivation used
-                , qemuPkg ? qemu
+                , qemu ? pkgs.qemu
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
                 , needsTestEnv ? false  # if true, copies over our testEnv
@@ -43,7 +43,7 @@ rec {
     stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ git telnet tmux numactl bc iproute which qemuPkg utillinux ];
+      buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
       prePatch = ''
         patchShebangs src
@@ -104,7 +104,7 @@ rec {
         name = attrs.name + "-num-${toString i}";
         numRepeat = i;
       }));
-    in map (repeatDrv) (lib.range 1 n);
+    in map repeatDrv (lib.range 1 n);
 
   # runs the benchmark without chroot to be able to use pci device assigning
   mkSnabbBenchTest = { name, times, ... }@attrs:
