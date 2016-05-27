@@ -39,17 +39,22 @@ let
      });
 
   buildDpdk = version: hash: kernel:
-     kernel.dpdk.overrideDerivation (super: {
-       name = "dpdk-${version}-${kernel.kernel.version}";
-       inherit version;
-       prePatch = ''
-         find . -type f -exec sed -i 's/-Werror//' {} \;
-       '';
-       src = fetchurl {
-         url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
-         sha256 = hash;
-       };
-     });
+    let
+      needsGCC49 = lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
+      dpdk = if needsGCC49
+             then (kernel.dpdk.override { stdenv = overrideCC stdenv gcc49;})
+             else kernel.dpdk;
+    in dpdk.overrideDerivation (super: {
+      name = "dpdk-${version}-${kernel.kernel.version}";
+      inherit version;
+      prePatch = ''
+        find . -type f -exec sed -i 's/-Werror//' {} \;
+      '';
+      src = fetchurl {
+        url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
+        sha256 = hash;
+      };
+    });
 
   # define software stacks
 
