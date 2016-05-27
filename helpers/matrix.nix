@@ -115,7 +115,7 @@ let
    });
   mkMatrixBenchNFVPacketblaster = { snabb, qemu, kernel, dpdk, ... }@attrs:
     mkSnabbBenchTest (defaults // {
-      name = "${snabb.name}-${qemu.name}-${dpdk.name}-nfv-packetblaster";
+      name = "${snabb.name}-${qemu.name}-${dpdk.name}-nfv-dpdk64";
       inherit (attrs) snabb qemu;
       useNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
