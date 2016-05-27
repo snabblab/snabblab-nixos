@@ -166,7 +166,7 @@ rec {
        )
      ];
      snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
-   in runCommand "test-env-nix" rec {
+   in runCommand "test-env-nix-${dpdk.name}-" rec {
      qemu_img = lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
        inherit lib pkgs;
        config = snabb_config;
