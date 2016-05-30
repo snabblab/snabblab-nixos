@@ -40,10 +40,11 @@ let
 
   buildDpdk = version: hash: kernel:
     let
+      origDpdk = callPackage ../pkgs/dpdk.nix { kernel = kernel.kernel; };
       needsGCC49 = lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
       dpdk = if needsGCC49
-             then (kernel.dpdk.override { stdenv = overrideCC stdenv gcc49;})
-             else kernel.dpdk;
+             then (origDpdk.override { stdenv = overrideCC stdenv gcc48;})
+             else origDpdk;
     in dpdk.overrideDerivation (super: {
       name = "dpdk-${version}-${kernel.kernel.version}";
       inherit version;
@@ -79,6 +80,8 @@ let
     (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
   ];
   kernels = [
+    linuxPackages_3_14
+    linuxPackages_3_18
     linuxPackages_4_1
     linuxPackages_4_3
     linuxPackages_4_4
