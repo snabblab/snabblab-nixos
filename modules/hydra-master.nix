@@ -4,7 +4,8 @@ with lib;
 
 let
   # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
-  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/026f891ed6b040357e120be108b8306b5a2664ec;
+  # We use our own fork with some modifications
+  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/74cadb9da37b34b7212106d56d24d7dde9964835;
   commonBuildMachineOpt = {
     speedFactor = 1;
     sshKey = "/etc/nix/id_buildfarm";
