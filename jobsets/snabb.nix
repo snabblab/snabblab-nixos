@@ -17,7 +17,7 @@ rec {
     inherit hardware snabb useNixTestEnv;
     checkPhase = ''
       # run tests
-      #export FAIL_ON_FIRST=true
+      export FAIL_ON_FIRST=true
       sudo -E make test -C src/
 
       # keep the logs
