@@ -1,4 +1,6 @@
-with (import <nixpkgs> {});
+{ pkgs }:
+
+with pkgs;
 
 rec {
   # see https://github.com/snabbco/snabb/blob/master/src/doc/testing.md
@@ -8,17 +10,20 @@ rec {
     stripRoot = false;
   };
 
+  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
+
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
       SNABB_PCI_INTEL0 = "0000:01:00.0";
       SNABB_PCI_INTEL1 = "0000:01:00.1";
     };
+    murren = {};
   };
 
   getPCIVars = hardware:
     let
-      pcis = PCIAssignments."${hardware}" or (throw "No such server group as ${hardware}");
+      pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments group as ${hardware}");
     in  pcis  // {
       requiredSystemFeatures = [ hardware ];
     };
@@ -26,19 +31,31 @@ rec {
   # Function for running commands in environment as Snabb expects tests to run
   mkSnabbTest = { name
                 , snabb  # snabb derivation used
+                , qemu ? pkgs.qemu  # qemu used in tests
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
-                , needsTestEnv ? false  # if true, copies over our test env
+                , needsTestEnv ? false  # if true, copies over our testEnv
+                , needsNixTestEnv ? false  # if true, copies over our test env
+                , testNixEnv ? (mkNixTestEnv {})
                 , testEnv ? test_env
+                , isDPDK ? false # set true if dpdk qemu image is used
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
-    stdenv.mkDerivation ((getPCIVars hardware) // {
+    let
+      repeatNum = attrs.repeatNum or null;
+    in stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
+      name = name + (lib.optionalString (repeatNum != null) "-num-${repeatNum}");
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
-      patchPhase = ''
+      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv
+        (if isDPDK
+         then "init=${testNixEnv.snabb_config_dpdk.system.build.toplevel}/init"
+         else "init=${testNixEnv.snabb_config.system.build.toplevel}/init");
+  
+      prePatch = ''
         patchShebangs src
       '';
 
@@ -55,9 +72,9 @@ rec {
         sed -i 's/testlog snabb/testlog/' src/Makefile
 
         mkdir -p $out/nix-support
-      '' + lib.optionalString needsTestEnv ''
+      '' + lib.optionalString (needsTestEnv || needsNixTestEnv) ''
         mkdir ~/.test_env
-        cp --no-preserve=mode -r ${testEnv}/* ~/.test_env/
+        cp --no-preserve=mode -r ${if needsNixTestEnv then testNixEnv else testEnv}/* ~/.test_env/
       '';
 
       doCheck = true;
@@ -81,63 +98,27 @@ rec {
         done
       '';
      } // removeAttrs attrs [ "checkPhase" ]);
-  # buildNTimes: repeat building a derivation for n times
-  # buildNTimes: Derivation -> Int -> [Derivation]
-  buildNTimes = drv: n:
-    let
-      repeatDrv = i: lib.overrideDerivation drv (attrs: {
-        name = attrs.name + "-num-${toString i}";
-        numRepeat = i;
-      });
-    in map repeatDrv (lib.range 1 n);
 
   # runs the benchmark without chroot to be able to use pci device assigning
   mkSnabbBenchTest = { name, times, ... }@attrs:
    let
-     snabbTest = mkSnabbTest ({
+     snabbTest = lib.makeOverridable mkSnabbTest ({
        name = "snabb-benchmark-${name}";
        benchName = name;
+       numRepeat = 1;
      } // removeAttrs attrs [ "times" ]);
    in buildNTimes snabbTest times;
 
+  # buildNTimes: repeat building a derivation for n times
+  # buildNTimes: Derivation -> Int -> [Derivation]
+  buildNTimes = drv: n:
+    let
+      repeatDrv = i: drv.override { numRepeat = i; };
+    in map repeatDrv (lib.range 1 n);
+
    # take a list of derivations and make an attribute set of out their names
-  listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (lib.replaceChars ["."] [""] attrs.name) attrs) list);
-
-   # Snabb fixtures
-
-   # modules and NixOS config for plain qemu image
-   snabb_modules = [
-     <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
-     ({config, pkgs, ...}: {
-       environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump netcat iperf ];
-       fileSystems."/".device = "/dev/disk/by-label/nixos";
-       boot.loader.grub.device = "/dev/sda";
-     })
-   ];
-   snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
-
-   # modules and NixOS config gor dpdk qmemu image
-   snabb_modules_dpdk = [
-     ({config, pkgs, lib, ...}: {
-     # TODO
-     })
-   ];
-   snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
-
-   qemu_img = lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
-     inherit lib pkgs;
-     config = snabb_config;
-     partitioned = true;
-     format = "qcow2";
-     diskSize = 2 * 1024;
-   };
-   qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
-
-   # files needed for some tests
-   test_env_nix = runCommand "test-env-nix" {} ''
-     mkdir -p $out
-     ln -s ${qemu_img}/nixos.qcow2 $out/qemu.img
-     ln -s ${qemu_dpdk_img}/nixos.qcow2 $out/qemu-dpdk.img
-     ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
-   '';
+  listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
+ 
+  # "blabla-1.2.3" -> "blabla-1-2-3"
+  versionToAttribute = version: builtins.replaceStrings ["."] ["-"] version;
 }

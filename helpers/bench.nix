@@ -3,11 +3,12 @@
 , numTimesRunBenchmark ? 20
 # specify on what hardware will the benchmarks be ran
 , hardware ? "lugano"
-, nixpkgs ? null
+, nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/d3456dc1e490289094684f97648c6180ee1cc0f0.tar.gz)
 }:
-with (import (if nixpkgs == null then fetchTarball https://github.com/NixOS/nixpkgs/archive/d3456dc1e490289094684f97648c6180ee1cc0f0.tar.gz else nixpkgs) {});
+
+with (import nixpkgs {});
 with lib;
-with (import ../lib.nix);
+with (import ../lib { pkgs = (import nixpkgs {}); });
 
 let
   snabb = import "${snabbSrc}" {};

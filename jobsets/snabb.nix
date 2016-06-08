@@ -7,7 +7,7 @@
 with pkgs;
 with lib;
 with vmTools;
-with (import ../lib.nix);
+with (import ../lib);
 
 rec {
   manual = import "${snabbSrc}/src/doc" {};
@@ -15,8 +15,8 @@ rec {
   tests = mkSnabbTest ({
     name = "snabb-tests";
     inherit hardware snabb;
-    needsTestEnv = true;
-    testEnv = if useNixTestEnv then test_env_nix else test_env;
+    needsTestEnv = !useNixTestEnv;
+    needsNixTestEnv = useNixTestEnv;
     checkPhase = ''
       # run tests
       sudo -E make test -C src/ |& tee $out/tests.log
@@ -32,7 +32,13 @@ rec {
     '';
   });
   distro-builds = with diskImages; builtins.listToAttrs (map
-    (diskImage: { inherit (diskImage) name; value = runInLinuxImage (snabb // { inherit diskImage; name = "${snabb.name}-${diskImage.name}";});})
+    (diskImage: {
+       inherit (diskImage) name;
+       value = runInLinuxImage (snabb // {
+         inherit diskImage;
+         name = "${snabb.name}-${diskImage.name}";
+       });
+    })
     # List of distros that are currently supported according to upstream EOL
     [
       # TODO: fedora22
@@ -51,5 +57,5 @@ rec {
       centos71x86_64
       # See https://github.com/snabbco/snabb/pull/899
       # centos65x86_64
-    ]);
+  ]);
 }
