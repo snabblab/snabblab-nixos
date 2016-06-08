@@ -21,6 +21,8 @@ let
     })];
   };
 
+  snabbs = [(import snabb {})];
+
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = (
     # l2fwd depends on snabb, qemu, dpdk and just uses the latest kernel
