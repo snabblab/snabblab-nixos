@@ -113,7 +113,7 @@ rec {
   # buildNTimes: Derivation -> Int -> [Derivation]
   buildNTimes = drv: n:
     let
-      repeatDrv = i: drv.override { numRepeat = i; };
+      repeatDrv = i: lib.hydraJob (drv.override { numRepeat = i; });
     in map repeatDrv (lib.range 1 n);
 
    # take a list of derivations and make an attribute set of out their names

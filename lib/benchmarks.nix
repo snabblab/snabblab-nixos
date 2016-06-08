@@ -101,7 +101,7 @@ rec {
 
   mkMatrixBenchBasic = { snabb, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "basic1_snabb=${versionToAttribute snabb.version}_packets=100e6";
+      name = "basic1_snabb=${versionToAttribute snabb.version or ""}_packets=100e6";
       hardware = "murren";
       inherit (attrs) snabb;
       checkPhase = ''
@@ -114,12 +114,12 @@ rec {
      });
   mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, mtu, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "iperf_mtu=${mtu}_conf=${conf}_snabb=${versionToAttribute snabb.version}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
+      name = "iperf_mtu=${mtu}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       testNixEnv = mkNixTestEnv { inherit kernel; };
       meta = {
         inherit mtu conf;
-        snabbVersion = snabb.version;
+        snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
         kernelVersion = kernel.kernel.version;
         toCSV = drv: ''
@@ -137,7 +137,7 @@ rec {
     });
   mkMatrixBenchNFVDPDK = { snabb, qemu, kernel, dpdk, pktsize, conf, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version}_dpdk=${versionToAttribute dpdk.version}_qemu${versionToAttribute qemu.version}";
+      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
@@ -147,7 +147,7 @@ rec {
       hardware = "murren";
       meta = {
         inherit pktsize conf;
-        snabbVersion = snabb.version;
+        snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
         kernelVersion = kernel.kernel.version;
         dpdkVersion = dpdk.version;

@@ -54,5 +54,5 @@ in {
     snabbs qemus (map (k: dpdks k)  kernels)
   ]);
   benchmarks = listDrvToAttrs (map lib.hydraJob benchmarks-list);
-  #benchmark-csv = mkBenchmarkCSV benchmarks-list;
+  benchmark-csv = mkBenchmarkCSV benchmarks-list;
 }
