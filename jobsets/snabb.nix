@@ -19,9 +19,9 @@ rec {
     testEnv = if useNixTestEnv then test_env_nix else test_env;
     checkPhase = ''
       # run tests
-      sudo -E make test -C src/
+      sudo -E make test -C src/ |& tee $out/tests.log
 
-     if grep -q ERROR src/testlog/*; then
+     if grep -q ERROR $out/tests.log; then
          touch $out/nix-support/failed
      else
          echo "All tests passed."
