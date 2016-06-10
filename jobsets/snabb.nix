@@ -19,8 +19,13 @@ rec {
     testEnv = if useNixTestEnv then test_env_nix else test_env;
     checkPhase = ''
       # run tests
-      export FAIL_ON_FIRST=true
       sudo -E make test -C src/
+
+     if grep -q ERROR src/testlog/*; then
+         touch $out/nix-support/failed
+     else
+         echo "All tests passed."
+     fi
 
       # keep the logs
       cp src/testlog/* $out/
