@@ -46,7 +46,7 @@ let
         (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg";}))
         (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind";}))
       ]
-    ) snabbs))) qemus))) (dpdks linuxPackages_4_4)))
+    ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
 in {
   # all versions of software used in benchmarks
