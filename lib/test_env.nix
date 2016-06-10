@@ -9,7 +9,7 @@ with pkgs;
      snabb_modules = [
        <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
        ({config, pkgs, ...}: {
-         environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump netcat iperf2 ];
+         environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
          fileSystems."/".device = "/dev/disk/by-label/nixos";
          boot.loader.grub.device = "/dev/sda";
 
@@ -54,16 +54,16 @@ with pkgs;
        inherit lib pkgs;
        config = snabb_config;
        partitioned = true;
-       format = "qcow2";
-       diskSize = 2 * 1024;
+       format = "raw";
+       diskSize = 2 * 1020;
      };
      qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
    in runCommand "test-env-nix-${dpdk.name}-" rec {
      passthru = {inherit snabb_config snabb_config_dpdk;};
    } ''
      mkdir -p $out
-     ln -s ${qemu_img}/nixos.qcow2 $out/qemu.img
-     ln -s ${qemu_dpdk_img}/nixos.qcow2 $out/qemu-dpdk.img
+     ln -s ${qemu_img}/nixos.img $out/qemu.img
+     ln -s ${qemu_dpdk_img}/nixos.img $out/qemu-dpdk.img
      ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
      ln -s ${snabb_config.system.build.toplevel}/initrd $out/initrd
    ''
