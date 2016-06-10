@@ -101,7 +101,7 @@ rec {
       meta = {
         inherit repeatNum;
       } // attrs.meta or {};
-     } // removeAttrs attrs [ "checkPhase" "meta" ]);
+     } // removeAttrs attrs [ "checkPhase" "meta" "name" ]);
 
   # runs the benchmark without chroot to be able to use pci device assigning
   mkSnabbBenchTest = { name, times, ... }@attrs:
