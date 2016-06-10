@@ -43,10 +43,10 @@ rec {
                 , ...
                 }@attrs:
     let
-      repeatNum = attrs.repeatNum or null;
+      repeatNum = attrs.repeatNum or 1;
     in stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
-      name = name + (lib.optionalString (repeatNum != null) "-num-${repeatNum}");
+      name = name + "-num-${toString repeatNum}";
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
@@ -97,7 +97,11 @@ rec {
           fi
         done
       '';
-     } // removeAttrs attrs [ "checkPhase" ]);
+
+      meta = {
+        inherit repeatNum;
+      } // attrs.meta or {};
+     } // removeAttrs attrs [ "checkPhase" "meta" ]);
 
   # runs the benchmark without chroot to be able to use pci device assigning
   mkSnabbBenchTest = { name, times, ... }@attrs:

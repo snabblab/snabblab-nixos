@@ -200,13 +200,10 @@ rec {
 
   # Functions providing commands to convert logs to CSV
 
-  writeCSV = drv: benchName: unit: 
-    let 
-      repeatNum = lib.head (builtins.match ".+-num-([0-9]+)$" drv.name);
-    in ''
-     if test -z "$score"; then score="NA"; fi
-     echo ${benchName},${drv.meta.mtu or "NA"},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${repeatNum},$score,${unit} >> $out/bench.csv
-   '';
+  writeCSV = drv: benchName: unit: ''
+    if test -z "$score"; then score="NA"; fi
+    echo ${benchName},${drv.meta.mtu or "NA"},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+  '';
 
   # generate CSV out of logs
   # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
