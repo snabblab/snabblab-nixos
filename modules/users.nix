@@ -324,5 +324,11 @@ in
     description = "mnovakovic";
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7hLoCsDgvTYyjNYmAQw8zLN07125FXKDTEcHQSLq3UyIoiN7Yu0PI+Ci6rFUO6VD+dkRlMrDt0rja7OJHNN26N7LlMyvuoGICknIcaz4vbm1iwEihFNMgASwDNf0ZkkkWtnJULhxHsLGOjHVgbvOAQWbxO7hXZdhM6BwXnLYBTqfEhY5WnDWuGZl/goVCArJpHIqcnHDgjKJcmKZIOkCHEIZPxiEuIzuTj6XA4HmFaPXpLnh1d6Vx7H21R/aew2ffNYTxjHY/Z8qdwF860M3oF1tdOJixMG7e8Bfhg116ilW6u4Efjei+b1cqZD0xXfTbO/8PmxSrt6FxZh35ReoNN7valXzHNhfx8tXbBSx9hx1JyNjCNIzYM2P7pSnVY9WiZvWn5ZwAE/uZdPnSxJpGHw/FF4tjPnqKOqwd3gEhIkpnm3Wqo11xW8Iv22biXiQC9cRWa7ivBtkTiswE4jzaa26TekuOkgINDZEBe5F34SQUHQ7rjYs4zOiZn+3JwmBZuaW+SFLy78NBlSNlgdduCUcr0juk3ylLts7una2KxeeOloNyMrBtqqsVeBKLP0JLcGCQSFpbO/7Q9elWe6ZUpdAl6Zps75KzfjGK8oFvDcD7RP9EDvJkR4Rzgy3zedD8DmuExFX+bUczT0hMZDPWwXhWF5NyRcC2zVNOpkAwCQ==" ];
   } // commonUserAttrs;
+  
+ users.extraUsers.fstd = {
+    uid = 1053;
+    description = "Timo Buhrmester";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHWqm10yU4MAbBgIy0VaKmJGNAukgJy6PpouQWQsazzbQ38bUalwAyxrZszwyf9fTEMyfrMmTtov+RZYAAtJueOUZu6tz+oqng7TaOpR2Ge6RBawFIQ+ER3mlRGi3nsw5+RME5wV1OAcSOyFOE01w+aegY0pr9RKUJLfGvjByZchm7khzrk0rrNODnztDhGSTMbo2f/+4MvtP0OP6Du6dZ299kSW1DbUbs2RrSPp+lHZPIUS/F7GMqdYWFSTtTEmw9ToxUU30tQhF62cQDY7BPJksdgjXsYqcUBQF9TafdySMKtm0PrstB5sKmn6CvJ2TbMWvHyE7QTo1/Z471yjrd fstd@grapefruit.pr0.tips" ];
+  } // commonUserAttrs;
 
 }
