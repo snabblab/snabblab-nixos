@@ -7,12 +7,12 @@
 with pkgs;
 with lib;
 with vmTools;
-with (import ../lib);
+with (import ../lib { inherit pkgs; });
 
 rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
-  tests = mkSnabbTest ({
+  tests = mkSnabbTest {
     name = "snabb-tests";
     inherit hardware snabb;
     needsTestEnv = !useNixTestEnv;
@@ -30,7 +30,7 @@ rec {
       # keep the logs
       cp src/testlog/* $out/
     '';
-  });
+  };
   distro-builds = with diskImages; builtins.listToAttrs (map
     (diskImage: {
        inherit (diskImage) name;
