@@ -38,15 +38,14 @@ rec {
                 , needsNixTestEnv ? false  # if true, copies over our test env
                 , testNixEnv ? (mkNixTestEnv {})
                 , testEnv ? test_env
+                , repeatNum ? null # if the test is repeated more than once, note the repetition
                 , isDPDK ? false # set true if dpdk qemu image is used
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
                 , ...
                 }@attrs:
-    let
-      repeatNum = attrs.repeatNum or 1;
-    in stdenv.mkDerivation ((getPCIVars hardware) // {
+    stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
-      name = name + "-num-${toString repeatNum}";
+      name = name + (lib.optionalString (repeatNum != null) "-num-${toString repeatNum}");
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
@@ -109,7 +108,6 @@ rec {
      snabbTest = lib.makeOverridable mkSnabbTest ({
        name = "snabb-benchmark-${name}";
        benchName = name;
-       numRepeat = 1;
      } // removeAttrs attrs [ "times" ]);
    in buildNTimes snabbTest times;
 
@@ -117,7 +115,7 @@ rec {
   # buildNTimes: Derivation -> Int -> [Derivation]
   buildNTimes = drv: n:
     let
-      repeatDrv = i: lib.hydraJob (drv.override { numRepeat = i; });
+      repeatDrv = i: lib.hydraJob (drv.override { repeatNum = i; });
     in map repeatDrv (lib.range 1 n);
 
    # take a list of derivations and make an attribute set of out their names
