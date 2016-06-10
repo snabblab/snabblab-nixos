@@ -137,7 +137,7 @@ rec {
     });
   mkMatrixBenchNFVDPDK = { snabb, qemu, kernel, dpdk, pktsize, conf, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu${versionToAttribute qemu.version}";
+      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
@@ -200,9 +200,12 @@ rec {
 
   # Functions providing commands to convert logs to CSV
 
-  writeCSV = drv: benchName: unit: ''
+  writeCSV = drv: benchName: unit: 
+    let 
+      repeatNum = lib.head (builtins.match ".+-num-([0-9]+)$" drv.name);
+    in ''
      if test -z "$score"; then score="NA"; fi
-     echo ${benchName},${drv.meta.mtu or "NA"},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${lib.head (builtins.match ".+_id=([0-9]+)$" drv.name)},$score,${unit} >> $out/bench.csv
+     echo ${benchName},${drv.meta.mtu or "NA"},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${repeatNum},$score,${unit} >> $out/bench.csv
    '';
 
   # generate CSV out of logs
