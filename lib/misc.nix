@@ -63,7 +63,7 @@ rec {
         export HOME=$TMPDIR
 
         # setup expected directories
-        sudo mkdir -p /var/run /hugetlbfs
+        sudo mkdir -p /var/{run,tmp} /hugetlbfs
         sudo mount -t hugetlbfs none /hugetlbfs
 
         # make sure we reuse the snabb built in another derivation
