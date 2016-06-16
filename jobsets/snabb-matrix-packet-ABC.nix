@@ -19,10 +19,13 @@ let
   defaults = {
     times = numTimesRunBenchmark;
     alwaysSucceed = true;
-    patches = [(fetchurl {
+    testEnvPatch = [(fetchurl {
          url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
          sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
     })];
+    patchPhase = ''
+      patch -t -p1 < $testEnvPatch
+    '';
   };
 
   buildNixSnabb = snabb: version:
