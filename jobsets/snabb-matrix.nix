@@ -53,6 +53,6 @@ in {
   software = listDrvToAttrs (lib.flatten [
     snabbs qemus (map (k: dpdks k)  kernels)
   ]);
-  benchmarks = listDrvToAttrs (map lib.hydraJob benchmarks-list);
+  benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
 }
