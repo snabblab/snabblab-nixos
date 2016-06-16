@@ -29,6 +29,7 @@ rec {
 
       # keep the logs
       cp src/testlog/* $out/
+      cp src/qemu*.log $out/
     '';
   };
   distro-builds = with diskImages; builtins.listToAttrs (map

@@ -1,6 +1,6 @@
 { pkgs }:
 
-with pkgs; 
+with pkgs;
 
 { kernel ? linuxPackages
 , dpdk ? linuxPackages.dpdk }:
@@ -13,12 +13,18 @@ with pkgs;
          fileSystems."/".device = "/dev/disk/by-label/nixos";
          boot.loader.grub.device = "/dev/sda";
 
-         # settings needed by tests
+         # Options needed by tests
          boot.kernelPackages = kernel;
          networking.firewall.enable = lib.mkOverride 150 false;
          services.mingetty.autologinUser = "root";
          users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
          networking.usePredictableInterfaceNames = false;
+
+         # Log everything to the serial console.
+         services.journald.extraConfig = ''
+           ForwardToConsole=yes
+           MaxLevelConsole=debug
+         '';
        })
      ];
      snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
