@@ -3,11 +3,18 @@
 # specify how many times is each benchmark ran
 { numTimesRunBenchmark ? 1
 , nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
-, snabbMaster
-, snabbNext
-, snabbPacketA
-, snabbPacketB
-, snabbPacketC
+, snabbAsrc
+, snabbBsrc ? null
+, snabbCsrc ? null
+, snabbDsrc ? null
+, snabbEsrc ? null
+, snabbFsrc ? null
+, snabbAname
+, snabbBname ? null
+, snabbCname ? null
+, snabbDname ? null
+, snabbEname ? null
+, snabbFname ? null
 }:
 
 with (import nixpkgs {});
@@ -23,23 +30,28 @@ let
          url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
          sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
     })];
-    patchPhase = '' 
+    patchPhase = ''
       patch -t -p1 < $testEnvPatch
     '';
   };
 
-  buildNixSnabb = snabb: version:
-    (callPackage snabb {}).overrideDerivation (super:
-      {
-        name = super.name + version;
-      }
-    );
-  snabbs = [
-    (buildNixSnabb snabbMaster "master")
-    (buildNixSnabb snabbNext "next")
-    (buildNixSnabb snabbPacketA "packetA")
-    (buildNixSnabb snabbPacketB "packetB")
-    (buildNixSnabb snabbPacketC "packetC")
+  buildNixSnabb = snabbSrc: version:
+    if snabbSrc == null
+    then null
+    else
+      (callPackage snabbSrc {}).overrideDerivation (super:
+        {
+          name = super.name + version;
+          inherit version;
+        }
+      );
+  snabbs = lib.filter (snabb: snabb != null) [
+    (buildNixSnabb snabbAsrc snabbAname)
+    (buildNixSnabb snabbBsrc snabbBname)
+    (buildNixSnabb snabbCsrc snabbCname)
+    (buildNixSnabb snabbDsrc snabbDname)
+    (buildNixSnabb snabbEsrc snabbEname)
+    (buildNixSnabb snabbFsrc snabbFname)
   ];
 
   # benchmarks using a matrix of software and a number of repeats
