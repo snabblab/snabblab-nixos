@@ -8,9 +8,9 @@ with pkgs;
 let
   # use sudo without pam (eaiser in chroots)
   sudoChroot = sudo.overrideDerivation (super: {
-    buildInputs = [ coreutils groff ];
+    configureFlags = super.configureFlags ++ [ "--without-pam" ];
     postInstall = ''
-      ln -s $out/bin/sudo $out/bin/sudo-chroot
+      mv $out/bin/sudo $out/bin/sudo-chroot
     '';
   });
 in {
