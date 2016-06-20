@@ -3,18 +3,27 @@
 # allows sudo in chroots by introducing some impurities
 # has to be available on all servers for builds to always have those paths available inside chroot
 
-{
+with pkgs;
+
+let
+  # use sudo without pam (eaiser in chroots)
+  sudoChroot = sudo.overrideDerivation (super: {
+    buildInputs = [ coreutils groff ];
+    postInstall = ''
+      ln -s $out/bin/sudo $out/bin/sudo-chroot
+    '';
+  });
+in {
   nix.chrootDirs = [
-    "/var/setuid-wrappers"
-    "${pkgs.sudo}"
+    "/var/setuid-wrappers/sudo=/var/setuid-wrappers/sudo-chroot"
+    "/var/setuid-wrappers/sudo.real=/var/setuid-wrappers/sudo-chroot.real"
+    "${sudoChroot}"
     "/etc/sudoers"
     "/etc/passwd"
-    "/etc/pam.d/sudo"
-    "/etc/static/pam.d/sudo"
-    (toString (pkgs.writeText "sudo.pam" config.security.pam.services.sudo.text))
     "/sys"
   ];
-
+  environment.systemPackages = [ (lowPrio sudoChroot) ];
+  security.setuidPrograms = [ "sudo-chroot" ];
 
   # legacy/deprecated solution (no chroot)
   nix.useChroot = lib.mkForce "relaxed";
