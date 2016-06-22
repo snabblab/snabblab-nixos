@@ -4,6 +4,7 @@ let
       modules = [
         (import ./../machines/eiger.nix).${name}
         (import ./../machines/eiger-production.nix).${name}
+        { networking.hostName = name; }
       ];
     in {
       eval = import <nixpkgs/nixos/lib/eval-config.nix> { inherit modules; };
