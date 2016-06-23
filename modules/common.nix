@@ -78,6 +78,7 @@
 
   # Auto upgrade NixOS
   system.autoUpgrade.enable = true;
+  system.autoUpgrade.dates = "*:0/10";
   systemd.services.nixos-upgrade.environment.NIX_PATH = "/nix/var/nix/profiles/per-user/root/channels/snabblab/:/nix/var/nix/profiles/per-user/root/channels/";
   systemd.services.nixos-upgrade.environment.NIXOS_CONFIG = pkgs.writeText "configuration.nix" ''
     (import <snabblab/machines>).${config.networking.hostName}.config
