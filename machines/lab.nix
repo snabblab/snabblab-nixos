@@ -30,6 +30,8 @@ in {
       environment.variables = PCIAssignments.lugano;
 
       # custom NixOS options here
+  davos = { config, pkgs, lib, ... }: defaults // {
+      # custom NixOS options here
   };
   grindelwald = { config, pkgs, lib, ... }: defaults // {
       # custom NixOS options here
