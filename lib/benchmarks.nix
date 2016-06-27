@@ -18,6 +18,17 @@ rec {
         };
      });
 
+ buildNixSnabb = snabbSrc: version:
+   if snabbSrc == null
+   then null
+   else
+     (callPackage snabbSrc {}).overrideDerivation (super:
+       {
+         name = super.name + version;
+         inherit version;
+       }
+     );
+    
   buildQemu = version: hash:
      qemu.overrideDerivation (super: {
        name = "qemu-${version}";
