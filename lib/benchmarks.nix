@@ -135,18 +135,17 @@ rec {
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
     });
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kernel, dpdk, pktsize, conf, ... }@attrs:
+  mkMatrixBenchNFVDPDK = { snabb, qemu, kernel, dpdk, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
+      name = "l2fwd_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
       isDPDK = true;
       # TODO: get rid of this
       __useChroot = false;
-      hardware = "murren";
+      hardware = "lugano";
       meta = {
-        inherit pktsize conf;
         snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
         kernelVersion = kernel.kernel.version;
@@ -158,12 +157,39 @@ rec {
       };
       checkPhase = ''
         cd src
-
-        export SNABB_PACKET_SIZES=${pktsize}
-        export SNABB_DPDK_BENCH_CONF=${dpdkports.${conf}}
-        /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/dpdk_bench.sh |& tee $out/log.txt
+        /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
       '';
     });
+  # using Soft NIC
+  mkMatrixBenchSoftNFVDPDK = { snabb, qemu, kernel, dpdk, pktsize, conf, ... }@attrs:
+      mkSnabbBenchTest (attrs.defaults or {} // {
+        name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
+        inherit (attrs) snabb qemu;
+        needsNixTestEnv = true;
+        testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
+        isDPDK = true;
+        # TODO: get rid of this
+        __useChroot = false;
+        hardware = "murren";
+        meta = {
+          inherit pktsize conf;
+          snabbVersion = snabb.version or "";
+          qemuVersion = qemu.version;
+          kernelVersion = kernel.kernel.version;
+          dpdkVersion = dpdk.version;
+          toCSV = drv: ''
+            score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
+            ${writeCSV drv "l2fwd" "Mpps"}
+         '';
+        };
+        checkPhase = ''
+          cd src
+
+          export SNABB_PACKET_SIZES=${pktsize}
+          export SNABB_DPDK_BENCH_CONF=${dpdkports.${conf}}
+          /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/dpdk_bench.sh |& tee $out/log.txt
+        '';
+      });
   mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "${snabb.name}-packetblaster-64";
@@ -207,7 +233,7 @@ rec {
 
   # generate CSV out of logs
   # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
-  mkBenchmarkCSV = benchmarkList: stdenv.mkDerivation { 
+  mkBenchmarkCSV = benchmarkList: stdenv.mkDerivation {
     name = "snabb-report-csv";
     buildInputs = [ pkgs.gawk pkgs.bc ];
     preferLocalBuild = true;

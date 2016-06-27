@@ -61,7 +61,7 @@ let
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
       let
-        params = { inherit snabb qemu dpdk defaults; kernel = linuxPackages_4_4; };
+        params = { inherit snabb qemu dpdk defaults; kernel = linuxPackages_3_18; };
       in [
         (mkMatrixBenchBasic params)
         (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "base";}))
@@ -70,12 +70,7 @@ let
         (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "ipsec";}))
         (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3";}))
         (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3_ipsec";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "base";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "noind";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "base";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind";}))
+        (mkMatrixBenchNFVDPDK params)
       ]
     ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
