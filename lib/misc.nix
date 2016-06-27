@@ -53,9 +53,9 @@ rec {
         (if isDPDK
          then "init=${testNixEnv.snabb_config_dpdk.system.build.toplevel}/init"
          else "init=${testNixEnv.snabb_config.system.build.toplevel}/init");
-  
-      prePatch = ''
-        patchShebangs src
+
+      postUnpack = ''
+        patchShebangs .
       '';
 
       buildPhase = ''
@@ -79,7 +79,7 @@ rec {
       doCheck = true;
 
       # http://unix.stackexchange.com/questions/14270/get-exit-status-of-process-thats-piped-to-another/73180#73180
-      checkPhase = 
+      checkPhase =
         lib.optionalString alwaysSucceed ''
           set +o pipefail
         '' + ''${checkPhase}'' +
@@ -120,7 +120,7 @@ rec {
 
    # take a list of derivations and make an attribute set of out their names
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
- 
+
   # "blabla-1.2.3" -> "blabla-1-2-3"
   versionToAttribute = version: builtins.replaceStrings ["."] ["-"] version;
 }
