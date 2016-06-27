@@ -15,6 +15,7 @@
 , snabbDname ? null
 , snabbEname ? null
 , snabbFname ? null
+, benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk"]
 }:
 
 with (import nixpkgs {});
@@ -50,18 +51,10 @@ let
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      let
-        params = { inherit snabb qemu dpdk defaults; kernel = linuxPackages_3_18; };
-      in [
-        (mkMatrixBenchBasic params)
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "base";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "9000"; conf = "base";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "filter";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "ipsec";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3_ipsec";}))
-        (mkMatrixBenchNFVDPDK params)
-      ]
+      (selectBenchmarks
+        benchmarkNames
+        { inherit snabb qemu dpdk defaults; kernel = linuxPackages_3_18; }
+      )
     ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
 in {

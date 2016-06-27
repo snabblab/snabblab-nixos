@@ -28,7 +28,7 @@ rec {
          inherit version;
        }
      );
-    
+
   buildQemu = version: hash:
      qemu.overrideDerivation (super: {
        name = "qemu-${version}";
@@ -123,13 +123,13 @@ rec {
         ${writeCSV drv "basic" "Mpps"}
       '';
      });
-  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, mtu, ... }@attrs:
+  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "iperf_mtu=${mtu}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
+      name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       testNixEnv = mkNixTestEnv { inherit kernel; };
       meta = {
-        inherit mtu conf;
+        inherit conf;
         snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
         kernelVersion = kernel.kernel.version;
@@ -239,7 +239,7 @@ rec {
 
   writeCSV = drv: benchName: unit: ''
     if test -z "$score"; then score="NA"; fi
-    echo ${benchName},${drv.meta.mtu or "NA"},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+    echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
   '';
 
   # generate CSV out of logs
@@ -252,11 +252,32 @@ rec {
       source $stdenv/setup
       mkdir -p $out/nix-support
 
-      echo "benchmark,mtu,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+      echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
       ${lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
       # Make CSV file available via Hydra
       echo "file CSV $out/bench.csv" >> $out/nix-support/hydra-build-products
     '';
+   };
+
+   # Given a list of names and parameters to pass, collect benchmarks by their name and pass them the parameters
+   selectBenchmarks = names: params:
+     map (name: (lib.getAttr name benchmarks) params) names;
+
+   benchmarks = {
+     basic = mkMatrixBenchBasic;
+     iperf = mkMatrixBenchNFVIperf;
+     iperf-base = params: mkMatrixBenchNFVIperf (params // {conf = "base";});
+     iperf-filter = params: mkMatrixBenchNFVIperf (params // {conf = "filter";});
+     iperf-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "ipsec";});
+     iperf-l2tpv3 = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3";});
+     iperf-l2tpv3-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3_ipsec";});
+     dpdk = mkMatrixBenchNFVDPDK;
+     dpdk-soft-base-256 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "256"; conf = "base";});
+     dpdk-soft-nomrg-256 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "256"; conf = "nomrg";});
+     dpdk-soft-noind-256 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "256"; conf = "noind";});
+     dpdk-soft-base-64 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "64"; conf = "base";});
+     dpdk-soft-nomrg-64 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "64"; conf = "nomrg";});
+     dpdk-soft-noind-64 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "64"; conf = "noind";});
    };
 }

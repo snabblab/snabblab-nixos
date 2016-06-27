@@ -4,6 +4,11 @@
 { numTimesRunBenchmark ? 1
 , nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
 , snabb
+, benchmarkNames ? [
+    "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec"
+    "dpdk-soft-base-256" "dpdk-soft-nomrg-256" "dpdk-soft-noind-256"
+    "dpdk-soft-base-64" "dpdk-soft-nomrg-64" "dpdk-soft-noind-64"
+  ]
 }:
 
 with (import nixpkgs {});
@@ -29,23 +34,10 @@ let
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      let
-        params = { inherit snabb qemu dpdk defaults; kernel = linuxPackages_4_4; };
-      in [
-        (mkMatrixBenchBasic params)
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "base";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "9000"; conf = "base";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "filter";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "ipsec";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3";}))
-        (mkMatrixBenchNFVIperf (params // {mtu = "1500"; conf = "l2tpv3_ipsec";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "base";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "noind";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "base";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg";}))
-        (mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind";}))
-      ]
+      (selectBenchmarks
+        benchmarkNames
+        { inherit snabb qemu dpdk defaults; kernel = linuxPackages_3_18; }
+      )
     ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
 in {
