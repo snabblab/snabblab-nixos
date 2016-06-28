@@ -123,10 +123,11 @@ rec {
         ${writeCSV drv "basic" "Mpps"}
       '';
      });
-  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, ... }@attrs:
+  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, hardware ? "lugano", ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
+      inherit hardware;
       testNixEnv = mkNixTestEnv { inherit kernel; };
       meta = {
         inherit conf;
@@ -139,7 +140,6 @@ rec {
        '';
       };
       needsNixTestEnv = true;
-      hardware = "murren";
       checkPhase = ''
         export SNABB_IPERF_BENCH_CONF=${iperfports.${conf}}
         cd src
