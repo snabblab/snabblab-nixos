@@ -83,6 +83,12 @@
   systemd.services.nixos-upgrade.environment.NIXOS_CONFIG = pkgs.writeText "configuration.nix" ''
     (import <snabblab/machines>).${config.networking.hostName}.config
   '';
+  system.activationScripts.snabblab = ''
+    export PATH=$PATH:${pkgs.gnutar}/bin:${pkgs.xz}/bin
+    NIX_PATH= /run/current-system/sw/bin/nix-channel --remove nixos
+    NIX_PATH= /run/current-system/sw/bin/nix-channel --add https://hydra.snabb.co/channel/custom/domenkozar-sandbox/snabblab/machines.${config.networking.hostName} snabblab
+    NIX_PATH= /run/current-system/sw/bin/nix-channel --update
+  '';
 
   # Expose machines for Hydra slaves
   programs.ssh.extraConfig = ''
