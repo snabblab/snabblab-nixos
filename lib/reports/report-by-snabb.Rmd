@@ -10,7 +10,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 ```{r}
 library(ggplot2)
-dat <- read.csv("/Users/lukego/Downloads/bench (2).csv")
+dat <- read.csv("bench.csv")
 d <- as.data.frame(dat)
 ```
 
@@ -64,4 +64,3 @@ p <- p + geom_density(alpha = 0.1)
 p <- p + expand_limits(x=0)
 p + ggtitle("Distribution of results by QEMU version")
 ```
-

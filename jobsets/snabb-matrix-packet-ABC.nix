@@ -16,6 +16,7 @@
 , snabbEname ? null
 , snabbFname ? null
 , benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk"]
+, reportName ? null
 }:
 
 with (import nixpkgs {});
@@ -57,11 +58,37 @@ let
       )
     ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
-in {
+in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
     snabbs qemus (map (k: dpdks k)  kernels)
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
+  # use writeText until runCommand uses passAsFile (16.09)
+  benchmark-report = stdenv.mkDerivation {
+    name = "snabb-report";
+    buildInputs = [ benchmark-csv rPackages.rmarkdown rPackages.ggplot2 R pandoc which ];
+    preferLocalBuild = true;
+    builder = writeText "csv-builder.sh" ''
+      source $stdenv/setup
+    
+      # Store all logs
+      mkdir -p $out/nix-support
+      ${lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarks-list}
+      tar cfJ logs.tar.xz -C $out .
+      mv logs.tar.xz $out/
+      echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
+
+      # Create markdown report
+      cp ${../lib/reports + "/${reportName}.Rmd"} ./report.Rmd
+      cp ${benchmark-csv}/bench.csv .
+      cat bench.csv
+      cat report.Rmd
+      echo "library(rmarkdown); render('report.Rmd')" | R --no-save
+      cp report.html $out
+      echo "file HTML $out/report.html"  >> $out/nix-support/hydra-build-products
+      echo "nix-build out $out" >> $out/nix-support/hydra-build-products
+    '';
+  };
 }
