@@ -30,8 +30,20 @@ in {
       environment.variables = PCIAssignments.lugano;
 
       # custom NixOS options here
+  };
   davos = { config, pkgs, lib, ... }: defaults // {
       # custom NixOS options here
+      services.snabb_bot.environment =
+        ''
+          export SNABB_TEST_IMAGE=eugeneia/snabb-nfv-test-vanilla
+          export SNABB_PCI0=0000:03:00.0
+          export SNABB_PCI1=0000:03:00.1
+          export SNABB_PCI_INTEL0=0000:03:00.0
+          export SNABB_PCI_INTEL1=0000:03:00.1
+          export SNABB_PCI_INTEL1G0=0000:01:00.0
+          export SNABB_PCI_INTEL1G1=0000:01:00.1
+        '';
+      imports = [ ./../modules/snabb_bot.nix ./../modules/snabb_doc.nix ];
   };
   grindelwald = { config, pkgs, lib, ... }: defaults // {
       # custom NixOS options here
