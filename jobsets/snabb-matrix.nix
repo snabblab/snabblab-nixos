@@ -40,11 +40,12 @@ let
       )
     ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
   );
-in {
+in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
     snabbs qemus (map (k: dpdks k)  kernels)
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
+  benchmark-report = mkBenchmarkReport benchmark-csv benchmarks-list "basic";
 }

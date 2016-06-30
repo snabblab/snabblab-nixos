@@ -65,5 +65,5 @@ in rec {
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
-  benchmark-report = mkBenchmarkReport benchmark-csv reportName;
+  benchmark-report = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
 }
