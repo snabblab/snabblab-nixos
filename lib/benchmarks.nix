@@ -260,6 +260,33 @@ rec {
     '';
    };
 
+   # use writeText until runCommand uses passAsFile (16.09)
+   mkBenchmarkReport = benchmark-csv: reportName: stdenv.mkDerivation {
+     name = "snabb-report";
+     buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 R pandoc which ];
+     preferLocalBuild = true;
+     builder = writeText "csv-builder.sh" ''
+       source $stdenv/setup
+
+       # Store all logs
+       mkdir -p $out/nix-support
+       ${lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarks-list}
+       tar cfJ logs.tar.xz -C $out .
+       mv logs.tar.xz $out/
+       echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
+
+       # Create markdown report
+       cp ${../lib/reports + "/${reportName}.Rmd"} ./report.Rmd
+       cp ${benchmark-csv}/bench.csv .
+       cat bench.csv
+       cat report.Rmd
+       echo "library(rmarkdown); render('report.Rmd')" | R --no-save
+       cp report.html $out
+       echo "file HTML $out/report.html"  >> $out/nix-support/hydra-build-products
+       echo "nix-build out $out" >> $out/nix-support/hydra-build-products
+     '';
+   };
+
    # Given a list of names and parameters to pass, collect benchmarks by their name and pass them the parameters
    selectBenchmarks = names: params:
      map (name: (lib.getAttr name benchmarks) params) names;
