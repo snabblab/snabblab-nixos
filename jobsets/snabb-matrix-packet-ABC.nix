@@ -16,7 +16,7 @@
 , snabbEname ? null
 , snabbFname ? null
 , benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk"]
-, reportName ? null
+, reports ? []
 }:
 
 with (import nixpkgs {});
@@ -65,5 +65,8 @@ in rec {
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
-  benchmark-report = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
+  benchmark-reports = lib.listToAttrs (map (reportName:
+      { name = reportName;
+        value = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
+      }) reports);
 }
