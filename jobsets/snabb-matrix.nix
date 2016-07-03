@@ -13,17 +13,11 @@
 
 with (import nixpkgs {});
 with (import ../lib { pkgs = (import nixpkgs {}); });
-with vmTools;
 
 let
   # mkSnabbBenchTest defaults
   defaults = {
     times = numTimesRunBenchmark;
-    alwaysSucceed = true;
-    patches = [(fetchurl {
-         url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
-         sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
-    })];
   };
 
   snabbs = [(import snabb {})];
@@ -43,7 +37,7 @@ let
 in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
-    snabbs qemus (map (k: dpdks k)  kernels)
+    snabbs qemus (map dpdks k  kernels)
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
