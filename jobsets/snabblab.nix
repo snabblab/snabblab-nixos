@@ -32,6 +32,8 @@ let
         isHydraChannel = true;
       };
     } // removeAttrs args [ "meta" ]);
+  nixpkgsShortRev = nixpkgsSrc.shortRev or "abcdefg";
+  nixpkgsVersion = "git-${toString nixpkgsSrc.revCount or 12345}.${nixpkgsShortRev}-snabblab";
   mkChannelWithNixpkgs = { ... }@args:
     let
       src = stdenv.mkDerivation {
@@ -40,6 +42,13 @@ let
         phases = [ "unpackPhase" "installPhase" ];
         installPhase = ''
           cp -r --no-preserve=ownership "${nixpkgsSrc}/" nixpkgs
+
+          # denote nixpkgs versioning
+          chmod -R u+w nixpkgs
+          echo "echo '${nixpkgsVersion}'" > nixpkgs/nixos/modules/installer/tools/get-version-suffix
+          echo -n "${nixpkgsVersion}" > nixpkgs/.version-suffix
+          echo -n ${nixpkgsShortRev} > nixpkgs/.git-revision
+
           cp -r . $out
         '';
       };
@@ -54,5 +63,5 @@ in {
     });
 
   # build all our custom packages
-  inherit (import ./../pkgs {}) snabbpkgs;
+  inherit (import ./../pkgs { pkgs = (import nixpkgsSrc {}); }) snabbpkgs;
 }
