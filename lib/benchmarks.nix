@@ -294,11 +294,11 @@ rec {
    benchmarks = {
      basic = mkMatrixBenchBasic;
      iperf = mkMatrixBenchNFVIperf;
-     iperf-base = params: mkMatrixBenchNFVIperf (params // {conf = "base";});
-     iperf-filter = params: mkMatrixBenchNFVIperf (params // {conf = "filter";});
-     iperf-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "ipsec";});
-     iperf-l2tpv3 = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3";});
-     iperf-l2tpv3-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3_ipsec";});
+     iperf-base = params: mkMatrixBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
+     iperf-filter = params: mkMatrixBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
+     iperf-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
+     iperf-l2tpv3 = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
+     iperf-l2tpv3-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
      dpdk = mkMatrixBenchNFVDPDK;
      dpdk-soft-base-256 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "256"; conf = "base";});
      dpdk-soft-nomrg-256 = params: mkMatrixBenchSoftNFVDPDK (params // {pktsize = "256"; conf = "nomrg";});
