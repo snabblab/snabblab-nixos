@@ -1,8 +1,9 @@
-{ nixpkgsSrc ? <nixpkgs> }:
+{ nixpkgs ? <nixpkgs> }:
 
-with (import nixpkgsSrc {});
+with (import nixpkgs {});
 
 let
+  pkgs = (import nixpkgs {});
   mkChannel = { name, src, constituents ? [], meta ? {}, isNixOS ? true, ... }@args:
     stdenv.mkDerivation ({
       preferLocalBuild = true;
@@ -32,8 +33,8 @@ let
         isHydraChannel = true;
       };
     } // removeAttrs args [ "meta" ]);
-  nixpkgsShortRev = nixpkgsSrc.shortRev or "abcdefg";
-  nixpkgsVersion = "git-${toString nixpkgsSrc.revCount or 12345}.${nixpkgsShortRev}-snabblab";
+  nixpkgsShortRev = nixpkgs.shortRev or "abcdefg";
+  nixpkgsVersion = "-snabblab-git-${nixpkgsShortRev}";
   mkChannelWithNixpkgs = { ... }@args:
     let
       src = stdenv.mkDerivation {
@@ -41,7 +42,7 @@ let
         src = args.src;
         phases = [ "unpackPhase" "installPhase" ];
         installPhase = ''
-          cp -r --no-preserve=ownership "${nixpkgsSrc}/" nixpkgs
+          cp -r --no-preserve=ownership "${nixpkgs}/" nixpkgs
 
           # denote nixpkgs versioning
           chmod -R u+w nixpkgs
@@ -63,5 +64,5 @@ in {
     });
 
   # build all our custom packages
-  inherit (import ./../pkgs { pkgs = (import nixpkgsSrc {}); }) snabbpkgs;
+  inherit (import ./../pkgs { inherit pkgs; }) snabbpkgs;
 }
