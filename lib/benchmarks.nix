@@ -123,7 +123,7 @@ rec {
         ${writeCSV drv "basic" "Mpps"}
       '';
      });
-  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf, hardware ? "lugano", ... }@attrs:
+  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf ? "", hardware ? "lugano", ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
@@ -141,7 +141,7 @@ rec {
       };
       needsNixTestEnv = true;
       checkPhase = ''
-        export SNABB_IPERF_BENCH_CONF=${iperfports.${conf}}
+        export SNABB_IPERF_BENCH_CONF=${iperfports.${conf} or ""}
         cd src
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
