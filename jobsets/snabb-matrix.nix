@@ -15,8 +15,11 @@
 , snabbDname ? null
 , snabbEname ? null
 , snabbFname ? null
-, benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk"]
+, benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk" ]
 , reports ? []
+, kernelVersions ? []
+, dpdkVersions ? []
+, qemuVersions ? []
 }:
 
 with (import nixpkgs {});
@@ -35,22 +38,24 @@ let
     (buildNixSnabb snabbFsrc snabbFname)
   ];
 
+  subKernelPackages = selectKernelPackages kernelVersions;
+  subQemus = selectQemus qemuVersions;
+
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = (
-    # l2fwd depends on snabb, qemu, dpdk and just uses the latest kernel
+    (lib.flatten (map (kernelPackages:
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      (selectBenchmarks
-        benchmarkNames
-        { inherit snabb qemu dpdk defaults; kernel = linuxPackages_3_18; }
-      )
-    ) snabbs))) qemus))) (dpdks linuxPackages_3_18)))
-  );
+      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kernelPackages; }))
+    snabbs)))
+    subQemus)))
+    (selectDpdks dpdkVersions kernelPackages))))
+    subKernelPackages)));
 in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
-    snabbs qemus (map dpdks kernels)
+    snabbs subKernelPackages (map (selectDpdks dpdkVersions) subKernelPackages) subQemus
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;

@@ -2,7 +2,7 @@
 
 with pkgs;
 
-{ kernel ? linuxPackages
+{ kernelPackages ? linuxPackages
 , dpdk ? linuxPackages.dpdk }:
    let
      # modules and NixOS config for plain qemu image
@@ -14,7 +14,7 @@ with pkgs;
          boot.loader.grub.device = "/dev/sda";
 
          # Options needed by tests
-         boot.kernelPackages = kernel;
+         boot.kernelPackages = kernelPackages;
          networking.firewall.enable = lib.mkOverride 150 false;
          services.mingetty.autologinUser = "root";
          users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";

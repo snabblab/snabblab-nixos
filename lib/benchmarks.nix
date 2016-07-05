@@ -44,15 +44,15 @@ rec {
        #})];
      });
 
-  buildDpdk = version: hash: kernel:
+  buildDpdk = version: hash: kernelPackages:
     let
-      origDpdk = callPackage ../pkgs/dpdk.nix { kernel = kernel.kernel; };
+      origDpdk = callPackage ../pkgs/dpdk.nix { kernel = kernelPackages.kernel; };
       needsGCC49 = lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
       dpdk = if needsGCC49
              then (origDpdk.override { stdenv = overrideCC stdenv gcc48;})
              else origDpdk;
     in dpdk.overrideDerivation (super: {
-      name = "dpdk-${version}-${kernel.kernel.version}";
+      name = "dpdk-${version}-${kernelPackages.kernel.version}";
       inherit version;
       prePatch = ''
         find . -type f -exec sed -i 's/-Werror//' {} \;
@@ -70,7 +70,7 @@ rec {
     (buildSnabb "2016.04" "1b5g477zy6cr5d9171xf8zrhhq6wxshg4cn78i5bki572q86kwlx")
     (buildSnabb "2016.05" "1xd926yplqqmgl196iq9lnzg3nnswhk1vkav4zhs4i1cav99ayh8")
   ];
-  dpdks = kernel: map (x: x kernel) [
+  dpdks = kernelPackages: map (dpdk: dpdk kernelPackages) [
     (buildDpdk "16.04" "0yrz3nnhv65v2jzz726bjswkn8ffqc1sr699qypc9m78qrdljcfn")
     (buildDpdk "2.2.0" "03b1pliyx5psy3mkys8j1mk6y2x818j6wmjrdvpr7v0q6vcnl83p")
     (buildDpdk "2.1.0" "0h1lkalvcpn8drjldw50kipnf88ndv2wvflgkkyrmya5ga325czp")
@@ -86,7 +86,7 @@ rec {
     (buildQemu "2.5.1" "0b2xa8604absdmzpcyjs7fix19y5blqmgflnwjzsp1mp7g1m51q2")
     (buildQemu "2.6.0" "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69")
   ];
-  kernels = [
+  kernelPackages = [
     linuxPackages_3_14
     linuxPackages_3_18
     linuxPackages_4_1
@@ -123,17 +123,17 @@ rec {
         ${writeCSV drv "basic" "Mpps"}
       '';
      });
-  mkMatrixBenchNFVIperf = { snabb, qemu, kernel, conf ? "", hardware ? "lugano", ... }@attrs:
+  mkMatrixBenchNFVIperf = { snabb, qemu, kernelPackages, conf ? "", hardware ? "lugano", ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
-      name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernel.kernel.version}_qemu=${versionToAttribute qemu.version}";
+      name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kernelPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       inherit hardware;
-      testNixEnv = mkNixTestEnv { inherit kernel; };
+      testNixEnv = mkNixTestEnv { inherit kernelPackages; };
       meta = {
         inherit conf;
         snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
-        kernelVersion = kernel.kernel.version;
+        kernelVersion = kernelPackages.kernel.version;
         toCSV = drv: ''
           score=$(awk '/^IPERF-/ { print $2 }' < ${drv}/log.txt)
           ${writeCSV drv "iperf" "Gbps"}
@@ -146,12 +146,12 @@ rec {
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
     });
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kernel, dpdk, ... }@attrs:
+  mkMatrixBenchNFVDPDK = { snabb, qemu, kernelPackages, dpdk, ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "l2fwd_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       needsNixTestEnv = true;
-      testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
+      testNixEnv = mkNixTestEnv { inherit kernelPackages dpdk; };
       isDPDK = true;
       # TODO: get rid of this
       __useChroot = false;
@@ -159,7 +159,7 @@ rec {
       meta = {
         snabbVersion = snabb.version or "";
         qemuVersion = qemu.version;
-        kernelVersion = kernel.kernel.version;
+        kernelVersion = kernelPackages.kernel.version;
         dpdkVersion = dpdk.version;
         toCSV = drv: ''
           score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
@@ -172,12 +172,12 @@ rec {
       '';
     });
   # using Soft NIC
-  mkMatrixBenchSoftNFVDPDK = { snabb, qemu, kernel, dpdk, pktsize, conf, ... }@attrs:
+  mkMatrixBenchSoftNFVDPDK = { snabb, qemu, kernelPackages, dpdk, pktsize, conf, ... }@attrs:
       mkSnabbBenchTest (attrs.defaults or {} // {
         name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
         inherit (attrs) snabb qemu;
         needsNixTestEnv = true;
-        testNixEnv = mkNixTestEnv { inherit kernel dpdk; };
+        testNixEnv = mkNixTestEnv { inherit kernelPackages dpdk; };
         isDPDK = true;
         # TODO: get rid of this
         __useChroot = false;
@@ -186,7 +186,7 @@ rec {
           inherit pktsize conf;
           snabbVersion = snabb.version or "";
           qemuVersion = qemu.version;
-          kernelVersion = kernel.kernel.version;
+          kernelVersion = kernelPackages.kernel.version;
           dpdkVersion = dpdk.version;
           toCSV = drv: ''
             score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
@@ -290,6 +290,24 @@ rec {
    # Given a list of names and parameters to pass, collect benchmarks by their name and pass them the parameters
    selectBenchmarks = names: params:
      map (name: (lib.getAttr name benchmarks) params) names;
+
+   # helper function for package selections
+   matchesVersionPrefix = version: drv:
+     lib.hasPrefix version (lib.getVersion drv);
+
+   # Select software collections based on version strings
+   selectQemus = versions:
+     if versions == []
+     then qemus
+     else map (version: lib.filter (matchesVersionPrefix version) qemus) versions;
+   selectDpdks = versions: kernelPackages:
+     if versions == []
+     then (dpdks kernelPackages)
+     else map (version: lib.filter (matchesVersionPrefix version) (dpdks kernelPackages)) versions;
+   selectKernelPackages = versions:
+     if versions == []
+     then kernelPackages
+     else map (version: lib.filter (kernelPackages: lib.hasPrefix version (lib.getVersion kernelPackages.kernel)) kernelPackages) versions;
 
    benchmarks = {
      basic = mkMatrixBenchBasic;
