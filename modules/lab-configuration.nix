@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 
-with (import ../lib.nix);
+with (import ../lib { inherit pkgs; });
 
 {
   require = [
@@ -28,7 +28,7 @@ with (import ../lib.nix);
   # TODO: use COW images in snabb to avoid this
   system.activationScripts.snabb = ''
     mkdir -p /var/lib/snabb-test-fixtures/
-    for f in ${test_env}/*; do
+    for f in ${mkNixTestEnv {}}/*; do
       export f_name=$(${pkgs.coreutils}/bin/basename $f)
       if ! ${pkgs.diffutils}/bin/cmp ${test_env}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
         cp --no-preserve=mode $f /var/lib/snabb-test-fixtures/

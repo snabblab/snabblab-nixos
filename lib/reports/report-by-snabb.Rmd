@@ -1,0 +1,66 @@
+---
+title: "Benchmark forwarding by Snabb branch"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+```
+
+```{r}
+library(ggplot2)
+dat <- read.csv("bench.csv")
+d <- as.data.frame(dat)
+```
+
+## Simple slice
+
+Compare multiple Snabb versions while keeping all other factors fixed (QEMU version, DPDK version, configuration, etc).
+
+We do this by taking a subset of the full test matrix that only includes rows with a chosen value for each factor that we are not varying. The reason to subset the data this way is to make the analysis simple: every difference in the results should be explained by either a Snabb software difference (or some uncontrolled aspect of the test environment).
+
+```{r}
+sliced <- subset(d, subset=(benchmark == "l2fwd" & kernel == "3.18.29" & qemu == "2.4.1" & dpdk == "16.04"))
+```
+
+### Raw data
+
+Simple look at the data for initial eyeballing.
+
+```{r}
+p <- ggplot(sliced, aes(y=score, x=id, color=snabb))
+p <- p + geom_point()
+p <- p + geom_line()
+p <- p + expand_limits(y=0)
+p + ggtitle("Results ordered by test ID and colored by Snabb version")
+```
+
+### Density plot
+
+Density plot showing the distribution of results. Here we can see how spread out they are, how they cluster together, etc.
+
+```{r}
+p <- ggplot(sliced, aes(score, fill = snabb, color = snabb))
+p <- p + geom_density(alpha = 0.1)
+p <- p + expand_limits(x=0)
+p + ggtitle("Distribution shape of results")
+```
+
+## Other factors
+
+Scatter plot showing the full data set and showing the factors that are excluded from the earlier graphs (software versions).
+
+```{r}
+p <- ggplot(d, aes(x=1, y=score, shape=dpdk, color=qemu))
+p <- p + geom_jitter()
+p <- p + expand_limits(y=0)
+p + ggtitle("Results by other factors")
+```
+
+```{r}
+p <- ggplot(d, aes(score, fill = qemu, color = qemu))
+p <- p + geom_density(alpha = 0.1)
+p <- p + expand_limits(x=0)
+p + ggtitle("Distribution of results by QEMU version")
+```
