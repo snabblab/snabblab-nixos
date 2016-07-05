@@ -55,7 +55,7 @@ let
 in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
-    snabbs subKernelPackages (map (selectDpdks dpdkVersions) subKernelPackages) subQemus
+    snabbs (map (selectDpdks dpdkVersions) subKernelPackages) subQemus
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
