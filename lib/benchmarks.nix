@@ -168,7 +168,7 @@ rec {
       };
       checkPhase = ''
         cd src
-        /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
+        /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
       '';
     });
   # using Soft NIC
