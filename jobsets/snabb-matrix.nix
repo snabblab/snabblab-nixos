@@ -42,21 +42,20 @@ let
   subQemus = selectQemus qemuVersions;
 
   # benchmarks using a matrix of software and a number of repeats
-  benchmarks-list =
-    #(lib.flatten (map (kPackages:
+  benchmarks-list = (
+    (lib.flatten (map (kPackages:
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
       (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults; kPackages = linuxPackages_3_18; }))
     snabbs)))
     subQemus)))
-    # kernel is fixed to 3.18 otherwise matrix takes a long time to evaluate
-    (selectDpdks dpdkVersions linuxPackages_3_18)));
-    #subKernelPackages));
+    (selectDpdks dpdkVersions kPackages))))
+    subKernelPackages)));
 in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
-    snabbs (map (selectDpdks dpdkVersions) linuxPackages_3_18) subQemus
+    snabbs (map (selectDpdks dpdkVersions) subKernelPackages) subQemus
   ]);
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
