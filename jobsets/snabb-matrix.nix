@@ -47,7 +47,7 @@ let
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }))
+      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults; kPackages = linuxPackages_3_18; }))
     snabbs)))
     subQemus)))
     # kernel is fixed to 3.18 otherwise matrix takes a long time to evaluate
