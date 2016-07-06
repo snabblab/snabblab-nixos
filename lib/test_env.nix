@@ -7,7 +7,8 @@ with pkgs;
    let
      # modules and NixOS config for plain qemu image
      snabb_modules = [
-       <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
+       # disabled due to https://github.com/snabblab/snabblab-nixos/issues/52
+       # <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
        ({config, pkgs, ...}: {
          environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
          fileSystems."/".device = "/dev/disk/by-label/nixos";
