@@ -17,7 +17,7 @@
 , snabbFname ? null
 , benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk" ]
 , reports ? []
-, kernelVersions ? []
+, kernelVersions ? ["3.18"]  # fix kernel for now to reduce memory usage
 , dpdkVersions ? []
 , qemuVersions ? []
 }:
