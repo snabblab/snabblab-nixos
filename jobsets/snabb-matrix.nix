@@ -43,14 +43,14 @@ let
 
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = (
-    (lib.flatten (map (kernelPackages:
+    (lib.flatten (map (kPackages:
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kernelPackages; }))
+      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }))
     snabbs)))
     subQemus)))
-    (selectDpdks dpdkVersions kernelPackages))))
+    (selectDpdks dpdkVersions kPackages))))
     subKernelPackages)));
 in rec {
   # all versions of software used in benchmarks
