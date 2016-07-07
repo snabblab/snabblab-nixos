@@ -47,7 +47,7 @@ let
     (lib.flatten (map (dpdk:
     (lib.flatten (map (qemu:
     (lib.flatten (map (snabb:
-      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults; kPackages = linuxPackages_3_18; }))
+      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }))
     snabbs)))
     subQemus)))
     (selectDpdks dpdkVersions kPackages))))
