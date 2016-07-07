@@ -118,12 +118,15 @@ rec {
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
       '';
-      meta.toCSV = drv: ''
-        score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
-        ${writeCSV drv "basic" "Mpps"}
-      '';
+      meta = {
+        snabbVersion = snabb.version or "";
+        toCSV = drv: ''
+          score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
+          ${writeCSV drv "basic" "Mpps"}
+        '';
+    };
      });
-  mkMatrixBenchNFVIperf = { snabb, qemu, kPackages, conf ? "", hardware ? "lugano", ... }@attrs:
+  mkMatrixBenchNFVIperf = { snabb, qemu, kPackages, conf ? "NA", hardware ? "lugano", ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
