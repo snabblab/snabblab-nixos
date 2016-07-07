@@ -4,6 +4,5 @@ with pkgs;
 
 let
   benchmarks = import ./benchmarks.nix { pkgs = pkgs; };
-  misc = import ./misc.nix { pkgs = pkgs; };
-in misc // benchmarks
-
+  testing = import ./testing.nix { pkgs = pkgs; };
+in testing // benchmarks

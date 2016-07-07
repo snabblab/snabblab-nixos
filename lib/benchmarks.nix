@@ -3,7 +3,7 @@
 # Functions for building different versions of software and running benchmarks
 
 with pkgs;
-with (import ./misc.nix { inherit pkgs; });
+with (import ./testing.nix { inherit pkgs; });
 
 rec {
   buildSnabb = version: hash:
