@@ -20,6 +20,9 @@ with pkgs;
          users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
          networking.usePredictableInterfaceNames = false;
 
+         # Make sure telnet serial port is enabled
+         systemd.services."serial-getty@ttyS0".wantedBy = [ "multi-user.target" ];
+
          # Log everything to the serial console.
          services.journald.extraConfig = ''
            ForwardToConsole=yes
