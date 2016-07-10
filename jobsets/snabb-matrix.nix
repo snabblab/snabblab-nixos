@@ -42,16 +42,17 @@ let
   subQemus = selectQemus qemuVersions;
 
   # benchmarks using a matrix of software and a number of repeats
-  benchmarks-list = (
-    (lib.flatten (map (kPackages:
-    (lib.flatten (map (dpdk:
-    (lib.flatten (map (qemu:
-    (lib.flatten (map (snabb:
-      (selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }))
-    snabbs)))
-    subQemus)))
-    (selectDpdks dpdkVersions kPackages))))
-    subKernelPackages)));
+  benchmarks-list = with lib; flatten (
+    concatMap (kPackages:
+      concatMap (dpdk:
+        concatMap (qemu:
+          concatMap (snabb:
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }
+          ) snabbs
+        ) subQemus
+      ) (selectDpdks dpdkVersions kPackages)
+    ) subKernelPackages);
+
 in rec {
   # all versions of software used in benchmarks
   software = listDrvToAttrs (lib.flatten [
