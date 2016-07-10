@@ -20,6 +20,9 @@ with pkgs;
          users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
          networking.usePredictableInterfaceNames = false;
 
+         # Make sure telnet serial port is enabled
+         systemd.services."serial-getty@ttyS0".wantedBy = [ "multi-user.target" ];
+
          # Log everything to the serial console.
          services.journald.extraConfig = ''
            ForwardToConsole=yes
@@ -64,7 +67,7 @@ with pkgs;
        diskSize = 2 * 1020;
      };
      qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
-   in runCommand "test-env-nix-${dpdk.name}-" rec {
+   in runCommand "test-env-nix-${dpdk.name}" rec {
      passthru = {inherit snabb_config snabb_config_dpdk;};
    } ''
      mkdir -p $out
