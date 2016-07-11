@@ -208,12 +208,15 @@ rec {
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "${snabb.name}-packetblaster-64";
       inherit (attrs) snabb;
-      hardware = "murren";
-      passthru.toCSV = drv: ''
-        pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
-        score=$(echo "scale=2; $pps / 1000000" | bc)
-        ${writeCSV drv "blast" "Mpps"}
-      '';
+      hardware = "lugano";
+      meta = {
+        snabbVersion = snabb.version or "";
+        toCSV = drv: ''
+          pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
+          score=$(echo "scale=2; $pps / 1000000" | bc)
+          ${writeCSV drv "blast" "Mpps"}
+        '';
+      };
       checkPhase = ''
         cd src
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
@@ -224,12 +227,15 @@ rec {
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "${snabb.name}-packetblaster-synth-64";
       inherit (attrs) snabb;
-      hardware = "murren";
-      passthru.toCSV = drv: ''
-        pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
-        score=$(echo "scale=2; $pps / 1000000" | bc)
-        ${writeCSV drv "blast" "Mpps"}
-      '';
+      hardware = "lugano";
+      meta = {
+        snabbVersion = snabb.version or "";
+        toCSV = drv: ''
+          pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
+          score=$(echo "scale=2; $pps / 1000000" | bc)
+          ${writeCSV drv "blastsynth" "Mpps"}
+        '';
+      };
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
           --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
