@@ -10,7 +10,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 ```{r}
 library(ggplot2)
-dat <- read.csv("/Users/lukego/Downloads/bench-small-lugano.csv")
+dat <- read.csv("bench.csv")
 d <- as.data.frame(dat)
 ```
 
