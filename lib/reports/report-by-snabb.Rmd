@@ -10,7 +10,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 ```{r}
 library(ggplot2)
-dat <- read.csv("bench.csv")
+dat <- read.csv("/Users/lukego/Downloads/bench-small-lugano.csv")
 d <- as.data.frame(dat)
 ```
 
@@ -36,6 +36,14 @@ p <- p + expand_limits(y=0)
 p + ggtitle("Results ordered by test ID and colored by Snabb version")
 ```
 
+### Box plot
+
+```{r}
+p <- ggplot(sliced, aes(x=id, y=score, color=snabb))
+p <- p + geom_boxplot(alpha=0.50)
+p + ggtitle("Distribution of results across all tests, by Snabb version")
+```
+
 ### Density plot
 
 Density plot showing the distribution of results. Here we can see how spread out they are, how they cluster together, etc.
@@ -47,20 +55,3 @@ p <- p + expand_limits(x=0)
 p + ggtitle("Distribution shape of results")
 ```
 
-## Other factors
-
-Scatter plot showing the full data set and showing the factors that are excluded from the earlier graphs (software versions).
-
-```{r}
-p <- ggplot(d, aes(x=1, y=score, shape=dpdk, color=qemu))
-p <- p + geom_jitter()
-p <- p + expand_limits(y=0)
-p + ggtitle("Results by other factors")
-```
-
-```{r}
-p <- ggplot(d, aes(score, fill = qemu, color = qemu))
-p <- p + geom_density(alpha = 0.1)
-p <- p + expand_limits(x=0)
-p + ggtitle("Distribution of results by QEMU version")
-```
