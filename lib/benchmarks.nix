@@ -314,6 +314,8 @@ rec {
 
    benchmarks = {
      basic = mkMatrixBenchBasic;
+     packetblaster = mkMatrixBenchPacketblaster;
+     packetblaster-synth = mkMatrixBenchPacketblasterSynth;
      iperf = mkMatrixBenchNFVIperf;
      iperf-base = params: mkMatrixBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
      iperf-filter = params: mkMatrixBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
