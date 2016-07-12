@@ -32,9 +32,9 @@ for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-lin
     if "mapping to host address failed" in log:
         mapping += 1
     elif "Terminated" in log:
-        no_tmux += 1
-    elif "no server running on /tmp/tmux-0/" in log:
         terminated += 1
+    elif "no server running on /tmp/tmux-0/" in log:
+        no_tmux += 1
     elif "packet payload overflow" in log:
         overflow += 1
     elif "[TIMEOUT]" in log:
