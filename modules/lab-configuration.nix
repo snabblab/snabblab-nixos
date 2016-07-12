@@ -64,9 +64,7 @@ with (import ../lib { inherit pkgs; });
   services.openssh.enable = true;
 
   # Disable IOMMU for Snabb Switch.
-  # chur has a Sandy Bridge CPU and these are known to have
-  # performance problems in their IOMMU.
-  boot.kernelParams = [ "intel_iommu=pt" "hugepages=4096" "panic=60"];
+  boot.kernelParams = [ "intel_iommu=off" "hugepages=4096" "panic=60"];
 
   # Used by snabb
   boot.kernelModules = [ "msr" ];
