@@ -40,8 +40,8 @@ for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-lin
     elif "[TIMEOUT]" in log:
         timeout += 1
     else:
-        import pdb;pdb.set_trace()
         print log
+        import pdb;pdb.set_trace()
     all += 1
     build_html = requests.get(build_link).text
 
