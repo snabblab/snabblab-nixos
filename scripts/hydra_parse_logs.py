@@ -22,13 +22,13 @@ no_tmux = 0
 
 
 # parse evaluation page and get HTML
-resp = requests.get(HYDRA_EVAL)
+resp = requests.get(HYDRA_EVAL) # I/O
 d = pq(resp.text)
 
 for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-link"]'):
     build_link = a.get('href')
     print "Parsing log of {}".format(build_link)
-    log = requests.get(build_link + "/log/raw").text
+    log = requests.get(build_link + "/log/raw").text # I/O
     if "mapping to host address failed" in log:
         mapping += 1
     elif "Terminated" in log:
@@ -43,7 +43,7 @@ for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-lin
         print log
         import pdb;pdb.set_trace()
     all += 1
-    build_html = requests.get(build_link).text
+    #build_html = requests.get(build_link).text # I/O
 
 print "Failed builds in total: {}".format(all)
 print "Failed builds due to 'mapping to host address failedcdata': {}".format(mapping)
