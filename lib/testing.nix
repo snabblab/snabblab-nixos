@@ -45,7 +45,7 @@ rec {
                 }@attrs:
     stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
-      name = name + (lib.optionalString (repeatNum != null) "-num-${toString repeatNum}");
+      name = name + (lib.optionalString (repeatNum != null) "_num=${toString repeatNum}");
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
