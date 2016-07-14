@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.width = 10)
 
 ```{r}
 library(ggplot2)
-dat <- read.csv("ench.csv")
+dat <- read.csv("bench.csv")
 d <- as.data.frame(dat)
 # "sliced" is the dataset with unwanted software versions excluded
 sliced <- subset(d, subset=(kernel == "3.18.29" & qemu == "2.4.1" & (is.na(dpdk) | dpdk == "16.04")))
