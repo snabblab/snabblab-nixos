@@ -27,8 +27,8 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.width = 10, fig.height = 6)
 library(ggplot2)
 dat <- read.csv("bench.csv")
 d <- as.data.frame(dat)
-# "sliced" is the dataset with unwanted software versions excluded
-sliced <- subset(d, subset=(benchmark == "basic" | (kernel == "3.18.29" & qemu == "2.4.1" & (is.na(dpdk) | dpdk == "16.04"))))
+# "sliced" is the dataset with unwanted configurations and software versions excluded
+sliced <- subset(d, subset=(benchmark == "basic" | (kernel == "3.18.29" & qemu == "2.4.1" & (is.na(config) | config == "base") & (is.na(dpdk) | dpdk == "16.04"))))
 ```
 
 ## Line graph
