@@ -19,16 +19,17 @@ timeout = 0
 terminated = 0
 overflow = 0
 no_tmux = 0
+unknown = []
 
 
 # parse evaluation page and get HTML
-resp = requests.get(HYDRA_EVAL) # I/O
+resp = requests.get(HYDRA_EVAL)  # I/O
 d = pq(resp.text)
 
 for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-link"]'):
     build_link = a.get('href')
     print "Parsing log of {}".format(build_link)
-    log = requests.get(build_link + "/log/raw").text # I/O
+    log = requests.get(build_link + "/log/raw").text  # I/O
     if "mapping to host address failed" in log:
         mapping += 1
     elif "Terminated" in log:
@@ -40,10 +41,9 @@ for a in d('img[alt="Failed with output"]').parents('tr').find('a[class="row-lin
     elif "[TIMEOUT]" in log:
         timeout += 1
     else:
-        print log
-        import pdb;pdb.set_trace()
+        unknown.append(build_link)
     all += 1
-    #build_html = requests.get(build_link).text # I/O
+    # build_html = requests.get(build_link).text  # I/O
 
 print "Failed builds in total: {}".format(all)
 print "Failed builds due to 'mapping to host address failedcdata': {}".format(mapping)
@@ -51,3 +51,4 @@ print "Failed builds due to being terminated after 2min: {}".format(terminated)
 print "Failed builds due to 'packet payload overflow': {}".format(overflow)
 print "Failed builds due to qemu telnet timeout: {}".format(timeout)
 print "Failed builds due to 'no server running on /tmp/tmux-0/default': {}".format(no_tmux)
+print "Failed builds with unknown cause: {}".format(unknown)
