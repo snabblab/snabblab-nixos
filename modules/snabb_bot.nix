@@ -4,8 +4,8 @@ with pkgs;
 
 let
   snabb_bot = writeScript "snabb_bot.sh" (readFile (fetchurl {
-     url = "https://raw.githubusercontent.com/eugeneia/snabb/8ae18fa620a81a45731772ba3a551d768e39cd17/src/scripts/snabb_bot.sh";
-     sha256 = "fb94d8697ce9fddc0d5f1c1a7f2c5aec1ccc56559028aa4e1baae387d64baf29";
+     url = "https://raw.githubusercontent.com/eugeneia/snabb/b6bed3018fe0b076867a9f644f393fdc3ae251a3/src/scripts/snabb_bot.sh";
+     sha256 = "344630fb6ac0dab500e16b41759ea401b079304ae473ff88cfe37f3767a0d326";
   }));
 in {
   options = {
