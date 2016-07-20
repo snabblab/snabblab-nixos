@@ -5,7 +5,7 @@ with lib;
 let
   # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
   # We use our own fork with some modifications
-  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/74cadb9da37b34b7212106d56d24d7dde9964835;
+  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/23ec21778b8326ec8f6a691dd4d5b3df6bd41f2b;
   commonBuildMachineOpt = {
     speedFactor = 1;
     sshKey = "/etc/nix/id_buildfarm";
@@ -94,6 +94,9 @@ in {
 
   # workaround https://github.com/NixOS/hydra/issues/297
   systemd.services.hydra-queue-runner.serviceConfig.ExecStart = lib.mkForce "@${config.services.hydra.package}/bin/hydra-queue-runner hydra-queue-runner -v";
+
+  # this is most important to us, so prioritize cpu right after the kernel
+  systemd.services.hydra-evaluator.serviceConfig.Nice = -19;
 
   services.postgresql = {
     package = pkgs.postgresql94;

@@ -1,4 +1,4 @@
-with (import ../lib.nix);
+with (import ../lib {});
 
 let
   defaults = {
@@ -18,13 +18,11 @@ in {
       environment.variables = PCIAssignments.lugano;
 
       # custom NixOS options here
-      boot.kernelParams = lib.mkForce [ "intel_iommu=off" "hugepages=4096" "panic=60" ];
   };
   lugano-3 = { config, pkgs, lib, ... }: defaults // {
       environment.variables = PCIAssignments.lugano;
 
       # custom NixOS options here
-      boot.kernelParams = lib.mkForce [ "intel_iommu=off" "hugepages=4096" "panic=60" ];
   };
   lugano-4 = { config, pkgs, lib, ... }: defaults // {
       environment.variables = PCIAssignments.lugano;
@@ -55,7 +53,7 @@ in {
       boot.blacklistedKernelModules = [ "ixgbe" ];
   };
   interlaken = { config, pkgs, lib, ... }: defaults // {
-      fileSystems."/boot" = { 
+      fileSystems."/boot" = {
         device = "/dev/disk/by-uuid/8AB0-B6D9";
         fsType = "vfat";
       };
