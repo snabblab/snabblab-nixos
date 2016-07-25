@@ -1,7 +1,7 @@
 { pkgs ? (import <nixpkgs> {})
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
 , hardware ? "lugano"
-, useNixTestEnv ? false
+, useNixTestEnv ? true
 }:
 
 with pkgs;
