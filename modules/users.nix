@@ -331,4 +331,10 @@ in
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHWqm10yU4MAbBgIy0VaKmJGNAukgJy6PpouQWQsazzbQ38bUalwAyxrZszwyf9fTEMyfrMmTtov+RZYAAtJueOUZu6tz+oqng7TaOpR2Ge6RBawFIQ+ER3mlRGi3nsw5+RME5wV1OAcSOyFOE01w+aegY0pr9RKUJLfGvjByZchm7khzrk0rrNODnztDhGSTMbo2f/+4MvtP0OP6Du6dZ299kSW1DbUbs2RrSPp+lHZPIUS/F7GMqdYWFSTtTEmw9ToxUU30tQhF62cQDY7BPJksdgjXsYqcUBQF9TafdySMKtm0PrstB5sKmn6CvJ2TbMWvHyE7QTo1/Z471yjrd fstd@grapefruit.pr0.tips" ];
   } // commonUserAttrs;
 
+ users.extraUsers.teknico = {
+    uid = 1054;
+    description = "Nicola Larosa";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA38vpLAa/p3w3qvuD68cR5azEIlHngJ9lVrIldq4JGpq1nP5PUsw+zPvlTfKIP0S7vt6MpCf+2cRQF89UcLMoPE6J2+cg+pSQ0dUjyNn7bJ0EDxJU/DmLqdukxu8d6dC/IV5TB6G1Q9gxwqmDY5IrSEjxfEqb8qk1kY9mFS2epZEq6VIxxe7cObk2VfM+5XGZOfTd7MflWPbL/OEeutspF42hJaBm/6IsyCEjOLkJ3MS16ARTGFReK8DtJL3EfiKVKTJCuLzhTeqxkrbctQ0zRcLQ41agbq2vwSI0YtP8fOif8LTwpdWyNq8TEPfMqx33B6fe/i+hkRrthiLW9vb+0w== nl@bluethunder" ];
+  } // commonUserAttrs;
+
 }
