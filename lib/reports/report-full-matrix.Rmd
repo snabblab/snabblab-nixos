@@ -1,100 +1,146 @@
 ---
-title: "Full Matrix"
+title: "NFV test matrix"
 output:
   html_document:
     toc: true
     toc_float: true
-    toc_depth: 2
+    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(error = TRUE)
-knitr::opts_chunk$set(fig.width = 10)
+knitr::opts_chunk$set(fig.width = 10, fig.height = 8)
 ```
 
 ```{r}
+# Setup
+
 library(ggplot2)
-dat <- read.csv("bench.csv")
-d <- as.data.frame(dat)
+
+d <- read.csv("bench.csv")
+d$id <- as.factor(d$id)
+d$pktsize <- as.factor(d$pktsize)
+
+overall <- subset(as.data.frame(d), subset = benchmark == 'iperf' | benchmark == 'l2fwd')
+
+iperf <- droplevels(subset(overall, subset = benchmark == 'iperf'))
+l2fwd <- droplevels(subset(overall, subset = benchmark == 'l2fwd'))
+
+# data frames with NA scores (failures) replaced with 0
+overall0 <- data.frame(overall)
+overall0$score[is.na(overall$score)] <- 0
+
+iperf0 <- data.frame(iperf)
+iperf0$score[is.na(iperf0$score)] <- 0
+
+l2fwd0 <- data.frame(l2fwd)
+l2fwd0$score[is.na(l2fwd0$score)] <- 0
 ```
 
-# summary
+Performance comparison between Snabb versions. Compares scores with various benchmarks, workloads, configurations, and software dependency versions. Results are reported as [probability density graphs](https://en.wikipedia.org/wiki/Probability_density_function) showing the distribution of benchmark scores (measured in Gbps for iperf and Mpps for l2fwd).
 
-## Density plot
+The overall purpose of this report is to highlight the relative strengths and weaknesses between Snabb software versions. This is particularly intended for evaluating how experimental changes affect performance and reliability.
 
-Which Snabb version is better overall?
+This report starts with a very broad summary and then drills down on iperf and l2fwd results separately.
+
+## Overall summary
+
+```{r fig.width=8, fig.height=4}
+ggplot(overall0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + ggtitle("Overall")
+```
+
+### Split by benchmark
+
+```{r fig.width=8, fig.height=6}
+ggplot(overall0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~benchmark, scales = "free", ncol = 1) + ggtitle("By benchmark")
+```
+
+## iperf
+
+```{r fig.width=8, fig.height=4}
+ggplot(iperf0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + ggtitle("iperf overall")
+```
+
+### Configuration
 
 ```{r}
-p <- ggplot(d, aes(x=score, fill=snabb, color=snabb))
-p <- p + geom_density(alpha = 0.1)
-p + ggtitle("Distribution of results for all tests")
+ggplot(iperf0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~config, ncol=2) + ggtitle("iperf by configuration")
 ```
 
-## Numeric textual summary
-
-Summary of the data points found in the file.
+### Guest kernel
 
 ```{r}
-summary(d)
+ggplot(iperf0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~kernel, ncol=2) + ggtitle("iperf by guest kernel")
 ```
 
-# basic
+### QEMU
 
 ```{r}
-basic = subset(d, benchmark == "basic")
-
-p <- ggplot(basic, aes(x=id, y=score, color=snabb))
-p <- p + geom_point()
-p <- p + geom_line()
-p <- p + expand_limits(y=0)
-p + ggtitle("Results ordered by test ID and colored by Snabb version")
+ggplot(iperf0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~qemu, ncol=2) + ggtitle("iperf by qemu")
 ```
 
-# l2fwd
+### Count of success and failure
 
-## Density plot
-
-Overview of distribution of scores for all tests. For very broadly comparing two Snabb versions.
+Sucesses:
 
 ```{r}
-l2fwd <- subset(d, benchmark == "l2fwd")
-
-p <- ggplot(l2fwd, aes(x=score, fill=snabb, color=snabb))
-p <- p + geom_density(alpha = 0.1)
-p + ggtitle("Distribution of results across all tests")
+summary(subset(iperf, subset = !is.na(score), select = c(config, qemu, kernel)))
 ```
 
-## Faceted
-
-```{r, fig.height=40}
-p <- ggplot(l2fwd, aes(x=id, y=score, color=snabb))
-p <- p + geom_point(alpha=0.50)
-p <- p + expand_limits(y=0)
-p <- p + facet_grid(qemu + dpdk ~ config)
-p <- p + geom_boxplot(alpha=0.50)
-p + ggtitle("Distribution of results across all tests, by Snabb version")
-```
-
-# iperf
-
-## Density plot
+Failures:
 
 ```{r}
-iperf <- subset(d, benchmark == "iperf")
-
-p <- ggplot(iperf, aes(x=score, fill=snabb, color=snabb))
-p <- p + geom_density(alpha = 0.1)
-p + ggtitle("Distribution of results across all tests")
+summary(subset(iperf, subset = is.na(score), select = c(config, qemu, kernel)))
 ```
 
-## Faceted
+## l2fwd
 
-```{r, fig.height=10}
-p <- ggplot(iperf, aes(x=id, y=score, color=snabb))
-p <- p + geom_point(alpha=0.50)
-p <- p + expand_limits(y=0)
-p <- p + facet_grid(qemu + kernel ~ config)
-p <- p + geom_boxplot(alpha=0.50)
-p + ggtitle("Distribution of results across all tests, by Snabb version")
+```{r fig.width=8, fig.height=4}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + ggtitle("l2fwd overall")
+```
+
+### Packet size
+
+```{r fig.width=8, fig.height=6}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~pktsize, ncol=1) + ggtitle("l2fwd by packet size")
+```
+
+### Configuration
+
+```{r}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~config, ncol=2) + ggtitle("l2fwd by configuration")
+```
+
+### DPDK
+
+```{r}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~dpdk, ncol=2) + ggtitle("l2fwd by DPDK")
+```
+
+### DPDK + configuration
+
+```{r}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(dpdk ~ config) + ggtitle("l2fwd by DPDK and configuration")
+```
+
+### QEMU
+
+```{r}
+ggplot(l2fwd0, aes(score, color=snabb)) + theme(legend.position="top") + geom_density() + facet_wrap(~qemu, ncol=2) + ggtitle("l2fwd by QEMU")
+```
+
+### Count of success and failure
+
+Sucesses:
+
+```{r}
+summary(subset(l2fwd, subset = !is.na(score), select = c(config, qemu, dpdk, snabb, pktsize)))
+```
+
+Failures:
+
+```{r}
+summary(subset(l2fwd, subset = is.na(score), select = c(config, qemu, dpdk, snabb, pktsize)))
 ```
