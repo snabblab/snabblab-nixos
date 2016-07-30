@@ -2,7 +2,9 @@
 
 with (import ../lib { inherit pkgs; });
 
-{
+let
+  nixTestEnv = mkNixTestEnv {};
+in {
   require = [
     ./common.nix
     ./hydra-slave.nix
@@ -28,7 +30,7 @@ with (import ../lib { inherit pkgs; });
   # TODO: use COW images in snabb to avoid this
   system.activationScripts.snabb = ''
     mkdir -p /var/lib/snabb-test-fixtures/
-    for f in ${mkNixTestEnv {}}/*; do
+    for f in ${nixTestEnv}/*; do
       export f_name=$(${pkgs.coreutils}/bin/basename $f)
       if ! ${pkgs.diffutils}/bin/cmp ${test_env}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
         cp --no-preserve=mode $f /var/lib/snabb-test-fixtures/
@@ -37,6 +39,7 @@ with (import ../lib { inherit pkgs; });
   '';
 
   environment.variables.SNABB_TEST_FIXTURES = "/var/lib/snabb-test-fixtures/";
+  environment.variables.SNABB_KERNEL_PARAMS = "init=/nix/var/nix/profiles/system/init";
   environment.variables.CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt";
 
   # mount /hugetlbfs for snabbnfv
