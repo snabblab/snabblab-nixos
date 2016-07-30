@@ -1,8 +1,11 @@
 # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
+# and generate a report based on output
 
-# specify how many times is each benchmark ran
+# Specify how many times each benchmark is repeated
 { numTimesRunBenchmark ? 1
+# Collection of packages used
 , nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
+# Up to 6 different Snabb branches specified using source and name
 , snabbAsrc
 , snabbBsrc ? null
 , snabbCsrc ? null
@@ -15,10 +18,21 @@
 , snabbDname ? null
 , snabbEname ? null
 , snabbFname ? null
-, benchmarkNames ? [ "basic" "iperf-base" "iperf-filter" "iperf-ipsec" "iperf-l2tpv3" "iperf-l2tpv3-ipsec" "dpdk" ]
+# snabbPatches is a list of patches to be applied to all snabb versions
+# (hash is extracted using $ nix-prefetch-url https://patch-diff.githubusercontent.com/raw/snabbco/snabb/pull/969.patch)
+# example: snabbPatches = [ "https://patch-diff.githubusercontent.com/raw/snabbco/snabb/pull/969.patch 0fcp1yzkjhgrm7rlq2lpcb71nnhih3cwa189b3f14xv2k5yrsbmh"];
+, snabbPatches ? []
+# Which benchmarks to execute
+# For possible values see keys in the bottom of lib/benchmarks.nix, e.g. [ "iperf-base" ]
+, benchmarkNames ? [ ]
+# Name of reports to be generated
+# For possible values see lib/reports/, e.g. "basic"
 , reports ? []
+# What kernel versions to benchmark on, for possible values see lib/benchmarks.nix
 , kernelVersions ? ["3.18"]  # fix kernel for now to reduce memory usage
+# What dpdk versions to benchmark on, for possible values see lib/benchmarks.nix
 , dpdkVersions ? []
+# What qemu versions to benchmark on, for possible values see lib/benchmarks.nix
 , qemuVersions ? []
 }:
 

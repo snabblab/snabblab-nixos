@@ -1,6 +1,10 @@
 { pkgs ? (import <nixpkgs> {})
+# which Snabb source directory is used for testing
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
+# what hardware group is used when executing the jobs
 , hardware ? "lugano"
+# if true, qemu images are built using Nix in lib/test_env.nix
+# if false, qemu images are built using Docker in lib/testing.nix
 , useNixTestEnv ? true
 }:
 
