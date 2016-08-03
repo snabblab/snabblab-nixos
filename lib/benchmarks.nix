@@ -283,7 +283,7 @@ rec {
    # use writeText until runCommand uses passAsFile (16.09)
    mkBenchmarkReport = benchmark-csv: benchmarks-list: reportName: stdenv.mkDerivation {
      name = "snabb-report";
-     buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 R pandoc which ];
+     buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 rPackages.dplyr R pandoc which ];
      preferLocalBuild = true;
      builder = writeText "csv-builder.sh" ''
        source $stdenv/setup
