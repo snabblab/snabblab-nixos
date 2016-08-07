@@ -118,6 +118,7 @@ rec {
        '';
        fixupPhase = ''
          cp qemu*.log $out/ || true
+         cp snabb*.log $out/ || true
        '';
      } // removeAttrs attrs [ "times" ]);
    in buildNTimes snabbTest times;
