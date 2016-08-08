@@ -58,7 +58,7 @@ let
     (buildNixSnabb snabbFsrc snabbFname)
   ];
 
-  customQemu = buildQemuFromSrc qemuAname dpdkAsrc false;
+  customQemu = buildQemuFromSrc qemuAname qemuAsrc false;
   customDpdk = buildDpdkFromSrc dpdkAname dpdkAsrc;
 
   subKernelPackages = selectKernelPackages kernelVersions;
