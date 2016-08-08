@@ -30,6 +30,14 @@ rec {
      );
 
   buildQemu = version: hash: applySnabbPatch:
+    let
+       src = fetchurl {
+         url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
+         sha256 = hash;
+       };
+    in buildQemuFromSrc version src applySnabbPatch;
+
+  buildQemuFromSrc = version: src: applySnabbPatch:
      let
        snabbPatch = pkgs.fetchurl {
          url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
@@ -39,10 +47,7 @@ rec {
      in qemu.overrideDerivation (super: {
        name = "qemu-${version}" + lib.optionalString applySnabbPatch "-with-snabbpatch";
        version = version + lib.optionalString applySnabbPatch "-with-snabbpatch";
-       src = fetchurl {
-         url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-         sha256 = hash;
-       };
+       inherit src;
        patchPhase = ''
          substituteInPlace Makefile --replace \
            "install-datadir install-localstatedir" \
@@ -55,6 +60,14 @@ rec {
 
   buildDpdk = version: hash: kPackages:
     let
+      src = fetchurl {
+        url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
+        sha256 = hash;
+      };
+    in buildDpdkFromSrc version src kPackages;
+
+  buildDpdkFromSrc = version: src: kPackages:
+    let
       origDpdk = callPackage ../pkgs/dpdk.nix { kernel = kPackages.kernel; };
       needsGCC49 = lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
       dpdk = if needsGCC49
@@ -66,10 +79,7 @@ rec {
       prePatch = ''
         find . -type f -exec sed -i 's/-Werror//' {} \;
       '';
-      src = fetchurl {
-        url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
-        sha256 = hash;
-      };
+      inherit src;
     });
 
   # define software stacks
