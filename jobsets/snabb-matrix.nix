@@ -44,12 +44,12 @@ let
   defaults = { times = numTimesRunBenchmark; };
 
   snabbs = lib.filter (snabb: snabb != null) [
-    (buildNixSnabb snabbAsrc snabbAname)
-    (buildNixSnabb snabbBsrc snabbBname)
-    (buildNixSnabb snabbCsrc snabbCname)
-    (buildNixSnabb snabbDsrc snabbDname)
-    (buildNixSnabb snabbEsrc snabbEname)
-    (buildNixSnabb snabbFsrc snabbFname)
+    (buildNixSnabb snabbAsrc snabbAname snabbPatches)
+    (buildNixSnabb snabbBsrc snabbBname snabbPatches)
+    (buildNixSnabb snabbCsrc snabbCname snabbPatches)
+    (buildNixSnabb snabbDsrc snabbDname snabbPatches)
+    (buildNixSnabb snabbEsrc snabbEname snabbPatches)
+    (buildNixSnabb snabbFsrc snabbFname snabbPatches)
   ];
 
   subKernelPackages = selectKernelPackages kernelVersions;

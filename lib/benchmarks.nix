@@ -18,14 +18,28 @@ rec {
         };
      });
 
- buildNixSnabb = snabbSrc: version:
+ buildNixSnabb = snabbSrc: version: patches:
    if snabbSrc == null
    then null
    else
      (callPackage snabbSrc {}).overrideDerivation (super:
-       {
+       let
+         fetchPatches = patchline:
+           let
+             patchHash = lib.splitString " " patchline;
+           in fetchurl {
+             url = lib.head patchHash;
+             sha256 = lib.last patchHash;
+           };
+       in {
          name = super.name + version;
          inherit version;
+ 
+         # Small trick to get patches attribute to work
+         patchPhase = null;
+         prePatch = super.patchPhase;
+
+         patches = map fetchPatches patches;
        }
      );
 
