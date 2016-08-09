@@ -178,8 +178,6 @@ rec {
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
       isDPDK = true;
-      # TODO: get rid of this
-      __useChroot = false;
       hardware = "lugano";
       meta = {
         snabbVersion = snabb.version or "";
