@@ -32,8 +32,14 @@
 , kernelVersions ? ["3.18"]  # fix kernel for now to reduce memory usage
 # What dpdk versions to benchmark on, for possible values see lib/benchmarks.nix
 , dpdkVersions ? []
+# Additional qemu version to benchmark on, specified using source and name
+, dpdkAsrc ? null
+, dpdkAname ? null
 # What qemu versions to benchmark on, for possible values see lib/benchmarks.nix
 , qemuVersions ? []
+# Additional dpdk version to benchmark on, specified using source and name
+, qemuAsrc ? null
+, qemuAname ? null
 }:
 
 with (import nixpkgs {});
@@ -52,6 +58,9 @@ let
     (buildNixSnabb snabbFsrc snabbFname)
   ];
 
+  customQemu = buildQemuFromSrc qemuAname qemuAsrc false;
+  customDpdk = buildDpdkFromSrc dpdkAname dpdkAsrc;
+
   subKernelPackages = selectKernelPackages kernelVersions;
   subQemus = selectQemus qemuVersions;
 
@@ -63,8 +72,8 @@ let
           concatMap (snabb:
             selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }
           ) snabbs
-        ) subQemus
-      ) (selectDpdks dpdkVersions kPackages)
+        ) (subQemus ++ (if qemuAsrc != null then [customQemu] else []))
+      ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))
     ) subKernelPackages);
 
 in rec {
