@@ -66,6 +66,9 @@ let
 
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib;
+    if (benchmarkNames == [])
+    then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
+    else
     concatMap (kPackages:
       concatMap (dpdk:
         concatMap (qemu:
