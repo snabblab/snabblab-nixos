@@ -64,6 +64,9 @@ let
   subKernelPackages = selectKernelPackages kernelVersions;
   subQemus = selectQemus qemuVersions;
 
+  # https://github.com/NixOS/nixpkgs/pull/17626
+  concatMap = f: list: lib.foldl' (a: b: a ++ [(f b)]) [] list;
+
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib; flatten (
     concatMap (kPackages:
