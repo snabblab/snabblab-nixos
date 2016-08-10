@@ -62,10 +62,7 @@ let
   customDpdk = buildDpdkFromSrc dpdkAname dpdkAsrc;
 
   subKernelPackages = selectKernelPackages kernelVersions;
-  subQemus = selectQemus qemuVersions;
-
-  # https://github.com/NixOS/nixpkgs/pull/17626
-  concatMap = f: list: lib.foldl' (a: b: a ++ (f b)) [] list;
+  subQemus = (selectQemus qemuVersions) ++ (if qemuAsrc != null then [customQemu] else []);
 
   # benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib;
@@ -75,15 +72,13 @@ let
           concatMap (snabb:
             selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }
           ) snabbs
-        ) (subQemus ++ (if qemuAsrc != null then [customQemu] else []))
+        ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))
     ) subKernelPackages;
 
 in rec {
   # all versions of software used in benchmarks
-  software = listDrvToAttrs (lib.flatten [
-    snabbs (map (selectDpdks dpdkVersions) subKernelPackages) subQemus
-  ]);
+  software = listDrvToAttrs (snabbs ++ subQemus ++ (lib.concatMap (selectDpdks dpdkVersions) subKernelPackages));
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
   benchmark-reports = lib.listToAttrs (map (reportName:

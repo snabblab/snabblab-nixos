@@ -318,7 +318,7 @@ rec {
 
    # Given a list of names and parameters to pass, collect benchmarks by their name and pass them the parameters
    selectBenchmarks = names: params:
-     map (name: (lib.getAttr name benchmarks) params) names;
+     lib.concatMap (name: (lib.getAttr name benchmarks) params) names;
 
    # helper function for package selections
    matchesVersionPrefix = version: drv:
@@ -328,15 +328,15 @@ rec {
    selectQemus = versions:
      if versions == []
      then qemus
-     else lib.flatten (map (version: lib.filter (matchesVersionPrefix version) qemus) versions);
+     else map (version: lib.filter (matchesVersionPrefix version) qemus) versions;
    selectDpdks = versions: kPackages:
      if versions == []
      then (dpdks kPackages)
-     else lib.flatten (map (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions);
+     else map (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
    selectKernelPackages = versions:
      if versions == []
      then kernelPackages
-     else lib.flatten (map (version: lib.filter (kPackages: lib.hasPrefix version (lib.getVersion kPackages.kernel)) kernelPackages) versions);
+     else lib.concatMap (version: lib.filter (kPackages: lib.hasPrefix version (lib.getVersion kPackages.kernel)) kernelPackages) versions;
 
    benchmarks = {
      basic = mkMatrixBenchBasic;
