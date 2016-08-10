@@ -84,7 +84,10 @@ in rec {
   software = listDrvToAttrs (snabbs ++ subQemus ++ (lib.concatMap (selectDpdks dpdkVersions) subKernelPackages));
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
-  benchmark-reports = lib.listToAttrs (map (reportName:
+  benchmark-reports =
+    if (reports == [])
+    then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " (listReports ../lib/reports)}"
+    else lib.listToAttrs (map (reportName:
       { name = reportName;
         value = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
       }) reports);

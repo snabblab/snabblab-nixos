@@ -316,6 +316,11 @@ rec {
      '';
    };
 
+   # Path -> [String]
+   listReports = path:
+     map (name: lib.removeSuffix ".Rmd" name)
+         (builtins.attrNames (builtins.readDir path));
+
    # Given a list of names and parameters to pass, collect benchmarks by their name and pass them the parameters
    selectBenchmarks = names: params:
      lib.concatMap (name: (lib.getAttr name benchmarks) params) names;
