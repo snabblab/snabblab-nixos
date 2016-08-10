@@ -65,10 +65,10 @@ let
   subQemus = selectQemus qemuVersions;
 
   # https://github.com/NixOS/nixpkgs/pull/17626
-  concatMap = f: list: lib.foldl' (a: b: a ++ [(f b)]) [] list;
+  concatMap = f: list: lib.foldl' (a: b: a ++ (f b)) [] list;
 
   # benchmarks using a matrix of software and a number of repeats
-  benchmarks-list = with lib; flatten (
+  benchmarks-list = with lib;
     concatMap (kPackages:
       concatMap (dpdk:
         concatMap (qemu:
@@ -77,7 +77,7 @@ let
           ) snabbs
         ) (subQemus ++ (if qemuAsrc != null then [customQemu] else []))
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))
-    ) subKernelPackages);
+    ) subKernelPackages;
 
 in rec {
   # all versions of software used in benchmarks
