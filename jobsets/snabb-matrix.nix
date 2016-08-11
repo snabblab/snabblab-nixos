@@ -81,7 +81,7 @@ let
 
 in rec {
   # all versions of software used in benchmarks
-  software = listDrvToAttrs (snabbs ++ subQemus ++ (lib.concatMap (selectDpdks dpdkVersions) subKernelPackages));
+  software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
   benchmark-reports =
