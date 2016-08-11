@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name = "mft-${version}";
-  version = "4.3.0-25";
+  version = "4.4.0-44";
 
   src = fetchurl {
     url = "http://www.mellanox.com/downloads/MFT/${name}.tgz";
-    sha256 = "0vmx8s6fqqrwjwsyaqkmfbjg4xr3gp3rk8xjkczz37i8r6qq5d5j";
+    sha256 = "1psfb67k9pqqayjgdnkb0fchrh2h35d0r1w26m696czn1svsahyq";
   };
 
   buildInputs = [ dpkg file ];
@@ -29,7 +29,7 @@ stdenv.mkDerivation rec {
 
   # build kernel modules
   buildPhase = ''
-    pushd $TMPDIR/usr/src/kernel-mft-dkms-4.3.0
+    pushd $TMPDIR/usr/src/kernel-mft-dkms-*
     make KSRC=${linux.dev}/lib/modules/${linux.modDirVersion}/build 
     mkdir -p $out/lib/modules/${linux.modDirVersion}/
     cp *.ko $out/lib/modules/${linux.modDirVersion}/
