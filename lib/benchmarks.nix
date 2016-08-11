@@ -172,7 +172,11 @@ rec {
       '';
     });
   mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, ... }@attrs:
-    mkSnabbBenchTest (attrs.defaults or {} // {
+    # there is no reason to run this benchmark on multiple kernels
+    # 3.18 kernel must be used for older dpdks
+    if (lib.substring 0 4 (kPackages.kernel.version) != "3.18")
+    then []
+    else mkSnabbBenchTest (attrs.defaults or {} // {
       name = "l2fwd_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
       inherit (attrs) snabb qemu;
       needsNixTestEnv = true;
@@ -196,7 +200,11 @@ rec {
     });
   # using Soft NIC
   mkMatrixBenchSoftNFVDPDK = { snabb, qemu, kPackages, dpdk, pktsize, conf, ... }@attrs:
-      mkSnabbBenchTest (attrs.defaults or {} // {
+    # there is no reason to run this benchmark on multiple kernels
+    # 3.18 kernel must be used for older dpdks
+    if (lib.substring 0 4 (kPackages.kernel.version) != "3.18")
+    then []
+    else mkSnabbBenchTest (attrs.defaults or {} // {
         name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
         inherit (attrs) snabb qemu;
         needsNixTestEnv = true;
@@ -333,11 +341,11 @@ rec {
    selectQemus = versions:
      if versions == []
      then qemus
-     else map (version: lib.filter (matchesVersionPrefix version) qemus) versions;
+     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) qemus) versions;
    selectDpdks = versions: kPackages:
      if versions == []
      then (dpdks kPackages)
-     else map (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
+     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
    selectKernelPackages = versions:
      if versions == []
      then kernelPackages
