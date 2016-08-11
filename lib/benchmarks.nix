@@ -341,11 +341,11 @@ rec {
    selectQemus = versions:
      if versions == []
      then qemus
-     else map (version: lib.filter (matchesVersionPrefix version) qemus) versions;
+     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) qemus) versions;
    selectDpdks = versions: kPackages:
      if versions == []
      then (dpdks kPackages)
-     else map (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
+     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
    selectKernelPackages = versions:
      if versions == []
      then kernelPackages
