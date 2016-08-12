@@ -40,7 +40,7 @@ in {
 
     networking.firewall.enable = true;
     services.samba = {
-      enable = true;
+      enable = false;
       shares = {
         data =
           { path = "/mnt/samba";
