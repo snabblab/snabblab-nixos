@@ -23,7 +23,7 @@ in {
   environment.systemPackages = with pkgs; [
     docker
     # snabb development libraries/tools
-    git telnet tmux numactl bc iproute which qemu utillinux jq
+    git telnet tmux numactl bc iproute which qemu utillinux jq mosh
   ];
 
   # setup Snabb test fixtures
@@ -68,6 +68,9 @@ in {
 
   # Disable IOMMU for Snabb Switch.
   boot.kernelParams = [ "intel_iommu=off" "hugepages=4096" "panic=60"];
+
+  # For packetlossy connections
+  networking.firewall.allowedUDPPortRanges = [ { from = 60000; to = 61000; } ];
 
   # Used by snabb
   boot.kernelModules = [ "msr" ];
