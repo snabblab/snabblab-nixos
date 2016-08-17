@@ -40,9 +40,6 @@
   ];
 
   nix = rec {
-    # allow users to use nix-env
-    nixPath = [ "nixpkgs=http://nixos.org/channels/nixos-16.03/nixexprs.tar.xz" ];
-
     # use nix sandboxing for greater determinism
     useChroot = true;
 
@@ -60,11 +57,23 @@
     binaryCachePublicKeys = [ "hydra.snabb.co-1:zPzKSJ1mynGtYEVbUR0QVZf9TLcaygz/OyzHlWo5AMM=" ];
   };
 
-  # make sure channel information is updated from above
-  # TODO: enable once https://github.com/snabblab/snabblab-nixos/issues/14 is fixed
-  #system.activationScripts.snabblab = ''
-  #  /run/current-system/sw/bin/nix-channel --update
-  #'';
+  # allow users to use nix-env/nix-shell
+  systemd.services.nixos-update = {
+     description = "NixOS Upgrade";
+     unitConfig.X-StopOnRemoval = false;
+     serviceConfig.Type = "oneshot";
+
+     environment = config.nix.envVars //
+       { inherit (config.environment.sessionVariables) NIX_PATH;
+         HOME = "/root";
+       };
+     path = [ pkgs.gnutar pkgs.xz config.nix.package.out ];
+     script = ''
+       nix-channel --add http://nixos.org/channels/nixos-16.03 nixos
+       nix-channel --update nixos
+     '';
+     startAt = "05:40";
+   };
 
 
   programs.ssh.extraConfig = ''
