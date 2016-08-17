@@ -13,6 +13,7 @@ in {
     require = [
       ./../modules/common.nix
       ./../modules/hydra-master.nix
+      ./../modules/hydra-slave.nix
     ];
 
     # https://kernelnewbies.org/Linux_4.7#head-cb7faf5c84d36d6bec87c7f9233bfe2d50b0073a

@@ -32,7 +32,6 @@ in {
 
   nix = {
     distributedBuilds = true;
-    buildCores = 0;
     buildMachines = [
       (commonBuildMachineOpt // {
         hostName = "lugano-2.snabb.co";
@@ -49,6 +48,11 @@ in {
         maxJobs = 1;
         mandatoryFeatures = [ "openstack" ];
       })
+      (commonBuildMachineOpt // {
+        hostName = "localhost";
+        maxJobs = 2;
+        mandatoryFeatures = [ "local" ];
+      })
     ] ++ (map (i:
       (commonBuildMachineOpt // {
         hostName = "build-${toString i}.snabb.co";
@@ -62,11 +66,6 @@ in {
         supportedFeatures = [ "murren" ] ++ commonBuildMachineOpt.supportedFeatures;
       })
     ) (range 1 10));
-      #(commonBuildMachineOpt // {
-      #  hostName = "localhost";
-      #  maxJobs = 2;
-      #  supportedFeatures = [ ];  # let's not build tests here
-      #})
     extraOptions = "auto-optimise-store = true";
   };
 
