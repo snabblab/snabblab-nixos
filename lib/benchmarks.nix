@@ -291,9 +291,10 @@ rec {
    mkBenchmarkReport = benchmark-csv: benchmarks-list: reportName: stdenv.mkDerivation {
      name = "snabb-report";
      buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 rPackages.dplyr R pandoc which ];
-     preferLocalBuild = true;
+     requiredSystemFeatures = ["local"];
      builder = writeText "csv-builder.sh" ''
        source $stdenv/setup
+
 
        # Store all logs
        mkdir -p $out/nix-support
@@ -311,6 +312,7 @@ rec {
        cp report.html $out
        echo "file HTML $out/report.html"  >> $out/nix-support/hydra-build-products
        echo "nix-build out $out" >> $out/nix-support/hydra-build-products
+
      '';
    };
 
