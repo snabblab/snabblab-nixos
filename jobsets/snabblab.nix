@@ -56,7 +56,7 @@ let
     in mkChannel (args // { inherit src; });
    machines = import ../machines;
 in {
-  machines = stdenv.lib.genAttrs ["build1" "build2" "build3" "build4"]
+  machines = stdenv.lib.genAttrs ["build-1" "build-2" "build-3" "build-4"]
     (name: mkChannelWithNixpkgs {
       name = "snabblab-machine-${name}";
       constituents = [ machines.${name}.eval.config.system.build.toplevel ];

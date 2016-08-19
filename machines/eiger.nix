@@ -61,8 +61,8 @@ in {
       nixops
     ];
   };
-  build1 = build-slave;
-  build2 = build-slave;
-  build3 = build-slave;
-  build4 = build-slave;
+  build-1 = build-slave;
+  build-2 = build-slave;
+  build-3 = build-slave;
+  build-4 = build-slave;
 }

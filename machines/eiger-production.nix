@@ -54,7 +54,7 @@ eiger = {
     })
   ];
 };
-build4 = {
+build-4 = {
   config = {
     networking = {
       defaultGateway = "46.4.108.97";
@@ -111,7 +111,7 @@ build4 = {
     })
   ];
 };
-build2 = {
+build-2 = {
   config = {
     networking = {
       defaultGateway = "78.46.84.193";
@@ -168,7 +168,7 @@ build2 = {
     })
   ];
 };
-build3 = {
+build-3 = {
   config = {
     networking = {
       defaultGateway = "78.46.98.1";
@@ -225,7 +225,7 @@ build3 = {
     })
   ];
 };
-build1 = {
+build-1 = {
   config = {
     networking = {
       defaultGateway = "46.4.65.65";

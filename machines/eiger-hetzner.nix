@@ -17,8 +17,8 @@ let
 in {
   eiger  = mkMachine "136.243.111.220";
 
-  build1 = mkMachine "46.4.65.79";
-  build2 = mkMachine "78.46.84.196";
-  build3 = mkMachine "78.46.98.22";
-  build4 = mkMachine "46.4.108.125";
+  build-1 = mkMachine "46.4.65.79";
+  build-2 = mkMachine "78.46.84.196";
+  build-3 = mkMachine "78.46.98.22";
+  build-4 = mkMachine "46.4.108.125";
 }
