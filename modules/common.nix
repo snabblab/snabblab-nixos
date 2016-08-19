@@ -4,6 +4,7 @@
   require = [
     ./users.nix
     ./sudo-in-builds.nix
+    ./munin-node.nix
   ];
 
   i18n.defaultLocale = "en_US.UTF-8";
@@ -77,13 +78,17 @@
 
 
   programs.ssh.extraConfig = ''
-    Host grindelwald
+    Host grindelwald.snabb.co
         Hostname lab1.snabb.co
         Port 2010
 
-    Host interlaken
+    Host interlaken.snabb.co
         Hostname lab1.snabb.co
         Port 2030
+
+    Host davos.snabb.co
+        Hostname lab1.snabb.co
+        Port 2000
   '';
 
   # lets users use sudo without password
