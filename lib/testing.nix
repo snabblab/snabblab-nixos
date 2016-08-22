@@ -97,28 +97,6 @@ rec {
       } // attrs.meta or {};
      } // removeAttrs attrs [ "checkPhase" "meta" "name" ]);
 
-  # runs the benchmark without chroot to be able to use pci device assigning
-  mkSnabbBenchTest = { name, times, ... }@attrs:
-   let
-     snabbTest = lib.makeOverridable mkSnabbTest ({
-       name = "snabb-benchmark-${name}";
-       benchName = name;
-       alwaysSucceed = true;
-       # patch needed for Snabb v2016.05 and lower
-       testEnvPatch = [(fetchurl {
-         url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
-         sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
-       })];
-       patchPhase = ''
-         patch -p1 < $testEnvPatch || true
-       '';
-       preInstall = ''
-         cp qemu*.log $out/ || true
-         cp snabb*.log $out/ || true
-       '';
-     } // removeAttrs attrs [ "times" ]);
-   in buildNTimes snabbTest times;
-
   # buildNTimes: repeat building a derivation for n times
   # buildNTimes: Derivation -> Int -> [Derivation]
   buildNTimes = drv: n:
