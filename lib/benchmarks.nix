@@ -146,8 +146,8 @@ rec {
           score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
           ${writeCSV drv "basic" "Mpps"}
         '';
-    };
-     });
+      };
+    });
   mkMatrixBenchNFVIperf = { snabb, qemu, kPackages, conf ? "NA", hardware ? "lugano", ... }@attrs:
     mkSnabbBenchTest (attrs.defaults or {} // {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";

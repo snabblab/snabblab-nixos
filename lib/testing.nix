@@ -3,13 +3,6 @@
 with pkgs;
 
 rec {
-  # see https://github.com/snabbco/snabb/blob/master/src/doc/testing.md
-  test_env = fetchzip {
-    url = "https://s3.eu-central-1.amazonaws.com/snabb/vm-ubuntu-trusty-14.04-dpdk-snabb.tar.gz";
-    sha256 = "095m9f77pq770lzd5w46rzqqsgyrv8svkqpgmrd756gswb4gd3x2";
-    stripRoot = false;
-  };
-
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
   PCIAssignments = {
@@ -34,10 +27,8 @@ rec {
                 , qemu ? pkgs.qemu  # qemu used in tests
                 , checkPhase # required phase for actually running the test
                 , hardware  # on what set of hardware should we run this?
-                , needsTestEnv ? false  # if true, copies over our testEnv
                 , needsNixTestEnv ? false  # if true, copies over our test env
                 , testNixEnv ? (mkNixTestEnv {})
-                , testEnv ? test_env
                 , repeatNum ? null # if the test is repeated more than once, note the repetition
                 , isDPDK ? false # set true if dpdk qemu image is used
                 , alwaysSucceed ? false # if true, the build will always succeed with a log
@@ -71,9 +62,9 @@ rec {
         sed -i 's/testlog snabb/testlog/' src/Makefile
 
         mkdir -p $out/nix-support
-      '' + lib.optionalString (needsTestEnv || needsNixTestEnv) ''
+      '' + lib.optionalString needsNixTestEnv ''
         mkdir ~/.test_env
-        cp --no-preserve=mode -r ${if needsNixTestEnv then testNixEnv else testEnv}/* ~/.test_env/
+        cp --no-preserve=mode -r ${testNixEnv}/* ~/.test_env/
       '';
 
       doCheck = true;
