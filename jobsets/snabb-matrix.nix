@@ -46,8 +46,8 @@ with (import nixpkgs {});
 with (import ../lib { pkgs = (import nixpkgs {}); });
 
 let
-  # mkSnabbBenchTest defaults
-  defaults = { times = numTimesRunBenchmark; };
+  # Legacy naming
+  times = numTimesRunBenchmark;
 
   snabbs = lib.filter (snabb: snabb != null) [
     (buildNixSnabb snabbAsrc snabbAname)
@@ -73,7 +73,7 @@ let
       concatMap (dpdk:
         concatMap (qemu:
           concatMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk defaults kPackages; }
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages; }
           ) snabbs
         ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))

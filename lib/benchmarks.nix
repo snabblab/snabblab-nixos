@@ -155,10 +155,10 @@ rec {
    in buildNTimes snabbTest times;
 
   mkMatrixBenchBasic = { snabb, ... }@attrs:
-    mkSnabbBenchTest (attrs.defaults or {} // {
+    mkSnabbBenchTest {
       name = "basic1_snabb=${versionToAttribute snabb.version or ""}_packets=100e6";
       hardware = "murren";
-      inherit (attrs) snabb;
+      inherit (attrs) snabb times;
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
       '';
@@ -169,11 +169,11 @@ rec {
           ${writeCSV drv "basic" "Mpps"}
         '';
       };
-    });
+    };
   mkMatrixBenchNFVIperf = { snabb, qemu, kPackages, conf ? "NA", hardware ? "lugano", ... }@attrs:
-    mkSnabbBenchTest (attrs.defaults or {} // {
+    mkSnabbBenchTest {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";
-      inherit (attrs) snabb qemu;
+      inherit (attrs) snabb times qemu;
       inherit hardware;
       testNixEnv = mkNixTestEnv { inherit kPackages; };
       meta = {
@@ -192,15 +192,15 @@ rec {
         cd src
         /var/setuid-wrappers/sudo -E program/snabbnfv/selftest.sh bench |& tee $out/log.txt
       '';
-    });
+    };
   mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, ... }@attrs:
     # there is no reason to run this benchmark on multiple kernels
     # 3.18 kernel must be used for older dpdks
     if (lib.substring 0 4 (kPackages.kernel.version) != "3.18")
     then []
-    else mkSnabbBenchTest (attrs.defaults or {} // {
+    else mkSnabbBenchTest {
       name = "l2fwd_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
-      inherit (attrs) snabb qemu;
+      inherit (attrs) snabb qemu times;
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
       isDPDK = true;
@@ -219,16 +219,16 @@ rec {
         cd src
         /var/setuid-wrappers/sudo -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
       '';
-    });
+    };
   # using Soft NIC
   mkMatrixBenchSoftNFVDPDK = { snabb, qemu, kPackages, dpdk, pktsize, conf, ... }@attrs:
     # there is no reason to run this benchmark on multiple kernels
     # 3.18 kernel must be used for older dpdks
     if (lib.substring 0 4 (kPackages.kernel.version) != "3.18")
     then []
-    else mkSnabbBenchTest (attrs.defaults or {} // {
+    else mkSnabbBenchTest {
         name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
-        inherit (attrs) snabb qemu;
+        inherit (attrs) snabb qemu times;
         needsNixTestEnv = true;
         testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
         isDPDK = true;
@@ -251,11 +251,11 @@ rec {
           export SNABB_DPDK_BENCH_CONF=${dpdkports.${conf}}
           /var/setuid-wrappers/sudo -E timeout 160 program/snabbnfv/dpdk_bench.sh |& tee $out/log.txt
         '';
-      });
+      };
   mkMatrixBenchPacketblaster = { snabb, ... }@attrs:
-    mkSnabbBenchTest (attrs.defaults or {} // {
+    mkSnabbBenchTest {
       name = "${snabb.name}-packetblaster-64";
-      inherit (attrs) snabb;
+      inherit (attrs) snabb times;
       hardware = "lugano";
       meta = {
         snabbVersion = snabb.version or "";
@@ -270,11 +270,11 @@ rec {
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
           program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
       '';
-    });
+    };
   mkMatrixBenchPacketblasterSynth = { snabb, ... }@attrs:
-    mkSnabbBenchTest (attrs.defaults or {} // {
+    mkSnabbBenchTest {
       name = "${snabb.name}-packetblaster-synth-64";
-      inherit (attrs) snabb;
+      inherit (attrs) snabb times;
       hardware = "lugano";
       meta = {
         snabbVersion = snabb.version or "";
@@ -289,7 +289,7 @@ rec {
           --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
           --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
       '';
-    });
+    };
 
 
   # Functions providing commands to convert logs to CSV
