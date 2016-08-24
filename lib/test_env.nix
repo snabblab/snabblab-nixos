@@ -1,3 +1,8 @@
+# Build two Qemu guest images:
+
+# qemu_img: Plain NixOS guest with some tools like 
+# dpdk_img: Same as the above plus dpdk l2fwd tied to an interface
+
 { pkgs }:
 
 with pkgs;
@@ -9,7 +14,9 @@ with pkgs;
      snabb_modules = [
        <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
        ({config, pkgs, ...}: {
+         # Needed tools inside the guest
          environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
+
          fileSystems."/".device = "/dev/disk/by-label/nixos";
          boot.loader.grub.device = "/dev/sda";
 
@@ -23,7 +30,7 @@ with pkgs;
          # Make sure telnet serial port is enabled
          systemd.services."serial-getty@ttyS0".wantedBy = [ "multi-user.target" ];
 
-         # Log everything to the serial console.
+         # Redirect all processes to the serial console.
          services.journald.extraConfig = ''
            ForwardToConsole=yes
            MaxLevelConsole=debug

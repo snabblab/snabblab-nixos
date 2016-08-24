@@ -3,8 +3,10 @@
 with pkgs;
 
 rec {
+  # Function to build test_env qemu images needed for some benchmarks
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
+  # Default PCCI assignment values for server groups
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
@@ -14,6 +16,8 @@ rec {
     murren = {};
   };
 
+  # Given a server group name such as "lugano"
+  # return attribute set of PCI assignment values
   getPCIVars = hardware:
     let
       pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments group as ${hardware}");
@@ -80,6 +84,7 @@ rec {
           set -o pipefail
       '';
 
+      # Adds all files as log types to build products
       installPhase = ''
         runHook preInstall
 
@@ -107,6 +112,8 @@ rec {
    # take a list of derivations and make an attribute set of out their names
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
-  # "blabla-1.2.3" -> "blabla-1-2-3"
+  # Convert dots in the version to dashes
+  # That way the version can be used as attribute key
+  # Example: "blabla-1.2.3" -> "blabla-1-2-3"
   versionToAttribute = version: builtins.replaceStrings ["."] ["-"] version;
 }

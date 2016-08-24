@@ -6,6 +6,7 @@ with pkgs;
 with (import ./testing.nix { inherit pkgs; });
 
 rec {
+  # build* functions are responsible for building software given their source or version
   buildSnabb = version: hash:
      snabbswitch.overrideDerivation (super: {
        name = "snabb-${version}";
@@ -354,7 +355,7 @@ rec {
    selectBenchmarks = names: params:
      lib.concatMap (name: (lib.getAttr name benchmarks) params) names;
 
-   # helper function for package selections
+   # Returns true if version is a prefix of drv.version
    matchesVersionPrefix = version: drv:
      lib.hasPrefix version (lib.getVersion drv);
 
@@ -372,6 +373,7 @@ rec {
      then kernelPackages
      else lib.concatMap (version: lib.filter (kPackages: lib.hasPrefix version (lib.getVersion kPackages.kernel)) kernelPackages) versions;
 
+   # All preconfigured benchmarks that can be referenced using just a name, i.e. "iperf-filter"
    benchmarks = {
      basic = mkMatrixBenchBasic;
      packetblaster = mkMatrixBenchPacketblaster;

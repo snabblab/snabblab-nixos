@@ -1,5 +1,5 @@
 # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
-# and generate a report based on output
+# and generate a report based on the logs
 
 # Specify how many times each benchmark is repeated
 { numTimesRunBenchmark ? 1
@@ -49,6 +49,7 @@ let
   # Legacy naming
   times = numTimesRunBenchmark;
 
+  # Build all specified Snabb branches
   snabbs = lib.filter (snabb: snabb != null) [
     (buildNixSnabb snabbAsrc snabbAname)
     (buildNixSnabb snabbBsrc snabbBname)
@@ -64,7 +65,7 @@ let
   subKernelPackages = selectKernelPackages kernelVersions;
   subQemus = (selectQemus qemuVersions) ++ (if qemuAsrc != null then [customQemu] else []);
 
-  # benchmarks using a matrix of software and a number of repeats
+  # Benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib;
     if (benchmarkNames == [])
     then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
@@ -80,7 +81,7 @@ let
     ) subKernelPackages;
 
 in rec {
-  # all versions of software used in benchmarks
+  # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
   benchmarks = listDrvToAttrs benchmarks-list;
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
