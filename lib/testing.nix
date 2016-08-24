@@ -26,21 +26,19 @@ rec {
     };
 
   # Function for running commands in environment as Snabb expects tests to run
-  mkSnabbTest = { name
-                , snabb  # snabb derivation used
-                , qemu ? pkgs.qemu  # qemu used in tests
-                , checkPhase # required phase for actually running the test
-                , hardware  # on what set of hardware should we run this?
-                , needsNixTestEnv ? false  # if true, copies over our test env
-                , testNixEnv ? (mkNixTestEnv {})
-                , repeatNum ? null # if the test is repeated more than once, note the repetition
-                , isDPDK ? false # set true if dpdk qemu image is used
-                , alwaysSucceed ? false # if true, the build will always succeed with a log
+  mkSnabbTest = { name # name of the test executed
+                , snabb # snabb derivation used
+                , qemu ? pkgs.qemu  # qemu package used in tests
+                , checkPhase # bash (string) actually executing the test
+                , hardware # on what server group should we run this?
+                , needsNixTestEnv ? false # if true, copies over our test env
+                , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
+                , isDPDK ? false # set true if dpdk qemu image is used in the test
+                , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
     stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
-      name = name + (lib.optionalString (repeatNum != null) "_num=${toString repeatNum}");
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
@@ -77,7 +75,7 @@ rec {
       checkPhase =
         lib.optionalString alwaysSucceed ''
           set +o pipefail
-        '' + ''${checkPhase}'' +
+        '' + checkPhase +
         lib.optionalString alwaysSucceed ''
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
@@ -97,19 +95,9 @@ rec {
         runHook postInstall
       '';
 
-      meta = {
-        inherit repeatNum;
-      } // attrs.meta or {};
-     } // removeAttrs attrs [ "checkPhase" "meta" "name" ]);
+     } // removeAttrs attrs [ "checkPhase" ]);
 
-  # buildNTimes: repeat building a derivation for n times
-  # buildNTimes: Derivation -> Int -> [Derivation]
-  buildNTimes = drv: n:
-    let
-      repeatDrv = i: lib.hydraJob (drv.override { repeatNum = i; });
-    in map repeatDrv (lib.range 1 n);
-
-   # take a list of derivations and make an attribute set of out their names
+   # Take a list of derivations and make an attribute set using their name attribute as key
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
   # Convert dots in the version to dashes
