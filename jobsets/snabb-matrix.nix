@@ -70,10 +70,10 @@ let
     if (benchmarkNames == [])
     then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
     else
-    concatMap (kPackages:
-      concatMap (dpdk:
-        concatMap (qemu:
-          concatMap (snabb:
+    mergeAttrsMap (kPackages:
+      mergeAttrsMap (dpdk:
+        mergeAttrsMap (qemu:
+          mergeAttrsMap (snabb:
             selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages; }
           ) snabbs
         ) subQemus
@@ -83,7 +83,7 @@ let
 in rec {
   # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
-  benchmarks = mergeAttrs benchmarks-list;
+  benchmarks = benchmarks-list;
   benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks);
   benchmark-reports =
     if (reports == [])

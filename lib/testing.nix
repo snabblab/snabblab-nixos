@@ -100,11 +100,12 @@ rec {
   
      Example:
  
-     mergeAttrs [{a = "foo"} {b = "bar"}]
+     mergeAttrs [{a = "foo";} {b = "bar";}]
      => { a = "foo"; b = "bar"; }
 
   */
-  mergeAttrs = attrs: builtins.foldl' (x: y: x // y) {} attrs;
+  mergeAttrs = mergeAttrsMap lib.constant;
+  mergeAttrsMap = f: attrs: lib.foldl (x: y: x // (f y)) {} attrs;
 
   /* Convert dots in the version to dashes.
      Reasoning: the version can be used as attribute key.

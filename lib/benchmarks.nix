@@ -53,7 +53,7 @@ rec {
            } // (attrs.meta or {});
          } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
        };
-   in map snabbBenchmark (lib.range 1 times);
+   in mergeAttrsMap snabbBenchmark (lib.range 1 times);
 
   /* Execute `basic1` benchmark.
 
@@ -276,7 +276,7 @@ rec {
 
    # Given a list of names and benchmark inputs/parameters, get benchmarks by their alias and pass them the parameters
    selectBenchmarks = names: params:
-     lib.concatMap (name: (lib.getAttr name benchmarks) params) names;
+     mergeAttrsMap (name: (lib.getAttr name benchmarks) params) names;
 
    # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
    benchmarks = {
