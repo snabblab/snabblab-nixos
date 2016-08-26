@@ -93,11 +93,16 @@ rec {
 
      } // removeAttrs attrs [ "checkPhase" ]);
 
-   # Take a list of derivations and make an attribute set using their name attribute as key
+  # Take a list of derivations and make an attribute set using their name attribute as key
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
-  # Convert dots in the version to dashes
-  # That way the version can be used as attribute key
-  # Example: "blabla-1.2.3" -> "blabla-1-2-3"
+  /* Convert dots in the version to dashes
+     Reasoning: the version can be used as attribute key
+ 
+     Example:
+   
+     "blabla-1.2.3"
+     => "blabla-1-2-3"
+  */
   versionToAttribute = version: builtins.replaceStrings ["."] ["-"] version;
 }

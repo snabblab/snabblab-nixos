@@ -3,7 +3,7 @@
 
 # Specify how many times each benchmark is repeated
 { numTimesRunBenchmark ? 1
-# Collection of packages used
+# Collection of Nix packages used
 , nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
 # Up to 6 different Snabb branches specified using source and name
 , snabbAsrc
@@ -87,7 +87,7 @@ in rec {
   benchmark-csv = mkBenchmarkCSV benchmarks-list;
   benchmark-reports =
     if (reports == [])
-    then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " (listReports ../lib/reports)}"
+    then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
       { name = reportName;
         value = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
