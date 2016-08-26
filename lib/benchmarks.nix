@@ -121,7 +121,7 @@ rec {
   mkSnabbBenchTest = { name, times, toCSV, ... }@attrs:
    let
      snabbTest = num: lib.hydraJob (mkSnabbTest ({
-       name = "snabb-benchmark-${name}_num=${toString num}";
+       name = "${name}_num=${toString num}";
        alwaysSucceed = true;
        # patch needed for Snabb v2016.05 and lower
        testEnvPatch = [(fetchurl {
@@ -143,7 +143,7 @@ rec {
          repeatNum = num;
          inherit toCSV;
        } // (attrs.meta or {});
-     } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" ]));
+     } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
    in map snabbTest (lib.range 1 times);
 
   # Most basic benchmark
