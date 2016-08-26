@@ -205,7 +205,6 @@ rec {
       inherit snabb qemu times hardware dpdk kPackages;
       needsNixTestEnv = true;
       testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
-      isDPDK = true;
       toCSV = drv: ''
         score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
         ${writeCSV drv "l2fwd" "Mpps"}

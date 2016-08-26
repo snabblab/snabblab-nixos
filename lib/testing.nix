@@ -33,7 +33,6 @@ rec {
                 , hardware # on what server group should we run this?
                 , needsNixTestEnv ? false # if true, copies over our test env
                 , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
-                , isDPDK ? false # set true if dpdk qemu image is used in the test
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
@@ -42,10 +41,7 @@ rec {
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
-      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv
-        (if isDPDK
-         then "init=${testNixEnv.snabb_config_dpdk.system.build.toplevel}/init"
-         else "init=${testNixEnv.snabb_config.system.build.toplevel}/init");
+      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
       postUnpack = ''
         patchShebangs .

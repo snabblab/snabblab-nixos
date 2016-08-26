@@ -1,4 +1,4 @@
-# Build two Qemu guest images:
+# Build two NixOS Qemu guest images:
 
 # qemu_img: Plain NixOS guest with some tools like 
 # dpdk_img: Same as the above plus dpdk l2fwd tied to an interface
