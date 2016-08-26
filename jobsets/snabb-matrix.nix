@@ -83,13 +83,13 @@ let
 in rec {
   # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
-  benchmarks = listDrvToAttrs benchmarks-list;
-  benchmark-csv = mkBenchmarkCSV benchmarks-list;
+  benchmarks = mergeAttrs benchmarks-list;
+  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks);
   benchmark-reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
       { name = reportName;
-        value = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
+        value = mkBenchmarkReport benchmark-csv (builtins.attrValues benchmarks) reportName;
       }) reports);
 }

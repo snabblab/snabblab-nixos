@@ -29,25 +29,30 @@ rec {
        url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
        sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
      };
-     snabbBenchmark = num: lib.hydraJob (mkSnabbTest ({
-       name = "${name}_num=${toString num}";
-       alwaysSucceed = true;
-       patchPhase = ''
-         patch -p1 < ${testEnvPatch} || true
-       '';
-       preInstall = ''
-         cp qemu*.log $out/ || true
-         cp snabb*.log $out/ || true
-       '';
-       meta = {
-         snabbVersion = attrs.snabb.version or "";
-         qemuVersion = attrs.qemu.version or "";
-         kernelVersion = attrs.kPackages.kernel.version or "";
-         dpdkVersion = attrs.dpdk.version or "";
-         repeatNum = num;
-         inherit toCSV;
-       } // (attrs.meta or {});
-     } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
+     snabbBenchmark = num:
+       let
+         name' = "${name}_num=${toString num}";
+       in {
+         ${name'} = lib.hydraJob (mkSnabbTest ({
+           name = name';
+           alwaysSucceed = true;
+           patchPhase = ''
+             patch -p1 < ${testEnvPatch} || true
+           '';
+           preInstall = ''
+             cp qemu*.log $out/ || true
+             cp snabb*.log $out/ || true
+           '';
+           meta = {
+             snabbVersion = attrs.snabb.version or "";
+             qemuVersion = attrs.qemu.version or "";
+             kernelVersion = attrs.kPackages.kernel.version or "";
+             dpdkVersion = attrs.dpdk.version or "";
+             repeatNum = num;
+             inherit toCSV;
+           } // (attrs.meta or {});
+         } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
+       };
    in map snabbBenchmark (lib.range 1 times);
 
   /* Execute `basic1` benchmark.

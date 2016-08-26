@@ -96,8 +96,18 @@ rec {
   # Take a list of derivations and make an attribute set using their name attribute as key
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
-  /* Convert dots in the version to dashes
-     Reasoning: the version can be used as attribute key
+  /* Merge a list of attributesets. It is assumed keys that collide have the same value.
+  
+     Example:
+ 
+     mergeAttrs [{a = "foo"} {b = "bar"}]
+     => { a = "foo"; b = "bar"; }
+
+  */
+  mergeAttrs = attrs: builtins.foldl' (x: y: x // y) {} attrs;
+
+  /* Convert dots in the version to dashes.
+     Reasoning: the version can be used as attribute key.
  
      Example:
    
