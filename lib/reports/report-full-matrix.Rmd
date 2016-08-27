@@ -96,7 +96,7 @@ Success rate:
 ```{r}
 success = summarize(group_by(iperf, qemu, kernel, config, snabb), success = mean(!is.na(score)))
 ggplot(success, aes(qemu, config, fill=success)) +
-  geom_tile(aes(fill=success)) + scale_fill_gradient(low="red", high="white") +
+  geom_tile(aes(fill=success)) + scale_fill_gradient(limits=c(0,1), low="red", high="white") +
   geom_text(aes(label = scales::percent(success))) +
   facet_grid(snabb ~ kernel) +
   theme(axis.text.x = element_text(angle=45, vjust=1))
@@ -157,7 +157,7 @@ Success rate:
 ```{r}
 success = summarize(group_by(l2fwd, qemu, dpdk, config, snabb), success = mean(!is.na(score)))
 ggplot(success, aes(qemu, dpdk, fill=success)) +
-  geom_tile(aes(fill=success)) + scale_fill_gradient(low="red", high="white") +
+  geom_tile(aes(fill=success)) + scale_fill_gradient(limits=c(0,1), low="red", high="white") +
   geom_text(aes(label = scales::percent(success))) +
   facet_grid(snabb ~ config) +
   theme(axis.text.x = element_text(angle=45, vjust=1))
