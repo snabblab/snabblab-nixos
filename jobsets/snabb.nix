@@ -1,3 +1,5 @@
+# Build Snabb, Snabb manual and run tests for given Snabb branch
+
 { pkgs ? (import <nixpkgs> {})
 # which Snabb source directory is used for testing
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)

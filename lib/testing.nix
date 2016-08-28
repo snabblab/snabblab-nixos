@@ -3,8 +3,10 @@
 with pkgs;
 
 rec {
+  # Function to build test_env qemu images needed for some benchmarks
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
+  # Default PCCI assignment values for server groups
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
@@ -14,6 +16,8 @@ rec {
     murren = {};
   };
 
+  # Given a server group name such as "lugano"
+  # return attribute set of PCI assignment values
   getPCIVars = hardware:
     let
       pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments group as ${hardware}");
@@ -22,28 +26,22 @@ rec {
     };
 
   # Function for running commands in environment as Snabb expects tests to run
-  mkSnabbTest = { name
-                , snabb  # snabb derivation used
-                , qemu ? pkgs.qemu  # qemu used in tests
-                , checkPhase # required phase for actually running the test
-                , hardware  # on what set of hardware should we run this?
-                , needsNixTestEnv ? false  # if true, copies over our test env
-                , testNixEnv ? (mkNixTestEnv {})
-                , repeatNum ? null # if the test is repeated more than once, note the repetition
-                , isDPDK ? false # set true if dpdk qemu image is used
-                , alwaysSucceed ? false # if true, the build will always succeed with a log
+  mkSnabbTest = { name # name of the test executed
+                , snabb # snabb derivation used
+                , qemu ? pkgs.qemu  # qemu package used in tests
+                , checkPhase # bash (string) actually executing the test
+                , hardware # on what server group should we run this?
+                , needsNixTestEnv ? false # if true, copies over our test env
+                , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
+                , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
     stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
-      name = name + (lib.optionalString (repeatNum != null) "_num=${toString repeatNum}");
 
       buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
 
-      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv
-        (if isDPDK
-         then "init=${testNixEnv.snabb_config_dpdk.system.build.toplevel}/init"
-         else "init=${testNixEnv.snabb_config.system.build.toplevel}/init");
+      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
       postUnpack = ''
         patchShebangs .
@@ -73,13 +71,14 @@ rec {
       checkPhase =
         lib.optionalString alwaysSucceed ''
           set +o pipefail
-        '' + ''${checkPhase}'' +
+        '' + checkPhase +
         lib.optionalString alwaysSucceed ''
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
           set -o pipefail
       '';
 
+      # Adds all files as log types to build products
       installPhase = ''
         runHook preInstall
 
@@ -92,21 +91,29 @@ rec {
         runHook postInstall
       '';
 
-      meta = {
-        inherit repeatNum;
-      } // attrs.meta or {};
-     } // removeAttrs attrs [ "checkPhase" "meta" "name" ]);
+     } // removeAttrs attrs [ "checkPhase" ]);
 
-  # buildNTimes: repeat building a derivation for n times
-  # buildNTimes: Derivation -> Int -> [Derivation]
-  buildNTimes = drv: n:
-    let
-      repeatDrv = i: lib.hydraJob (drv.override { repeatNum = i; });
-    in map repeatDrv (lib.range 1 n);
-
-   # take a list of derivations and make an attribute set of out their names
+  # Take a list of derivations and make an attribute set using their name attribute as key
   listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
-  # "blabla-1.2.3" -> "blabla-1-2-3"
+  /* Merge a list of attributesets. It is assumed keys that collide have the same value.
+  
+     Example:
+ 
+     mergeAttrs [{a = "foo";} {b = "bar";}]
+     => { a = "foo"; b = "bar"; }
+
+  */
+  mergeAttrs = mergeAttrsMap lib.constant;
+  mergeAttrsMap = f: attrs: lib.foldl (x: y: x // (f y)) {} attrs;
+
+  /* Convert dots in the version to dashes.
+     Reasoning: the version can be used as attribute key.
+ 
+     Example:
+   
+     "blabla-1.2.3"
+     => "blabla-1-2-3"
+  */
   versionToAttribute = version: builtins.replaceStrings ["."] ["-"] version;
 }

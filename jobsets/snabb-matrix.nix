@@ -1,9 +1,9 @@
 # Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
-# and generate a report based on output
+# and generate a report based on the logs
 
 # Specify how many times each benchmark is repeated
 { numTimesRunBenchmark ? 1
-# Collection of packages used
+# Collection of Nix packages used
 , nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
 # Up to 6 different Snabb branches specified using source and name
 , snabbAsrc
@@ -49,6 +49,7 @@ let
   # Legacy naming
   times = numTimesRunBenchmark;
 
+  # Build all specified Snabb branches
   snabbs = lib.filter (snabb: snabb != null) [
     (buildNixSnabb snabbAsrc snabbAname)
     (buildNixSnabb snabbBsrc snabbBname)
@@ -64,15 +65,15 @@ let
   subKernelPackages = selectKernelPackages kernelVersions;
   subQemus = (selectQemus qemuVersions) ++ (if qemuAsrc != null then [customQemu] else []);
 
-  # benchmarks using a matrix of software and a number of repeats
+  # Benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib;
     if (benchmarkNames == [])
     then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
     else
-    concatMap (kPackages:
-      concatMap (dpdk:
-        concatMap (qemu:
-          concatMap (snabb:
+    mergeAttrsMap (kPackages:
+      mergeAttrsMap (dpdk:
+        mergeAttrsMap (qemu:
+          mergeAttrsMap (snabb:
             selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages; }
           ) snabbs
         ) subQemus
@@ -80,15 +81,15 @@ let
     ) subKernelPackages;
 
 in rec {
-  # all versions of software used in benchmarks
+  # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
-  benchmarks = listDrvToAttrs benchmarks-list;
-  benchmark-csv = mkBenchmarkCSV benchmarks-list;
+  benchmarks = benchmarks-list;
+  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks);
   benchmark-reports =
     if (reports == [])
-    then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " (listReports ../lib/reports)}"
+    then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
       { name = reportName;
-        value = mkBenchmarkReport benchmark-csv benchmarks-list reportName;
+        value = mkBenchmarkReport benchmark-csv (builtins.attrValues benchmarks) reportName;
       }) reports);
 }
