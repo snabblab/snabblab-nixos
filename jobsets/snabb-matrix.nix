@@ -72,9 +72,13 @@ let
     else
     mergeAttrsMap (kPackages:
       mergeAttrsMap (dpdk:
+        let
+          #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
+          testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
+        in
         mergeAttrsMap (qemu:
           mergeAttrsMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages; }
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv; }
           ) snabbs
         ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))

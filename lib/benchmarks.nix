@@ -123,7 +123,7 @@ rec {
 
      If hardware group doesn't use have a NIC, ports can be specified.
   */
-  mkMatrixBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano",  ... }:
+  mkMatrixBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano", testNixEnv, ... }:
     let
       iperfports = {
         base         = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/same_vlan.ports";
@@ -134,8 +134,7 @@ rec {
       };
     in mkSnabbBenchTest {
       name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";
-      inherit hardware kPackages snabb times qemu;
-      testNixEnv = mkNixTestEnv { inherit kPackages; };
+      inherit hardware kPackages snabb times qemu testNixEnv;
       toCSV = drv: ''
         score=$(awk '/^IPERF-/ { print $2 }' < ${drv}/log.txt)
         ${writeCSV drv "iperf" "Gbps"}
@@ -155,7 +154,7 @@ rec {
 
      If hardware group doesn't use have a NIC then conf and pktsize are required
   */
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", ... }:
+  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, ... }:
     let
       dpdkports = {
         base  = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench.port";
@@ -169,9 +168,8 @@ rec {
     then []
     else mkSnabbBenchTest rec {
       name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
-      inherit snabb qemu times hardware dpdk kPackages;
+      inherit snabb qemu times hardware dpdk kPackages testNixEnv;
       needsNixTestEnv = true;
-      testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
       toCSV = drv: ''
         score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
         ${writeCSV drv "l2fwd" "Mpps"}
