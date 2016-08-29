@@ -219,10 +219,10 @@ rec {
      '';
     };
 
-   /* Using a list of benchmarks, generate CSV and a report name,
-      generate a report.
+   /* Using a generated CSV file, list of benchmarks and a report name,
+      generate a report using Rmarkdown.
    */
-   mkBenchmarkReport = csv: benchmarks-list: reportName:
+   mkBenchmarkReport = csv: benchmarksList: reportName:
     stdenv.mkDerivation {
       name = "snabb-report";
       buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 rPackages.dplyr R pandoc which ];
@@ -234,7 +234,7 @@ rec {
 
         # Store all logs
         mkdir -p $out/nix-support
-        ${lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarks-list}
+        ${lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
         tar cfJ logs.tar.xz -C $out .
         mv logs.tar.xz $out/
         echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
