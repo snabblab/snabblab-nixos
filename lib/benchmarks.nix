@@ -222,7 +222,7 @@ rec {
    /* Using a list of benchmarks, generate CSV and a report name,
       generate a report.
    */
-   mkBenchmarkReport = benchmark-csv: benchmarks-list: reportName:
+   mkBenchmarkReport = csv: benchmarks-list: reportName:
     stdenv.mkDerivation {
       name = "snabb-report";
       buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 rPackages.dplyr R pandoc which ];
@@ -241,7 +241,7 @@ rec {
 
         # Create markdown report
         cp ${../lib/reports + "/${reportName}.Rmd"} ./report.Rmd
-        cp ${benchmark-csv}/bench.csv .
+        cp ${csv} .
         cat bench.csv
         cat report.Rmd
         echo "library(rmarkdown); render('report.Rmd')" | R --no-save

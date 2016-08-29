@@ -90,6 +90,6 @@ in rec {
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
       { name = reportName;
-        value = mkBenchmarkReport benchmark-csv (builtins.attrValues benchmarks) reportName;
+        value = mkBenchmarkReport "${benchmark-csv}/bench.csv" (builtins.attrValues benchmarks) reportName;
       }) reports);
 }
