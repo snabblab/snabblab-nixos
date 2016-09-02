@@ -4,11 +4,10 @@
 # collecting results by parsing logs and converting them to CSV and
 # generating reports using Rmarkdown.
 
-with pkgs;
-with (import ./testing.nix { inherit pkgs; });
-with (import ./software.nix { inherit pkgs; });
-
-rec {
+let
+  testing = import ./testing.nix { };
+  software = import ./software.nix { inherit pkgs; };
+in rec {
   /* Execute a benchmark named as specified using `name` parameter,
      repeated as many times as the integer `times`.
 
@@ -25,7 +24,7 @@ rec {
   mkSnabbBenchTest = { name, times, toCSV, ... }@attrs:
    let
      # patch needed for Snabb v2016.05 and lower
-     testEnvPatch = fetchurl {
+     testEnvPatch = software.fetchurl {
        url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
        sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
      };
@@ -33,7 +32,7 @@ rec {
        let
          name' = "${name}_num=${toString num}";
        in {
-         ${name'} = lib.hydraJob (mkSnabbTest ({
+         ${name'} = pkgs.lib.hydraJob (software.mkSnabbTest ({
            name = name';
            alwaysSucceed = true;
            patchPhase = ''
@@ -53,7 +52,7 @@ rec {
            } // (attrs.meta or {});
          } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
        };
-   in mergeAttrsMap snabbBenchmark (lib.range 1 times);
+   in software.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
 
   /* Execute `basic1` benchmark.
 
@@ -62,7 +61,7 @@ rec {
   */
   mkMatrixBenchBasic = { snabb, times, hardware ? "murren", ... }:
     mkSnabbBenchTest {
-      name = "basic1_snabb=${versionToAttribute snabb.version or ""}_packets=100e6";
+      name = "basic1_snabb=${software.versionToAttribute snabb.version or ""}_packets=100e6";
       inherit snabb times hardware;
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
@@ -80,7 +79,7 @@ rec {
   */
   mkMatrixBenchPacketblaster = { snabb, times, hardware ? "lugano", ... }:
     mkSnabbBenchTest {
-      name = "${versionToAttribute snabb.version or ""}-packetblaster-64";
+      name = "${software.versionToAttribute snabb.version or ""}-packetblaster-64";
       inherit snabb times hardware;
       toCSV = drv: ''
         pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
@@ -101,7 +100,7 @@ rec {
   */
   mkMatrixBenchPacketblasterSynth = { snabb, times, ... }:
     mkSnabbBenchTest {
-      name = "${versionToAttribute snabb.version or ""}-packetblaster-synth-64";
+      name = "${software.versionToAttribute snabb.version or ""}-packetblaster-synth-64";
       inherit snabb times;
       hardware = "lugano";
       toCSV = drv: ''
@@ -164,7 +163,7 @@ rec {
     in
     # there is no reason to run this benchmark on multiple kernels
     # 3.18 kernel must be used for older dpdks
-    if (lib.substring 0 4 (kPackages.kernel.version) != "3.18")
+    if (pkgs.lib.substring 0 4 (kPackages.kernel.version) != "3.18")
     then []
     else mkSnabbBenchTest rec {
       name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
@@ -199,18 +198,18 @@ rec {
 
   # Generate CSV out of collection of benchmarking logs
   mkBenchmarkCSV = benchmarkList:
-   stdenv.mkDerivation {
+   pkgs.stdenv.mkDerivation {
      name = "snabb-report-csv";
      buildInputs = [ pkgs.gawk pkgs.bc ];
      # Build CSV on Hydra localhost to spare time on copying
      requiredSystemFeatures = [ "local" ];
      # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
-     builder = writeText "csv-builder.sh" ''
+     builder = software.writeText "csv-builder.sh" ''
        source $stdenv/setup
        mkdir -p $out/nix-support
 
        echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
-       ${lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
+       ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
        # Make CSV file available via Hydra
        echo "file CSV $out/bench.csv" >> $out/nix-support/hydra-build-products
@@ -221,18 +220,18 @@ rec {
       generate a report using Rmarkdown.
    */
    mkBenchmarkReport = csv: benchmarksList: reportName:
-    stdenv.mkDerivation {
+    software.stdenv.mkDerivation {
       name = "snabb-report";
-      buildInputs = [ rPackages.rmarkdown rPackages.ggplot2 rPackages.dplyr R pandoc which ];
+      buildInputs = [ software.rPackages.rmarkdown software.rPackages.ggplot2 software.rPackages.dplyr software.R software.pandoc software.which ];
       # Build reports on Hydra localhost to spare time on copying
       requiredSystemFeatures = [ "local" ];
       # TODO: use writeText until runCommand uses passAsFile (16.09)
-      builder = writeText "csv-builder.sh" ''
+      builder = software.writeText "csv-builder.sh" ''
         source $stdenv/setup
 
         # Store all logs
         mkdir -p $out/nix-support
-        ${lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
+        ${pkgs.lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
         tar cfJ logs.tar.xz -C $out .
         mv logs.tar.xz $out/
         echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
@@ -251,30 +250,30 @@ rec {
 
    # Generate a list of names of available reports in `./lib/reports`
    listReports =
-     map (name: lib.removeSuffix ".Rmd" name)
+     map (name: pkgs.lib.removeSuffix ".Rmd" name)
          (builtins.attrNames (builtins.readDir ../lib/reports));
 
    # Returns true if version is a prefix of drv.version
    matchesVersionPrefix = version: drv:
-     lib.hasPrefix version (lib.getVersion drv);
+     pkgs.lib.hasPrefix version (pkgs.lib.getVersion drv);
 
    # Select software collections based on version strings
    selectQemus = versions:
      if versions == []
-     then qemus
-     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) qemus) versions;
+     then software.qemus
+     else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) software.qemus) versions;
    selectDpdks = versions: kPackages:
      if versions == []
-     then (dpdks kPackages)
-     else lib.concatMap (version: lib.filter (matchesVersionPrefix version) (dpdks kPackages)) versions;
+     then (software.dpdks kPackages)
+     else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) (software.dpdks kPackages)) versions;
    selectKernelPackages = versions:
      if versions == []
-     then kernelPackages
-     else lib.concatMap (version: lib.filter (kPackages: lib.hasPrefix version (lib.getVersion kPackages.kernel)) kernelPackages) versions;
+     then software.kernelPackages
+     else pkgs.lib.concatMap (version: pkgs.lib.filter (kPackages: pkgs.lib.hasPrefix version (pkgs.lib.getVersion kPackages.kernel)) software.kernelPackages) versions;
 
    # Given a list of names and benchmark inputs/parameters, get benchmarks by their alias and pass them the parameters
    selectBenchmarks = names: params:
-     mergeAttrsMap (name: (lib.getAttr name benchmarks) params) names;
+     software.mergeAttrsMap (name: (pkgs.lib.getAttr name benchmarks) params) names;
 
    # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
    benchmarks = {

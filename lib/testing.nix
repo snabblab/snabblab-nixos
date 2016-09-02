@@ -1,7 +1,5 @@
 { pkgs }:
 
-with pkgs;
-
 rec {
   # Function to build test_env qemu images needed for some benchmarks
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
@@ -36,12 +34,12 @@ rec {
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
-    stdenv.mkDerivation ((getPCIVars hardware) // {
+    pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ git telnet tmux numactl bc iproute which qemu utillinux ];
+      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which pkgs.qemu pkgs.utillinux ];
 
-      SNABB_KERNEL_PARAMS = lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
+      SNABB_KERNEL_PARAMS = pkgs.lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
       postUnpack = ''
         patchShebangs .
@@ -60,7 +58,7 @@ rec {
         sed -i 's/testlog snabb/testlog/' src/Makefile
 
         mkdir -p $out/nix-support
-      '' + lib.optionalString needsNixTestEnv ''
+      '' + pkgs.lib.optionalString needsNixTestEnv ''
         mkdir ~/.test_env
         cp --no-preserve=mode -r ${testNixEnv}/* ~/.test_env/
       '';
@@ -69,10 +67,10 @@ rec {
 
       # http://unix.stackexchange.com/questions/14270/get-exit-status-of-process-thats-piped-to-another/73180#73180
       checkPhase =
-        lib.optionalString alwaysSucceed ''
+        pkgs.lib.optionalString alwaysSucceed ''
           set +o pipefail
         '' + checkPhase +
-        lib.optionalString alwaysSucceed ''
+        pkgs.lib.optionalString alwaysSucceed ''
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
           set -o pipefail
@@ -94,7 +92,7 @@ rec {
      } // removeAttrs attrs [ "checkPhase" ]);
 
   # Take a list of derivations and make an attribute set using their name attribute as key
-  listDrvToAttrs = list: builtins.listToAttrs (map (attrs: lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
+  listDrvToAttrs = list: builtins.listToAttrs (map (attrs: pkgs.lib.nameValuePair (versionToAttribute attrs.name) attrs) list);
 
   /* Merge a list of attributesets. It is assumed keys that collide have the same value.
   
@@ -104,8 +102,8 @@ rec {
      => { a = "foo"; b = "bar"; }
 
   */
-  mergeAttrs = mergeAttrsMap lib.constant;
-  mergeAttrsMap = f: attrs: lib.foldl (x: y: x // (f y)) {} attrs;
+  mergeAttrs = mergeAttrsMap pkgs.lib.constant;
+  mergeAttrsMap = f: attrs: pkgs.lib.foldl (x: y: x // (f y)) {} attrs;
 
   /* Convert dots in the version to dashes.
      Reasoning: the version can be used as attribute key.
