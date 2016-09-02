@@ -5,7 +5,7 @@
 # generating reports using Rmarkdown.
 
 let
-  testing = import ./testing.nix { };
+  testing = import ./testing.nix { inherit pkgs; };
   software = import ./software.nix { inherit pkgs; };
 in rec {
   /* Execute a benchmark named as specified using `name` parameter,
@@ -24,7 +24,7 @@ in rec {
   mkSnabbBenchTest = { name, times, toCSV, ... }@attrs:
    let
      # patch needed for Snabb v2016.05 and lower
-     testEnvPatch = software.fetchurl {
+     testEnvPatch = pkgs.fetchurl {
        url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
        sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
      };
@@ -32,7 +32,7 @@ in rec {
        let
          name' = "${name}_num=${toString num}";
        in {
-         ${name'} = pkgs.lib.hydraJob (software.mkSnabbTest ({
+         ${name'} = pkgs.lib.hydraJob (testing.mkSnabbTest ({
            name = name';
            alwaysSucceed = true;
            patchPhase = ''
@@ -52,7 +52,7 @@ in rec {
            } // (attrs.meta or {});
          } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
        };
-   in software.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
+   in testing.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
 
   /* Execute `basic1` benchmark.
 
@@ -61,7 +61,7 @@ in rec {
   */
   mkMatrixBenchBasic = { snabb, times, hardware ? "murren", ... }:
     mkSnabbBenchTest {
-      name = "basic1_snabb=${software.versionToAttribute snabb.version or ""}_packets=100e6";
+      name = "basic1_snabb=${testing.versionToAttribute snabb.version or ""}_packets=100e6";
       inherit snabb times hardware;
       checkPhase = ''
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
@@ -132,7 +132,7 @@ in rec {
         l2tpv3_ipsec = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/crypto-tunnel.ports";
       };
     in mkSnabbBenchTest {
-      name = "iperf_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_kernel=${versionToAttribute kPackages.kernel.version}_qemu=${versionToAttribute qemu.version}";
+      name = "iperf_conf=${conf}_snabb=${testing.versionToAttribute snabb.version or ""}_kernel=${testing.versionToAttribute kPackages.kernel.version}_qemu=${testing.versionToAttribute qemu.version}";
       inherit hardware kPackages snabb times qemu testNixEnv;
       toCSV = drv: ''
         score=$(awk '/^IPERF-/ { print $2 }' < ${drv}/log.txt)
@@ -166,7 +166,7 @@ in rec {
     if (pkgs.lib.substring 0 4 (kPackages.kernel.version) != "3.18")
     then []
     else mkSnabbBenchTest rec {
-      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${versionToAttribute snabb.version or ""}_dpdk=${versionToAttribute dpdk.version}_qemu=${versionToAttribute qemu.version}";
+      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${testing.versionToAttribute snabb.version or ""}_dpdk=${testing.versionToAttribute dpdk.version}_qemu=${testing.versionToAttribute qemu.version}";
       inherit snabb qemu times hardware dpdk kPackages testNixEnv;
       needsNixTestEnv = true;
       toCSV = drv: ''
@@ -204,7 +204,7 @@ in rec {
      # Build CSV on Hydra localhost to spare time on copying
      requiredSystemFeatures = [ "local" ];
      # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
-     builder = software.writeText "csv-builder.sh" ''
+     builder = pkgs.writeText "csv-builder.sh" ''
        source $stdenv/setup
        mkdir -p $out/nix-support
 
@@ -220,13 +220,13 @@ in rec {
       generate a report using Rmarkdown.
    */
    mkBenchmarkReport = csv: benchmarksList: reportName:
-    software.stdenv.mkDerivation {
+    pkgs.stdenv.mkDerivation {
       name = "snabb-report";
-      buildInputs = [ software.rPackages.rmarkdown software.rPackages.ggplot2 software.rPackages.dplyr software.R software.pandoc software.which ];
+      buildInputs = with pkgs.rPackages; [ rmarkdown ggplot2 dplyr pkgs.R pkgs.pandoc pkgs.which ];
       # Build reports on Hydra localhost to spare time on copying
       requiredSystemFeatures = [ "local" ];
       # TODO: use writeText until runCommand uses passAsFile (16.09)
-      builder = software.writeText "csv-builder.sh" ''
+      builder = pkgs.writeText "csv-builder.sh" ''
         source $stdenv/setup
 
         # Store all logs
@@ -273,7 +273,7 @@ in rec {
 
    # Given a list of names and benchmark inputs/parameters, get benchmarks by their alias and pass them the parameters
    selectBenchmarks = names: params:
-     software.mergeAttrsMap (name: (pkgs.lib.getAttr name benchmarks) params) names;
+     testing.mergeAttrsMap (name: (pkgs.lib.getAttr name benchmarks) params) names;
 
    # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
    benchmarks = {

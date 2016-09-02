@@ -8,7 +8,7 @@
 }:
 
 let
-  local_lib = import ../lib { };
+  local_lib = import ../lib { inherit pkgs; };
 in rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
@@ -31,10 +31,11 @@ in rec {
       cp src/qemu*.log $out/
     '';
   };
-  distro-builds = with pkgs.vmTools.diskImages; builtins.listToAttrs (map
+  distro-builds = with pkgs.vmTools.diskImages;
+   pkgs.recurseIntoAttrs (builtins.listToAttrs (map
     (diskImage: {
        inherit (diskImage) name;
-       value = runInLinuxImage (snabb // {
+       value = pkgs.vmTools.runInLinuxImage (snabb // {
          inherit diskImage;
          name = "${snabb.name}-${diskImage.name}";
        });
@@ -57,5 +58,5 @@ in rec {
       centos71x86_64
       # See https://github.com/snabbco/snabb/pull/899
       # centos65x86_64
-  ]);
+  ]));
 }
