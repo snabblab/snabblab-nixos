@@ -2,15 +2,13 @@
 
 # build* functions are responsible for building software given their source or version
 
-with pkgs;
-
 rec {
   # Build Snabb using git version tag
   buildSnabb = version: hash:
-     snabbswitch.overrideDerivation (super: {
+     pkgs.snabbswitch.overrideDerivation (super: {
        name = "snabb-${version}";
        inherit version;
-       src = fetchFromGitHub {
+       src = pkgs.fetchFromGitHub {
           owner = "snabbco";
           repo = "snabb";
           rev = "v${version}";
@@ -23,7 +21,7 @@ rec {
    if snabbSrc == null
    then null
    else
-     (callPackage snabbSrc {}).overrideDerivation (super:
+     (pkgs.callPackage snabbSrc {}).overrideDerivation (super:
        {
          name = super.name + version;
          inherit version;
@@ -32,7 +30,7 @@ rec {
 
   buildQemu = version: hash: applySnabbPatch:
     let
-       src = fetchurl {
+       src = pkgs.fetchurl {
          url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
          sha256 = hash;
        };
@@ -45,23 +43,23 @@ rec {
          sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
          name = "snabb-patch";
        };
-     in qemu.overrideDerivation (super: {
-       name = "qemu-${version}" + lib.optionalString applySnabbPatch "-with-snabbpatch";
-       version = version + lib.optionalString applySnabbPatch "-with-snabbpatch";
+     in pkgs.qemu.overrideDerivation (super: {
+       name = "qemu-${version}" + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
+       version = version + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
        inherit src;
        patchPhase = ''
          substituteInPlace Makefile --replace \
            "install-datadir install-localstatedir" \
            "install-datadir" \
            --replace "install-sysconfig " ""
-       '' + lib.optionalString applySnabbPatch ''
+       '' + pkgs.lib.optionalString applySnabbPatch ''
          patch -p1 < ${snabbPatch}
        '';
      });
 
   buildDpdk = version: hash: kPackages:
     let
-      src = fetchurl {
+      src = pkgs.fetchurl {
         url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
         sha256 = hash;
       };
@@ -69,10 +67,10 @@ rec {
 
   buildDpdkFromSrc = version: src: kPackages:
     let
-      origDpdk = callPackage ../pkgs/dpdk.nix { kernel = kPackages.kernel; };
-      needsGCC49 = lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
+      origDpdk = pkgs.callPackage ../pkgs/dpdk.nix { kernel = kPackages.kernel; };
+      needsGCC49 = pkgs.lib.any (v: v == version) ["1.7.1" "1.8.0" "2.0.0" "2.1.0"];
       dpdk = if needsGCC49
-             then (origDpdk.override { stdenv = overrideCC stdenv gcc48;})
+             then (origDpdk.override { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc48;})
              else origDpdk;
     in dpdk.overrideDerivation (super: {
       name = "dpdk-${version}-${kPackages.kernel.version}";
@@ -108,10 +106,10 @@ rec {
   ];
 
   kernelPackages = [
-    linuxPackages_3_14
-    linuxPackages_3_18
-    linuxPackages_4_1
-    linuxPackages_4_3
-    linuxPackages_4_4
+    pkgs.linuxPackages_3_14
+    pkgs.linuxPackages_3_18
+    pkgs.linuxPackages_4_1
+    pkgs.linuxPackages_4_3
+    pkgs.linuxPackages_4_4
   ];
 }

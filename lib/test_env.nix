@@ -5,8 +5,6 @@
 
 { pkgs }:
 
-with pkgs;
-
 { kPackages ? linuxPackages
 , dpdk ? linuxPackages.dpdk }:
    let
