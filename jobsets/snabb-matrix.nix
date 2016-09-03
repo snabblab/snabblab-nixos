@@ -72,9 +72,13 @@ let
     else
     mergeAttrsMap (kPackages:
       mergeAttrsMap (dpdk:
+        let
+          #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
+          testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
+        in
         mergeAttrsMap (qemu:
           mergeAttrsMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages; }
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv; }
           ) snabbs
         ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))
@@ -82,14 +86,14 @@ let
 
 in rec {
   # All versions of software used in benchmarks
-  software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
-  benchmarks = benchmarks-list;
-  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks);
+  software = recurseIntoAttrs(listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18)));
+  benchmarks = recurseIntoAttrs benchmarks-list;
+  benchmark-csv = recurseIntoAttrs(mkBenchmarkCSV (builtins.attrValues benchmarks-list));
   benchmark-reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
-    else lib.listToAttrs (map (reportName:
+    else recurseIntoAttrs(lib.listToAttrs (map (reportName:
       { name = reportName;
-        value = mkBenchmarkReport "${benchmark-csv}/bench.csv" (builtins.attrValues benchmarks) reportName;
-      }) reports);
+        value = mkBenchmarkReport "${benchmark-csv}/bench.csv" (builtins.attrValues benchmarks-list) reportName;
+      }) reports));
 }

@@ -5,10 +5,8 @@
 
 { pkgs }:
 
-with pkgs;
-
-{ kPackages ? linuxPackages
-, dpdk ? linuxPackages.dpdk }:
+{ kPackages ? pkgs.linuxPackages
+, dpdk ? pkgs.linuxPackages.dpdk }:
    let
      # modules and NixOS config for plain qemu image
      snabb_modules = [
@@ -22,9 +20,9 @@ with pkgs;
 
          # Options needed by tests
          boot.kernelPackages = kPackages;
-         networking.firewall.enable = lib.mkOverride 150 false;
+         networking.firewall.enable = pkgs.lib.mkOverride 150 false;
          services.mingetty.autologinUser = "root";
-         users.extraUsers.root.initialHashedPassword = lib.mkOverride 150 "";
+         users.extraUsers.root.initialHashedPassword = pkgs.lib.mkOverride 150 "";
          networking.usePredictableInterfaceNames = false;
 
          # Make sure telnet serial port is enabled
@@ -43,7 +41,7 @@ with pkgs;
      snabb_modules_dpdk = [
        ({config, pkgs, lib, ...}:
          let
-           dpdk_bind = fetchurl {
+           dpdk_bind = pkgs.fetchurl {
              url = "https://raw.githubusercontent.com/scylladb/dpdk/8ea56fadc9a49c575bee6bb3892bc17dd9ec4ab6/tools/dpdk_nic_bind.py";
              sha256 = "0z8big9gh49q9kh0jjg1p9g5ywwvb130r3bmhhpbgx7blhk9zb7f";
            };
@@ -66,15 +64,16 @@ with pkgs;
        )
      ];
      snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
-     qemu_img = lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
-       inherit lib pkgs;
+     qemu_img = pkgs.lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
+       inherit pkgs;
+       lib = pkgs.lib;
        config = snabb_config;
        partitioned = true;
        format = "raw";
        diskSize = 2 * 1020;
      };
      qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
-   in runCommand "test-env-nix-${dpdk.name}" {} ''
+   in pkgs.runCommand "test-env-nix-${dpdk.name}" {} ''
      mkdir -p $out
      ln -s ${qemu_img}/nixos.img $out/qemu.img
      ln -s ${qemu_dpdk_img}/nixos.img $out/qemu-dpdk.img

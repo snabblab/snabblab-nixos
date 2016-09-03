@@ -7,15 +7,12 @@
 , hardware ? "lugano"
 }:
 
-with pkgs;
-with lib;
-with vmTools;
-with (import ../lib { inherit pkgs; });
-
-rec {
+let
+  local_lib = import ../lib { inherit pkgs; };
+in rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
-  tests = mkSnabbTest {
+  tests = local_lib.mkSnabbTest {
     name = "snabb-tests";
     inherit hardware snabb;
     needsNixTestEnv = true;
@@ -34,10 +31,11 @@ rec {
       cp src/qemu*.log $out/
     '';
   };
-  distro-builds = with diskImages; builtins.listToAttrs (map
+  distro-builds = with pkgs.vmTools.diskImages;
+   pkgs.recurseIntoAttrs (builtins.listToAttrs (map
     (diskImage: {
        inherit (diskImage) name;
-       value = runInLinuxImage (snabb // {
+       value = pkgs.vmTools.runInLinuxImage (snabb // {
          inherit diskImage;
          name = "${snabb.name}-${diskImage.name}";
        });
@@ -60,5 +58,5 @@ rec {
       centos71x86_64
       # See https://github.com/snabbco/snabb/pull/899
       # centos65x86_64
-  ]);
+  ]));
 }
