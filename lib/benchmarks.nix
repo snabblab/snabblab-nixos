@@ -79,7 +79,7 @@ in rec {
   */
   mkMatrixBenchPacketblaster = { snabb, times, hardware ? "lugano", ... }:
     mkSnabbBenchTest {
-      name = "${software.versionToAttribute snabb.version or ""}-packetblaster-64";
+      name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-64";
       inherit snabb times hardware;
       toCSV = drv: ''
         pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
@@ -100,7 +100,7 @@ in rec {
   */
   mkMatrixBenchPacketblasterSynth = { snabb, times, ... }:
     mkSnabbBenchTest {
-      name = "${software.versionToAttribute snabb.version or ""}-packetblaster-synth-64";
+      name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-synth-64";
       inherit snabb times;
       hardware = "lugano";
       toCSV = drv: ''
