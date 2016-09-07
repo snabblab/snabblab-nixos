@@ -66,8 +66,8 @@ in rec {
   # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus);
   benchmarks = benchmarks-list;
-  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
-  benchmark-reports =
+  csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
+  reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
