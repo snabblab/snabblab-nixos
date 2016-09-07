@@ -188,6 +188,32 @@ in rec {
         '';
     };
 
+  /* Execute `lwaftr` benchmark.
+
+     `duration`: Number of seconds the benchmark should last
+
+  */
+  mkBenchLWAFTR = { snabb
+                  , times
+                  , hardware ? "murren"
+                  , duration ? "10"
+                  , ... }:
+    mkSnabbBenchTest {
+      name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware;
+      checkPhase = ''
+        cd src
+        /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
+          program/lwaftr/tests/data/icmp_on_fail.conf \
+          program/lwaftr/tests/benchdata/ipv4-0550.pcap \
+          program/lwaftr/tests/benchdata/ipv6-0550.pcap |& tee $out/log.txt
+      '';
+      toCSV = drv: ''
+        score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
+        ${writeCSV drv "basic" "Mpps"}
+      '';
+    };
+
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -281,6 +307,8 @@ in rec {
 
      packetblaster = mkBenchPacketblaster;
      packetblaster-synth = mkBenchPacketblasterSynth;
+
+     lwaftr = mkBenchLWAFTR;
 
      iperf = mkBenchNFVIperf;
      iperf-base = params: mkBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
