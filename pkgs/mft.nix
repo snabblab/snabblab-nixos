@@ -69,5 +69,8 @@ stdenv.mkDerivation rec {
     done
   '';
 
+  # kernel doesn't work with PIC
+  hardeningDisable = [ "pic" ];
+
   dontStrip = true;
 }
