@@ -59,7 +59,7 @@ in rec {
      `basic1` has no dependencies except Snabb,
      being a minimal configuration for a benchmark.    
   */
-  mkMatrixBenchBasic = { snabb, times, hardware ? "murren", ... }:
+  mkBenchBasic = { snabb, times, hardware ? "murren", ... }:
     mkSnabbBenchTest {
       name = "basic1_snabb=${testing.versionToAttribute snabb.version or ""}_packets=100e6";
       inherit snabb times hardware;
@@ -77,7 +77,7 @@ in rec {
     `packetblaster` sets "lugano" as default hardware group,
     as the benchmark depends on having a NIC installed.
   */
-  mkMatrixBenchPacketblaster = { snabb, times, hardware ? "lugano", ... }:
+  mkBenchPacketblaster = { snabb, times, hardware ? "lugano", ... }:
     mkSnabbBenchTest {
       name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-64";
       inherit snabb times hardware;
@@ -98,7 +98,7 @@ in rec {
     Similar to `packetblaster` benchmark, but use "synth"
     command with size 64.
   */
-  mkMatrixBenchPacketblasterSynth = { snabb, times, ... }:
+  mkBenchPacketblasterSynth = { snabb, times, ... }:
     mkSnabbBenchTest {
       name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-synth-64";
       inherit snabb times;
@@ -122,7 +122,7 @@ in rec {
 
      If hardware group doesn't use have a NIC, ports can be specified.
   */
-  mkMatrixBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano", testNixEnv, ... }:
+  mkBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano", testNixEnv, ... }:
     let
       iperfports = {
         base         = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/same_vlan.ports";
@@ -153,7 +153,7 @@ in rec {
 
      If hardware group doesn't use have a NIC then conf and pktsize are required
   */
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, ... }:
+  mkBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, ... }:
     let
       dpdkports = {
         base  = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench.port";
@@ -277,24 +277,24 @@ in rec {
 
    # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
    benchmarks = {
-     basic = mkMatrixBenchBasic;
+     basic = mkBenchBasic;
 
-     packetblaster = mkMatrixBenchPacketblaster;
-     packetblaster-synth = mkMatrixBenchPacketblasterSynth;
+     packetblaster = mkBenchPacketblaster;
+     packetblaster-synth = mkBenchPacketblasterSynth;
 
-     iperf = mkMatrixBenchNFVIperf;
-     iperf-base = params: mkMatrixBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
-     iperf-filter = params: mkMatrixBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
-     iperf-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
-     iperf-l2tpv3 = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
-     iperf-l2tpv3-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
+     iperf = mkBenchNFVIperf;
+     iperf-base = params: mkBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
+     iperf-filter = params: mkBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
+     iperf-ipsec = params: mkBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
+     iperf-l2tpv3 = params: mkBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
+     iperf-l2tpv3-ipsec = params: mkBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
 
-     dpdk = mkMatrixBenchNFVDPDK;
-     dpdk-soft-base-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "base"; hardware = "murren";});
-     dpdk-soft-nomrg-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg"; hardware = "murren";});
-     dpdk-soft-noind-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "noind"; hardware = "murren";});
-     dpdk-soft-base-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
-     dpdk-soft-nomrg-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
-     dpdk-soft-noind-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
+     dpdk = mkBenchNFVDPDK;
+     dpdk-soft-base-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "base"; hardware = "murren";});
+     dpdk-soft-nomrg-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg"; hardware = "murren";});
+     dpdk-soft-noind-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "noind"; hardware = "murren";});
+     dpdk-soft-base-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
+     dpdk-soft-nomrg-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
+     dpdk-soft-noind-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
    };
 }

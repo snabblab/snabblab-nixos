@@ -231,7 +231,7 @@ Once [selectBenchmarks](https://github.com/snabblab/snabblab-nixos/blob/master/l
 is called with names of benchmarks, number of times to be executed and one set of software
 [it selects benchmark by name](https://github.com/snabblab/snabblab-nixos/blob/master/lib/benchmarks.nix#L279-299).
 
-Specific benchmark such as [mkMatrixBenchPacketblaster]
+Specific benchmark such as [mkBenchPacketblaster]
 (https://github.com/snabblab/snabblab-nixos/blob/master/lib/benchmarks.nix#80-94)
 calls [mkSnabbBenchTest](https://github.com/snabblab/snabblab-nixos/blob/master/lib/benchmarks.nix#L24-55)
 with a few important inputs:
