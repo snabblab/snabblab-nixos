@@ -14,7 +14,7 @@ let
     '';
   });
 in {
-  nix.chrootDirs = [
+  nix.sandboxPaths = [
     "/var/setuid-wrappers/sudo=/var/setuid-wrappers/sudo-chroot"
     "/var/setuid-wrappers/sudo.real=/var/setuid-wrappers/sudo-chroot.real"
     "${sudoChroot}"
@@ -26,6 +26,6 @@ in {
   security.setuidPrograms = [ "sudo-chroot" ];
 
   # legacy/deprecated solution (no chroot)
-  nix.useChroot = lib.mkForce "relaxed";
+  nix.useSandbox = lib.mkForce "relaxed";
   security.sudo.extraConfig = lib.concatMapStringsSep "\n" (i: "nixbld${toString i} ALL=(ALL) NOPASSWD:ALL") (lib.range 1 config.nix.nrBuildUsers);
 }

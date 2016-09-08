@@ -14,8 +14,6 @@ let
     supportedFeatures = [ "kvm" "nixos-test" ];
   };
 in {
-  imports = [ "${hydraSrc}/hydra-module.nix" ];
-
   # make sure we're using the platform on which hydra is supposed to run
   assertions = lib.singleton {
     assertion = pkgs.system == "x86_64-linux";
@@ -123,11 +121,6 @@ in {
       fi
     '';
   };
-
-  users.users.hydra.uid = config.ids.uids.hydra;
-  users.users.hydra-www.uid = config.ids.uids.hydra-www;
-  users.users.hydra-queue-runner.uid = config.ids.uids.hydra-queue-runner;
-  users.groups.hydra.gid = config.ids.gids.hydra;
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
