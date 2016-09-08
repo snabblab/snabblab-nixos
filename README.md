@@ -261,7 +261,7 @@ First, create a nixops deployment:
 1. The server needs a basic NixOS install running SSH with your public key
    configured.
 
-2. Edit `machines/lab.nix` and `machines/lab-production` and add a new machine.
+2. Edit `machines/lab.nix` and `machines/lab-production.nix` and add a new machine.
 
 3. Bootstrap:
 
