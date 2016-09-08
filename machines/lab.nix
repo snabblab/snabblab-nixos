@@ -68,11 +68,6 @@ in {
       "intel_iommu=off"
       "isolcpus=1-5,7-11" 
     ];
-    fileSystems."/" =
-      { device = "/dev/disk/by-uuid/8d8ceb90-cfd5-4669-86bc-154474c0d37e";
-        fsType = "ext4";
-      };
-
     fileSystems."/boot" =
       { device = "/dev/disk/by-uuid/d12e8f61-46f9-475d-b377-0659b1a0e59e";
         fsType = "ext4";
