@@ -42,6 +42,7 @@ in {
   grindelwald = mkMachine { ip = "lab1.snabb.co"; port = 2010; useGummiboot = true; };
   interlaken = mkMachine { ip = "lab1.snabb.co"; port = 2030; useGummiboot = true; };
   davos = mkMachine { ip = "lab1.snabb.co"; port = 2000; useGummiboot = false; };
+  snabb2 = mkMachine { ip = "igalia.com"; port = 4041; useGummiboot = false; };
 
   # Hydra (CI) servers
 
