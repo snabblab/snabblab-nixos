@@ -32,7 +32,7 @@ in {
     mkdir -p /var/lib/snabb-test-fixtures/
     for f in ${nixTestEnv}/*; do
       export f_name=$(${pkgs.coreutils}/bin/basename $f)
-      if ! ${pkgs.diffutils}/bin/cmp ${test_env}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
+      if ! ${pkgs.diffutils}/bin/cmp ${nixTestEnv}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
         cp --no-preserve=mode $f /var/lib/snabb-test-fixtures/
       fi
     done
