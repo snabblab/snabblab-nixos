@@ -102,7 +102,7 @@ rec {
      => { a = "foo"; b = "bar"; }
 
   */
-  mergeAttrs = mergeAttrsMap pkgs.lib.constant;
+  mergeAttrs = mergeAttrsMap pkgs.lib.id;
   mergeAttrsMap = f: attrs: pkgs.lib.foldl (x: y: x // (f y)) {} attrs;
 
   /* Convert dots in the version to dashes.
