@@ -11,7 +11,16 @@ rec {
       SNABB_PCI_INTEL0 = "0000:01:00.0";
       SNABB_PCI_INTEL1 = "0000:01:00.1";
     };
+    # Hetzner servers, no NIC
     murren = {};
+    # Snabb2 server for lwaftr
+    igalia = {
+      # 81:00.X to itself and 02:00.X <-> 82:00.X; 03:00.X <-> 83:00.X
+      SNABB_PCI0_0 = "82:00.0";
+      SNABB_PCI0_1 = "02:00.0";
+      SNABB_PCI1_0 = "82:00.1";
+      SNABB_PCI1_1 = "02:00.1";
+    };
   };
 
   # Given a server group name such as "lugano"

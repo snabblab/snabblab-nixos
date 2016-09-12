@@ -191,29 +191,61 @@ in rec {
   /* Execute `lwaftr` benchmark.
 
      `duration`: Number of seconds the benchmark should last
+     `conf`: What config file to use in snabb/src/program/lwaftr/tests/data/
 
   */
   mkBenchLWAFTR = { snabb
                   , times
-                  , hardware ? "murren"
                   , duration ? "10"
-                  , conf ? "program/lwaftr/tests/data/icmp_on_fail.conf"
+                  , mode ? "bare"
+                  , ipv4PCap ? "ipv4-0550.pcap"
+                  , ipv6PCap ? "ipv6-0550.pcap"
+                  , conf ? "icmp_on_fail.conf"
                   , ... }:
-    mkSnabbBenchTest {
-      name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}";
-      inherit snabb times hardware;
-      checkPhase = ''
-        cd src
-        /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
-          ${conf} \
-          program/lwaftr/tests/benchdata/ipv4-0550.pcap \
-          program/lwaftr/tests/benchdata/ipv6-0550.pcap |& tee $out/log.txt
-      '';
+    # TODO: assert mode
+    let
+      hardware = {
+        nic = "igalia";
+        virtualized = "igalia";
+        bare = "murren";
+      };
+      checkPhases = {
+        bare = ''
+          cd src
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
+            program/lwaftr/tests/data/${conf} \
+            program/lwaftr/tests/benchdata/${ipv4PCap} \
+            program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
+        '';
+        # Two processes, each running on their own numa node
+        nic = ''
+          cd src
+
+          # Start the application
+          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run -v \
+            --conf program/lwaftr/tests/data/${conf} \
+            --v4 0000:$SNABB_PCI0_1 \
+            --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
+
+          # Generate traffic
+          /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
+            program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
+            program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
+        '';
+        virtualized = ''
+        '';
+      };
+    in mkSnabbBenchTest {
+      name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}_conf=${conf}";
+      inherit snabb times;
+      hardware = hardware.${mode};
+      checkPhase = checkPhases.${mode};
       toCSV = drv: ''
         #score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
         #${writeCSV drv "lwaftr" "Mpps"}
       '';
     };
+
 
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.

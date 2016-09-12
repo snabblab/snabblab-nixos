@@ -32,6 +32,7 @@
 # Additional dpdk version to benchmark on, specified using source and name
 , qemuAsrc ? null
 , qemuAname ? null
+, lwaftrMode 
 }:
 
 with (import nixpkgs {});
@@ -58,20 +59,21 @@ let
     else
       mergeAttrsMap (qemu:
         mergeAttrsMap (snabb:
-          selectBenchmarks benchmarkNames { inherit snabb qemu times; }
+          selectBenchmarks benchmarkNames { inherit snabb qemu times; mode = lwaftrMode; }
         ) snabbs
       ) subQemus;
 
-in rec {
+  csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
+in {
   # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus);
   benchmarks = benchmarks-list;
-  csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
+  inherit csv;
   reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
     else lib.listToAttrs (map (reportName:
       { name = reportName;
-        value = mkBenchmarkReport "${benchmark-csv}/bench.csv" (builtins.attrValues benchmarks-list) reportName;
+        value = mkBenchmarkReport "${csv}/bench.csv" (builtins.attrValues benchmarks-list) reportName;
       }) reports);
 }
