@@ -197,6 +197,7 @@ in rec {
                   , times
                   , hardware ? "murren"
                   , duration ? "10"
+                  , conf ? "program/lwaftr/tests/data/icmp_on_fail.conf"
                   , ... }:
     mkSnabbBenchTest {
       name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}";
@@ -204,7 +205,7 @@ in rec {
       checkPhase = ''
         cd src
         /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
-          program/lwaftr/tests/data/icmp_on_fail.conf \
+          ${conf} \
           program/lwaftr/tests/benchdata/ipv4-0550.pcap \
           program/lwaftr/tests/benchdata/ipv6-0550.pcap |& tee $out/log.txt
       '';
