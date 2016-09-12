@@ -209,8 +209,8 @@ in rec {
           program/lwaftr/tests/benchdata/ipv6-0550.pcap |& tee $out/log.txt
       '';
       toCSV = drv: ''
-        score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
-        ${writeCSV drv "basic" "Mpps"}
+        #score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
+        #${writeCSV drv "lwaftr" "Mpps"}
       '';
     };
 
