@@ -89,6 +89,10 @@
     Host davos.snabb.co
         Hostname lab1.snabb.co
         Port 2000
+
+    Host snabb2.igalia.com
+        Hostname igalia.com
+        Port 4041
   '';
 
   # lets users use sudo without password
