@@ -5,57 +5,57 @@
 rec {
   # Build Snabb using git version tag
   buildSnabb = version: hash:
-     pkgs.snabbswitch.overrideDerivation (super: {
-       name = "snabb-${version}";
-       inherit version;
-       src = pkgs.fetchFromGitHub {
-          owner = "snabbco";
-          repo = "snabb";
-          rev = "v${version}";
-          sha256 = hash;
-        };
-     });
+    pkgs.snabbswitch.overrideDerivation (super: {
+      name = "snabb-${version}";
+      inherit version;
+      src = pkgs.fetchFromGitHub {
+        owner = "snabbco";
+        repo = "snabb";
+        rev = "v${version}";
+        sha256 = hash;
+      };
+    });
 
  # Build snabb using nix store path provided by builtins.fetchTarball or Hydra git input
  buildNixSnabb = snabbSrc: version:
    if snabbSrc == null
    then null
    else
-     (pkgs.callPackage snabbSrc {}).overrideDerivation (super:
-       {
-         name = super.name + version;
-         inherit version;
-       }
-     );
+      (pkgs.callPackage snabbSrc {}).overrideDerivation (super:
+        {
+          name = super.name + version;
+          inherit version;
+        }
+      );
 
   buildQemu = version: hash: applySnabbPatch:
     let
-       src = pkgs.fetchurl {
-         url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-         sha256 = hash;
-       };
+      src = pkgs.fetchurl {
+        url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
+        sha256 = hash;
+      };
     in buildQemuFromSrc version src applySnabbPatch;
 
   buildQemuFromSrc = version: src: applySnabbPatch:
-     let
-       snabbPatch = pkgs.fetchurl {
-         url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
-         sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
-         name = "snabb-patch";
-       };
-     in pkgs.qemu.overrideDerivation (super: {
-       name = "qemu-${version}" + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
-       version = version + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
-       inherit src;
-       patchPhase = ''
-         substituteInPlace Makefile --replace \
-           "install-datadir install-localstatedir" \
-           "install-datadir" \
-           --replace "install-sysconfig " ""
-       '' + pkgs.lib.optionalString applySnabbPatch ''
-         patch -p1 < ${snabbPatch}
-       '';
-     });
+    let
+      snabbPatch = pkgs.fetchurl {
+        url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
+        sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
+        name = "snabb-patch";
+      };
+    in pkgs.qemu.overrideDerivation (super: {
+      name = "qemu-${version}" + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
+      version = version + pkgs.lib.optionalString applySnabbPatch "-with-snabbpatch";
+      inherit src;
+      patchPhase = ''
+        substituteInPlace Makefile --replace \
+          "install-datadir install-localstatedir" \
+          "install-datadir" \
+          --replace "install-sysconfig " ""
+      '' + pkgs.lib.optionalString applySnabbPatch ''
+        patch -p1 < ${snabbPatch}
+      '';
+    });
 
   buildDpdk = version: hash: kPackages:
     let

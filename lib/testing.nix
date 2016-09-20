@@ -74,7 +74,7 @@ rec {
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
           set -o pipefail
-      '';
+        '';
 
       # Adds all files as log types to build products
       installPhase = ''

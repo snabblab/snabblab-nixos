@@ -44,13 +44,13 @@ in {
 
   # mount /hugetlbfs for snabbnfv
   systemd.mounts = [
-     { where = "/hugetlbfs";
-         enable  = true;
-         what  = "hugetlbfs";
-         type  = "hugetlbfs";
-         options = "pagesize=2M";
-         requiredBy  = ["basic.target"];
-     }
+    { where = "/hugetlbfs";
+      enable  = true;
+      what  = "hugetlbfs";
+      type  = "hugetlbfs";
+      options = "pagesize=2M";
+      requiredBy  = ["basic.target"];
+    }
   ];
 
   users.motd = ''
