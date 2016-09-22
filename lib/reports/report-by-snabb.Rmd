@@ -28,7 +28,7 @@ library(ggplot2)
 dat <- read.csv("bench.csv")
 d <- as.data.frame(dat)
 # "sliced" is the dataset with unwanted configurations and software versions excluded
-sliced <- subset(d, subset=(benchmark == "basic" | (kernel == "3.18.29" & qemu == "2.4.1" & (is.na(config) | config == "base") & (is.na(dpdk) | dpdk == "16.04"))))
+sliced <- subset(d, subset=(benchmark == "basic" | (kernel == "3.18.29" & qemu == "2.4.1" & (is.na(dpdk) | dpdk == "16.04"))))
 ```
 
 ## Line graph
@@ -41,7 +41,7 @@ p <- p + theme(legend.position="top")
 p <- p + geom_point()
 p <- p + geom_line()
 p <- p + expand_limits(y=0)
-p <- p + facet_wrap(~ benchmark, scales = "free")
+p <- p + facet_grid(config ~ benchmark, scales = "free")
 p + ggtitle("Sequential test results")
 ```
 
@@ -52,7 +52,7 @@ p + ggtitle("Sequential test results")
 p <- ggplot(sliced, aes(x=id, y=score, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_boxplot(alpha=0.50)
-p <- p + facet_wrap(~ benchmark, scales = "free")
+p <- p + facet_grid(config ~ benchmark, scales = "free")
 p + ggtitle("Summary of test results")
 ```
 
@@ -64,7 +64,7 @@ p + ggtitle("Summary of test results")
 p <- ggplot(sliced, aes(score, fill = snabb, color = snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_density(alpha = 0.1)
-p <- p + facet_wrap(~ benchmark, ncol=1, scales = "free")
+p <- p + facet_grid(config ~ benchmark, ncol=1, scales = "free")
 p + ggtitle("Shape (distribution) of test results")
 ```
 
