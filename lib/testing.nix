@@ -4,7 +4,7 @@ rec {
   # Function to build test_env qemu images needed for some benchmarks
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
-  # Default PCCI assignment values for server groups
+  # Default PCI assignment values for server groups
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
