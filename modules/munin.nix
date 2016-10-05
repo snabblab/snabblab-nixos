@@ -58,7 +58,6 @@ in {
   # Allow access to Hydra private ssh key /etc/nix/id_buildfarm
   users.extraUsers.munin.extraGroups = [ "hydra" ];
 
-
   security.acme.certs = {
     "munin.snabb.co" = {
       email = "munin@snabb.co";

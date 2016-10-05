@@ -8,7 +8,8 @@
 # $ nix-shell -p xorg.xorgserver --command "Xvfb -screen 0 1024x768x16 -ac"
 
 # (remotely) Start IPMIView (patchelf patched for Nix)
-# $ DISPLAY=:0 nix-shell -p ipmiview --command "IPMIView"
+# On eiger, cd to /home/domenkozar/IPMIView
+# $ DISPLAY=:0 ./IPMIView20
 
 # (locally) Setup VNC over SSH tunnel
 # $ ssh -L 5900:localhost:5900 eiger 'nix-shell -p x11vnc --command "x11vnc -localhost -display :0 -ncache 10"'

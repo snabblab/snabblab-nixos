@@ -22,37 +22,37 @@ in rec {
      The rest of the attributes are specified in testing.nix:`mkSnabbTest`
   */
   mkSnabbBenchTest = { name, times, toCSV, ... }@attrs:
-   let
-     # patch needed for Snabb v2016.05 and lower
-     testEnvPatch = pkgs.fetchurl {
-       url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
-       sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
-     };
-     snabbBenchmark = num:
-       let
-         name' = "${name}_num=${toString num}";
-       in {
-         ${name'} = pkgs.lib.hydraJob (testing.mkSnabbTest ({
-           name = name';
-           alwaysSucceed = true;
-           patchPhase = ''
-             patch -p1 < ${testEnvPatch} || true
-           '';
-           preInstall = ''
-             cp qemu*.log $out/ || true
-             cp snabb*.log $out/ || true
-           '';
-           meta = {
-             snabbVersion = attrs.snabb.version or "";
-             qemuVersion = attrs.qemu.version or "";
-             kernelVersion = attrs.kPackages.kernel.version or "";
-             dpdkVersion = attrs.dpdk.version or "";
-             repeatNum = num;
-             inherit toCSV;
-           } // (attrs.meta or {});
-         } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
-       };
-   in testing.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
+    let
+      # patch needed for Snabb v2016.05 and lower
+      testEnvPatch = pkgs.fetchurl {
+        url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
+        sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
+      };
+      snabbBenchmark = num:
+        let
+          name' = "${name}_num=${toString num}";
+        in {
+          ${name'} = pkgs.lib.hydraJob (testing.mkSnabbTest ({
+            name = name';
+            alwaysSucceed = true;
+            patchPhase = ''
+              patch -p1 < ${testEnvPatch} || true
+            '';
+            preInstall = ''
+              cp qemu*.log $out/ || true
+              cp snabb*.log $out/ || true
+            '';
+            meta = {
+              snabbVersion = attrs.snabb.version or "";
+              qemuVersion = attrs.qemu.version or "";
+              kernelVersion = attrs.kPackages.kernel.version or "";
+              dpdkVersion = attrs.dpdk.version or "";
+              repeatNum = num;
+              inherit toCSV;
+            } // (attrs.meta or {});
+          } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
+        };
+    in testing.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
 
   /* Execute `basic1` benchmark.
 
@@ -217,7 +217,7 @@ in rec {
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
         '';
-        # Two processes, each running on their own numa node
+        # Two processes, each running on their own NUMA node
         nic = ''
           cd src
 
@@ -246,7 +246,6 @@ in rec {
       '';
     };
 
-
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -257,28 +256,28 @@ in rec {
 
   # Generate CSV out of collection of benchmarking logs
   mkBenchmarkCSV = benchmarkList:
-   pkgs.stdenv.mkDerivation {
-     name = "snabb-report-csv";
-     buildInputs = [ pkgs.gawk pkgs.bc ];
-     # Build CSV on Hydra localhost to spare time on copying
-     requiredSystemFeatures = [ "local" ];
-     # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
-     builder = pkgs.writeText "csv-builder.sh" ''
-       source $stdenv/setup
-       mkdir -p $out/nix-support
+    pkgs.stdenv.mkDerivation {
+      name = "snabb-report-csv";
+      buildInputs = [ pkgs.gawk pkgs.bc ];
+      # Build CSV on Hydra localhost to spare time on copying
+      requiredSystemFeatures = [ "local" ];
+      # TODO: uses writeText until following is merged https://github.com/NixOS/nixpkgs/pull/15803
+      builder = pkgs.writeText "csv-builder.sh" ''
+        source $stdenv/setup
+        mkdir -p $out/nix-support
 
-       echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
-       ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
+        echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+        ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
-       # Make CSV file available via Hydra
-       echo "file CSV $out/bench.csv" >> $out/nix-support/hydra-build-products
-     '';
+        # Make CSV file available via Hydra
+        echo "file CSV $out/bench.csv" >> $out/nix-support/hydra-build-products
+      '';
     };
 
-   /* Using a generated CSV file, list of benchmarks and a report name,
-      generate a report using Rmarkdown.
-   */
-   mkBenchmarkReport = csv: benchmarksList: reportName:
+  /* Using a generated CSV file, list of benchmarks and a report name,
+     generate a report using Rmarkdown.
+  */
+  mkBenchmarkReport = csv: benchmarksList: reportName:
     pkgs.stdenv.mkDerivation {
       name = "snabb-report";
       buildInputs = with pkgs.rPackages; [ rmarkdown ggplot2 dplyr pkgs.R pkgs.pandoc pkgs.which ];
@@ -307,55 +306,55 @@ in rec {
       '';
     };
 
-   # Generate a list of names of available reports in `./lib/reports`
-   listReports =
-     map (name: pkgs.lib.removeSuffix ".Rmd" name)
-         (builtins.attrNames (builtins.readDir ../lib/reports));
+  # Generate a list of names of available reports in `./lib/reports`
+  listReports =
+    map (name: pkgs.lib.removeSuffix ".Rmd" name)
+      (builtins.attrNames (builtins.readDir ../lib/reports));
 
-   # Returns true if version is a prefix of drv.version
-   matchesVersionPrefix = version: drv:
-     pkgs.lib.hasPrefix version (pkgs.lib.getVersion drv);
+  # Returns true if version is a prefix of drv.version
+  matchesVersionPrefix = version: drv:
+    pkgs.lib.hasPrefix version (pkgs.lib.getVersion drv);
 
-   # Select software collections based on version strings
-   selectQemus = versions:
-     if versions == []
-     then software.qemus
-     else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) software.qemus) versions;
-   selectDpdks = versions: kPackages:
-     if versions == []
-     then (software.dpdks kPackages)
-     else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) (software.dpdks kPackages)) versions;
-   selectKernelPackages = versions:
-     if versions == []
-     then software.kernelPackages
-     else pkgs.lib.concatMap (version: pkgs.lib.filter (kPackages: pkgs.lib.hasPrefix version (pkgs.lib.getVersion kPackages.kernel)) software.kernelPackages) versions;
+  # Select software collections based on version strings
+  selectQemus = versions:
+    if versions == []
+    then software.qemus
+    else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) software.qemus) versions;
+  selectDpdks = versions: kPackages:
+    if versions == []
+    then (software.dpdks kPackages)
+    else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) (software.dpdks kPackages)) versions;
+  selectKernelPackages = versions:
+    if versions == []
+    then software.kernelPackages
+    else pkgs.lib.concatMap (version: pkgs.lib.filter (kPackages: pkgs.lib.hasPrefix version (pkgs.lib.getVersion kPackages.kernel)) software.kernelPackages) versions;
 
-   # Given a list of names and benchmark inputs/parameters, get benchmarks by their alias and pass them the parameters
-   selectBenchmarks = names: params:
-     testing.mergeAttrsMap (name: (pkgs.lib.getAttr name benchmarks) params) names;
+  # Given a list of names and benchmark inputs/parameters, get benchmarks by their alias and pass them the parameters
+  selectBenchmarks = names: params:
+    testing.mergeAttrsMap (name: (pkgs.lib.getAttr name benchmarks) params) names;
 
-   # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
-   benchmarks = {
-     basic = mkBenchBasic;
+  # Benchmarks aliases that can be referenced using just a name, i.e. "iperf-filter"
+  benchmarks = {
+    basic = mkBenchBasic;
 
-     packetblaster = mkBenchPacketblaster;
-     packetblaster-synth = mkBenchPacketblasterSynth;
+    packetblaster = mkBenchPacketblaster;
+    packetblaster-synth = mkBenchPacketblasterSynth;
 
-     lwaftr = mkBenchLWAFTR;
+    lwaftr = mkBenchLWAFTR;
 
-     iperf = mkBenchNFVIperf;
-     iperf-base = params: mkBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
-     iperf-filter = params: mkBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
-     iperf-ipsec = params: mkBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
-     iperf-l2tpv3 = params: mkBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
-     iperf-l2tpv3-ipsec = params: mkBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
+    iperf = mkBenchNFVIperf;
+    iperf-base = params: mkBenchNFVIperf (params // {conf = "base"; hardware = "murren";});
+    iperf-filter = params: mkBenchNFVIperf (params // {conf = "filter"; hardware = "murren";});
+    iperf-ipsec = params: mkBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
+    iperf-l2tpv3 = params: mkBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
+    iperf-l2tpv3-ipsec = params: mkBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
 
-     dpdk = mkBenchNFVDPDK;
-     dpdk-soft-base-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "base"; hardware = "murren";});
-     dpdk-soft-nomrg-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg"; hardware = "murren";});
-     dpdk-soft-noind-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "noind"; hardware = "murren";});
-     dpdk-soft-base-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
-     dpdk-soft-nomrg-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
-     dpdk-soft-noind-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
-   };
+    dpdk = mkBenchNFVDPDK;
+    dpdk-soft-base-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "base"; hardware = "murren";});
+    dpdk-soft-nomrg-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg"; hardware = "murren";});
+    dpdk-soft-noind-256 = params: mkBenchNFVDPDK (params // {pktsize = "256"; conf = "noind"; hardware = "murren";});
+    dpdk-soft-base-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
+    dpdk-soft-nomrg-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
+    dpdk-soft-noind-64 = params: mkBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
+  };
 }

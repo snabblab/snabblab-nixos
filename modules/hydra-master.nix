@@ -44,6 +44,11 @@ in {
         mandatoryFeatures = [ "lugano" ];
       })
       (commonBuildMachineOpt // {
+        hostName = "snabb2.igalia.com";
+        maxJobs = 1;
+        mandatoryFeatures = [ "igalia" ];
+      })
+      (commonBuildMachineOpt // {
         hostName = "grindelwald.snabb.co";
         maxJobs = 1;
         mandatoryFeatures = [ "openstack" ];
