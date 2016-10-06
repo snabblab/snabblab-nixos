@@ -60,6 +60,26 @@ in {
 
       # custom NixOS options here
   };
+  snabb2 = { config, pkgs, lib, ... }: defaults // {
+    boot.kernelParams = [ 
+      "default_hugepagesz=2048K"
+      "hugepagesz=2048K"
+      "hugepages=10000"
+      "intel_iommu=off"
+      "isolcpus=1-5,7-11" 
+    ];
+    fileSystems."/boot" =
+      { device = "/dev/disk/by-uuid/d12e8f61-46f9-475d-b377-0659b1a0e59e";
+        fsType = "ext4";
+      };
+    networking.interfaces.enp4s0f0.ip4 = [
+      { address = "192.168.13.41"; prefixLength = 24; }
+    ];
+    networking.defaultGateway = "192.168.13.1";
+    networking.nameservers = [ "192.168.13.1" ];
+    networking.firewall.allowedTCPPorts = [ 22 4040 4041 ];
+    services.openssh.ports = [ 22 4040 4041 ];
+  };
 
   # Hydra (CI) servers
 

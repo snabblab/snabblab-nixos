@@ -60,21 +60,21 @@
 
   # allow users to use nix-env/nix-shell
   systemd.services.nixos-update = {
-     description = "NixOS Upgrade";
-     unitConfig.X-StopOnRemoval = false;
-     serviceConfig.Type = "oneshot";
+    description = "NixOS Upgrade";
+    unitConfig.X-StopOnRemoval = false;
+    serviceConfig.Type = "oneshot";
 
-     environment = config.nix.envVars //
-       { inherit (config.environment.sessionVariables) NIX_PATH;
-         HOME = "/root";
-       };
-     path = [ pkgs.gnutar pkgs.xz config.nix.package.out ];
-     script = ''
-       nix-channel --add http://nixos.org/channels/nixos-16.03 nixos
-       nix-channel --update nixos
-     '';
-     startAt = "05:40";
-   };
+    environment = config.nix.envVars //
+      { inherit (config.environment.sessionVariables) NIX_PATH;
+        HOME = "/root";
+      };
+    path = [ pkgs.gnutar pkgs.xz config.nix.package.out ];
+    script = ''
+      nix-channel --add http://nixos.org/channels/nixos-16.03 nixos
+      nix-channel --update nixos
+    '';
+    startAt = "05:40";
+  };
 
 
   programs.ssh.extraConfig = ''
@@ -89,6 +89,10 @@
     Host davos.snabb.co
         Hostname lab1.snabb.co
         Port 2000
+
+    Host snabb2.igalia.com
+        Hostname igalia.com
+        Port 4041
   '';
 
   # lets users use sudo without password

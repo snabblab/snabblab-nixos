@@ -4,7 +4,7 @@ rec {
   # Function to build test_env qemu images needed for some benchmarks
   mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
-  # Default PCCI assignment values for server groups
+  # Default PCI assignment values for server groups
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
@@ -83,7 +83,7 @@ rec {
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
           set -o pipefail
-      '';
+        '';
 
       # Adds all files as log types to build products
       installPhase = ''
@@ -111,7 +111,7 @@ rec {
      => { a = "foo"; b = "bar"; }
 
   */
-  mergeAttrs = mergeAttrsMap pkgs.lib.constant;
+  mergeAttrs = mergeAttrsMap pkgs.lib.id;
   mergeAttrsMap = f: attrs: pkgs.lib.foldl (x: y: x // (f y)) {} attrs;
 
   /* Convert dots in the version to dashes.
