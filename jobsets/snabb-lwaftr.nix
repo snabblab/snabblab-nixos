@@ -29,7 +29,7 @@
 , benchmarkNames ? [ "lwaftr" ]
 # Name of reports to be generated
 # For possible values see lib/reports/, e.g. "basic"
-, reports ? [ "basic" ]
+, reports ? [ "lwaftr" ]
 # What qemu versions to benchmark on, for possible values see lib/benchmarks.nix
 , qemuVersions ? []
 # Additional dpdk version to benchmark on, specified using source and name

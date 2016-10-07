@@ -212,20 +212,22 @@ in rec {
       checkPhases = {
         bare = ''
           cd src
-          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
+            -D ${duration} -y --bench-file log.txt \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
-            program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
+            program/lwaftr/tests/benchdata/${ipv6PCap}
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
           cd src
 
           # Start the application
-          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run -v \
+          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
+            -v -y --bench-file log.txt \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
-            --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
+            --v6 0000:$SNABB_PCI1_1
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
@@ -296,8 +298,10 @@ in rec {
 
         # Create markdown report
         cp ${../lib/reports + "/${reportName}.Rmd"} ./report.Rmd
-        cp ${csv} .
-        cat bench.csv
+        cp ${csv} ./bench.csv
+        echo -e "\n"
+        cat ./bench.csv
+        echo -e "\n"
         cat report.Rmd
         echo "library(rmarkdown); render('report.Rmd')" | R --no-save
         cp report.html $out
