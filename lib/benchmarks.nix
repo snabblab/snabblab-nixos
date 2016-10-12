@@ -213,10 +213,12 @@ in rec {
         bare = ''
           cd src
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
-            -D ${duration} -y --bench-file log.txt \
+            -D ${duration} -y --filename $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap}
+          /var/setuid-wrappers/sudo chown nixbld1:nixbld $out/log.csv
+          /var/setuid-wrappers/sudo chmod 660 $out/log.csv
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
@@ -243,8 +245,7 @@ in rec {
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
       toCSV = drv: ''
-        #score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
-        #${writeCSV drv "lwaftr" "Mpps"}
+        cat ${drv}/log.csv >> $out/bench.csv
       '';
     };
 
@@ -253,7 +254,7 @@ in rec {
   */
   writeCSV = drv: benchName: unit: ''
     if test -z "$score"; then score="NA"; fi
-    echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+    #echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
   '';
 
   # Generate CSV out of collection of benchmarking logs
@@ -291,7 +292,7 @@ in rec {
 
         # Store all logs
         mkdir -p $out/nix-support
-        ${pkgs.lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
+        ${pkgs.lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.csv > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
         tar cfJ logs.tar.xz -C $out .
         mv logs.tar.xz $out/
         echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
