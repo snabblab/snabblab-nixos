@@ -32,7 +32,7 @@ in rec {
     '';
   };
   distro-builds = with pkgs.vmTools.diskImages;
-    pkgs.recurseIntoAttrs (builtins.listToAttrs (map
+    builtins.listToAttrs (map
       (diskImage: {
         inherit (diskImage) name;
         value = pkgs.vmTools.runInLinuxImage (snabb // {
@@ -59,5 +59,5 @@ in rec {
         # See https://github.com/snabbco/snabb/pull/899
         # centos65x86_64
       ]
-    ));
+    );
 }
