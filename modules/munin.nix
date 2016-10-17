@@ -10,7 +10,7 @@ let
     ++ (map (i: "build-${toString i}.snabb.co") (range 1 4));
   muninHosts = concatMapStringsSep "\n" (hostname: ''
     [${hostname}]
-    address ssh://munin@${hostname} -i /etc/nix/id_buildfarm -W localhost:4949
+    address ssh://munin@${hostname} -i /etc/nix/id_buildfarm
 
   '') hostnames;
 in {
