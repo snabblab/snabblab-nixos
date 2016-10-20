@@ -336,5 +336,11 @@ in
     description = "Nicola Larosa";
     openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA38vpLAa/p3w3qvuD68cR5azEIlHngJ9lVrIldq4JGpq1nP5PUsw+zPvlTfKIP0S7vt6MpCf+2cRQF89UcLMoPE6J2+cg+pSQ0dUjyNn7bJ0EDxJU/DmLqdukxu8d6dC/IV5TB6G1Q9gxwqmDY5IrSEjxfEqb8qk1kY9mFS2epZEq6VIxxe7cObk2VfM+5XGZOfTd7MflWPbL/OEeutspF42hJaBm/6IsyCEjOLkJ3MS16ARTGFReK8DtJL3EfiKVKTJCuLzhTeqxkrbctQ0zRcLQ41agbq2vwSI0YtP8fOif8LTwpdWyNq8TEPfMqx33B6fe/i+hkRrthiLW9vb+0w== nl@bluethunder" ];
   } // commonUserAttrs;
+  
+  users.extraUsers.pnoom = {
+    uid = 1055;
+    description = "Andy Page";
+    openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCZ55DNWDCUGPa+Y2vtlNscnyIqtZWCv1S3Owxw4YOyCHenFMJqENv0RN5tY388OBHB7FAp9POQRsl0mVefRopRgtU5y3u4ZUm3JKYNp/YbqS2ohP5fA1Q/355ciqCdLZ9z7dhk0f+1NYte7UekElW6HX9o/rAJ6JbgFUwpYgE6JHOK2VGV8AZEvAe1w8p7FRVtQdvN+EWF091sFwqUVBdlhxQUZslbDyJfnO8X4xqo1hgfRsnjqbJpbDYybqnj4EhlVZYsdbnZLuFIrvkZF3nTjNsPHvYO+WQgym39HmyMGo7mxxpDfO4YAspSorfCKS39xeUNT/O+sBbRQRBw0IuwkhfzvCr1F6f86YE6Kmwehb++Htm4qU66WLTcdm4WNoDIysQV4gzzbXKnmefwykY8F9V1H1KkrXj8OhPAd+iw+lXH3txVcR8r4v7lirxHJ+A2oNuh7DCpPTNzvKdij4Z3qAOMpNsgnHjgsE5FxdcmIKsMpgIX3ngX6wovOk2jllQACPXCVVkUI5izA+0zRXR7f15+t4SDw/6QMSa/nC+Ds350D2sa4tnT8dsQBLN7q83GjQ7B4ygaeEe3TnkIqCO6tdVWgMlq/nQjlgRYx+5X2+rYUFGL12LSDJgor+lvaMTo9jsI1qSJpKV5H1v4uxJgrAG/Tj5fcwsVdOHYhqsIkw==" ];
+  } // commonUserAttrs;
 
 }
