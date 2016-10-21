@@ -225,10 +225,10 @@ in rec {
 
           # Start the application
           /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
-            -v -y --bench-file log.txt \
+            -v -y --bench-file log.csv \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
-            --v6 0000:$SNABB_PCI1_1
+            --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
@@ -291,7 +291,7 @@ in rec {
 
         # Store all logs
         mkdir -p $out/nix-support
-        ${pkgs.lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.csv > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
+        ${pkgs.lib.concatMapStringsSep "\n" (drv: "cat ${drv}/log.txt > $out/${drv.name}-${toString drv.meta.repeatNum}.log") benchmarksList}
         tar cfJ logs.tar.xz -C $out .
         mv logs.tar.xz $out/
         echo "file tarball $out/logs.tar.xz" >> $out/nix-support/hydra-build-products
