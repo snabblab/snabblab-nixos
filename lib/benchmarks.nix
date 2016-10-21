@@ -212,17 +212,20 @@ in rec {
       checkPhases = {
         bare = ''
           cd src
-          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench -D ${duration} \
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
+            -D ${duration} -y --filename $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
+            /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
           cd src
 
           # Start the application
-          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run -v \
+          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
+            -v -y --bench-file log.csv \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
@@ -241,8 +244,9 @@ in rec {
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
       toCSV = drv: ''
-        #score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
-        #${writeCSV drv "lwaftr" "Mpps"}
+        sed '1d' ${drv}/log.csv > csv
+        awk -F, '{$1="lwaftr,${mode},${duration},${snabb.version},${conf},${toString drv.meta.repeatNum}" FS $1;}1' OFS=, csv >> $out/bench.csv
+        rm csv
       '';
     };
 
@@ -255,7 +259,7 @@ in rec {
   '';
 
   # Generate CSV out of collection of benchmarking logs
-  mkBenchmarkCSV = benchmarkList:
+  mkBenchmarkCSV = benchmarkList: columnNames:
     pkgs.stdenv.mkDerivation {
       name = "snabb-report-csv";
       buildInputs = [ pkgs.gawk pkgs.bc ];
@@ -266,7 +270,7 @@ in rec {
         source $stdenv/setup
         mkdir -p $out/nix-support
 
-        echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+        echo "${columnNames}" > $out/bench.csv
         ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
         # Make CSV file available via Hydra
@@ -296,8 +300,10 @@ in rec {
 
         # Create markdown report
         cp ${../lib/reports + "/${reportName}.Rmd"} ./report.Rmd
-        cp ${csv} .
-        cat bench.csv
+        cp ${csv} ./bench.csv
+        echo -e "\n"
+        cat ./bench.csv
+        echo -e "\n"
         cat report.Rmd
         echo "library(rmarkdown); render('report.Rmd')" | R --no-save
         cp report.html $out

@@ -86,14 +86,14 @@ let
 
 in rec {
   # All versions of software used in benchmarks
-  software = recurseIntoAttrs(listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18)));
-  benchmarks = recurseIntoAttrs benchmarks-list;
-  benchmark-csv = recurseIntoAttrs(mkBenchmarkCSV (builtins.attrValues benchmarks-list));
+  software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
+  benchmarks = benchmarks-list;
+  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list) "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit;
   benchmark-reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
-    else recurseIntoAttrs(lib.listToAttrs (map (reportName:
+    else lib.listToAttrs (map (reportName:
       { name = reportName;
         value = mkBenchmarkReport "${benchmark-csv}/bench.csv" (builtins.attrValues benchmarks-list) reportName;
-      }) reports));
+      }) reports);
 }

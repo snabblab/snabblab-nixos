@@ -1,23 +1,6 @@
 # build an ISO image that will auto install NixOS and reboot
 # $ nix-build make-iso.nix
 
-
-# HOWTO: Use IPMIView to connect to machines using iKVM (to be able to boot this ISO)
-
-# (remotely) To launch an X framebuffer do
-# $ nix-shell -p xorg.xorgserver --command "Xvfb -screen 0 1024x768x16 -ac"
-
-# (remotely) Start IPMIView (patchelf patched for Nix)
-# On eiger, cd to /home/domenkozar/IPMIView
-# $ DISPLAY=:0 ./IPMIView20
-
-# (locally) Setup VNC over SSH tunnel
-# $ ssh -L 5900:localhost:5900 eiger 'nix-shell -p x11vnc --command "x11vnc -localhost -display :0 -ncache 10"'
-
-# (locally) Fire up VNC session and login
-# $ nix-shell -p tightvnc --command "vncviewer localhost"
-
-
 let
    config = (import <nixpkgs/nixos/lib/eval-config.nix> {
      system = "x86_64-linux";

@@ -1,0 +1,37 @@
+# lwAftr benchmark report
+
+## Initialization
+
+```{r}
+knitr::opts_chunk$set(error=TRUE)
+library(ggplot2)
+dat <- read.csv("bench.csv")
+lwaftr <- as.data.frame(dat)
+summary(lwaftr)
+```
+
+## Line graph
+
+[Line graph](https://en.wikipedia.org/wiki/Line_graph) for a simple and direct look at the results. The Y-scale starts at 0 to put the absolute differences in perspective.
+
+```{r}
+p <- ggplot(lwaftr, aes(y=score, x=sequence, color=snabb))
+p <- p + theme(legend.position="top")
+p <- p + geom_point()
+p <- p + geom_line()
+p <- p + expand_limits(y=0)
+p <- p + facet_wrap(~ link, scales="free")
+p + ggtitle("Sequential test results")
+```
+
+## Density plot
+
+[Density plot](https://en.wikipedia.org/wiki/Density_estimation) showing the distribution of results. The curve is high around common values and low around rare values. Here we can see how spread out they are, how they cluster together, etc.
+
+```{r}
+p <- ggplot(lwaftr, aes(score, fill=snabb, color=snabb))
+p <- p + theme(legend.position="top")
+p <- p + geom_density(alpha = 0.1)
+p <- p + facet_wrap(~ link, ncol=1, scales="free")
+p + ggtitle("Shape (distribution) of test results")
+```
