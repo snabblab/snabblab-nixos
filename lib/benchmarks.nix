@@ -216,9 +216,8 @@ in rec {
             -D ${duration} -y --filename $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
-            program/lwaftr/tests/benchdata/${ipv6PCap}
-          /var/setuid-wrappers/sudo chown nixbld1:nixbld $out/log.csv
-          /var/setuid-wrappers/sudo chmod 660 $out/log.csv
+            program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
+            /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
