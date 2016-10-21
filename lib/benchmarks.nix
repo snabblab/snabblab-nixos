@@ -244,7 +244,9 @@ in rec {
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
       toCSV = drv: ''
-        cat ${drv}/log.csv >> $out/bench.csv
+        sed '1d' ${drv}/log.csv > csv
+        awk -F, '{$1="lwaftr,${mode},${duration},${snabb.version},${conf},${toString drv.meta.repeatNum}" FS $1;}1' OFS=, csv >> $out/bench.csv
+        rm csv
       '';
     };
 
@@ -253,11 +255,11 @@ in rec {
   */
   writeCSV = drv: benchName: unit: ''
     if test -z "$score"; then score="NA"; fi
-    #echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+    echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
   '';
 
   # Generate CSV out of collection of benchmarking logs
-  mkBenchmarkCSV = benchmarkList:
+  mkBenchmarkCSV = benchmarkList: columnNames:
     pkgs.stdenv.mkDerivation {
       name = "snabb-report-csv";
       buildInputs = [ pkgs.gawk pkgs.bc ];
@@ -268,7 +270,7 @@ in rec {
         source $stdenv/setup
         mkdir -p $out/nix-support
 
-        echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+        echo "${columnNames}" > $out/bench.csv
         ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
         # Make CSV file available via Hydra

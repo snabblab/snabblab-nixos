@@ -15,12 +15,12 @@ summary(lwaftr)
 [Line graph](https://en.wikipedia.org/wiki/Line_graph) for a simple and direct look at the results. The Y-scale starts at 0 to put the absolute differences in perspective.
 
 ```{r}
-p <- ggplot(lwaftr, aes(y=score, x=id, color=snabb))
+p <- ggplot(lwaftr, aes(y=score, x=sequence, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_point()
 p <- p + geom_line()
 p <- p + expand_limits(y=0)
-p <- p + facet_wrap(~ benchmark, scales="free")
+p <- p + facet_wrap(~ link, scales="free")
 p + ggtitle("Sequential test results")
 ```
 
@@ -32,6 +32,6 @@ p + ggtitle("Sequential test results")
 p <- ggplot(lwaftr, aes(score, fill=snabb, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_density(alpha = 0.1)
-p <- p + facet_wrap(~ benchmark, ncol=1, scales="free")
+p <- p + facet_wrap(~ link, ncol=1, scales="free")
 p + ggtitle("Shape (distribution) of test results")
 ```
