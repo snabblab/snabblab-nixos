@@ -225,10 +225,10 @@ in rec {
 
           # Start the application
           /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
-            -v -y --bench-file $out/log.csv \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
-            --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
+            --v6 0000:$SNABB_PCI1_1 \
+            -v -y --bench-file $out/log.csv 2>&1 |tee $out/run.log&
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
