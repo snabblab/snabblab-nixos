@@ -213,7 +213,7 @@ in rec {
         bare = ''
           cd src
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
-            -D ${duration} -y --filename $out/log.csv \
+            -D ${duration} -y --bench-file $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
@@ -225,7 +225,7 @@ in rec {
 
           # Start the application
           /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
-            -v -y --filename $out/log.csv \
+            -v -y --bench-file $out/log.csv \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 2>&1 |tee $out/run.log&
