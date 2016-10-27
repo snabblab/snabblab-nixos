@@ -213,7 +213,7 @@ in rec {
         bare = ''
           cd src
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
-            -D ${duration} -y --filename $out/log.csv \
+            -D ${duration} -y --bench-file $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
