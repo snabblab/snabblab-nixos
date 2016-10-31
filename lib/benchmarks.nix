@@ -227,7 +227,8 @@ in rec {
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 \
-            -v -y --bench-file $out/log.csv 2>&1 |tee $out/run.log&
+            -v -y --bench-file $out/log.csv 2>&1 |tee $out/log.txt&
+          RUN_PID=$!
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
@@ -242,7 +243,8 @@ in rec {
       inherit snabb times;
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
-      preFixup = ''
+      postInstall = ''
+        kill $RUN_PID
         /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv || true
       '';
       toCSV = drv: ''
