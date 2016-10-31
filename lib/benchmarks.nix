@@ -217,7 +217,6 @@ in rec {
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
-          /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
@@ -229,7 +228,6 @@ in rec {
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 \
             -v -y --bench-file $out/log.csv 2>&1 |tee $out/run.log&
-          /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
@@ -244,6 +242,9 @@ in rec {
       inherit snabb times;
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
+      preFixup = ''
+        /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv || true
+      '';
       toCSV = drv: ''
         sed '1d' ${drv}/log.csv > csv
         awk -F, '{$1="lwaftr,${mode},${duration},${snabb.version},${conf},${toString drv.meta.repeatNum}" FS $1;}1' OFS=, csv >> $out/bench.csv
