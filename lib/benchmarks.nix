@@ -217,7 +217,7 @@ in rec {
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
-            /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
+          /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
         '';
         # Two processes, each running on their own NUMA node
         nic = ''
@@ -229,6 +229,7 @@ in rec {
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 \
             -v -y --bench-file $out/log.csv 2>&1 |tee $out/run.log&
+          /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
