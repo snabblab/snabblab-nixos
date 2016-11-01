@@ -244,8 +244,8 @@ in rec {
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
       postInstall = ''
-        kill $RUN_PID
-        /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv || true
+        kill $RUN_PID || true
+        /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
       '';
       toCSV = drv: ''
         sed '1d' ${drv}/log.csv > csv
