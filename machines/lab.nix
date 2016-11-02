@@ -79,6 +79,11 @@ in {
     networking.nameservers = [ "192.168.13.1" ];
     networking.firewall.allowedTCPPorts = [ 22 4040 4041 ];
     services.openssh.ports = [ 22 4040 4041 ];
+
+    snabblab.users.enable = false;
+    users.users = {
+      inherit (config.snabblab.users.all) domenkozar teknico dpino wingo kbarone;
+    };
   };
 
   # Hydra (CI) servers
