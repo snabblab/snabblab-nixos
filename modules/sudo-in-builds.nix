@@ -21,6 +21,10 @@ in {
     "/etc/sudoers"
     "/etc/passwd"
     "/sys"
+    # Snabb benchmark specific
+    "/dev/hugepages"
+    "/dev/net"
+    "/dev/cpu"
   ];
   environment.systemPackages = [ (lowPrio sudoChroot) ];
   security.setuidPrograms = [ "sudo-chroot" ];
