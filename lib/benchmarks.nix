@@ -196,11 +196,11 @@ in rec {
   */
   mkBenchLWAFTR = { snabb
                   , times
-                  , duration ? "10"
-                  , mode ? "bare"
-                  , ipv4PCap ? "ipv4-0550.pcap"
-                  , ipv6PCap ? "ipv6-0550.pcap"
-                  , conf ? "icmp_on_fail.conf"
+                  , duration
+                  , mode
+                  , ipv4PCap
+                  , ipv6PCap
+                  , conf
                   , ... }:
     # TODO: assert mode
     let
@@ -223,7 +223,7 @@ in rec {
           cd src
 
           # Start the application
-          /var/setuid-wrappers/sudo numactl -m 0 taskset -c 1 ${snabb}/bin/snabb lwaftr run \
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr run --cpu=1 \
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 \
@@ -231,7 +231,7 @@ in rec {
           RUN_PID=$!
 
           # Generate traffic
-          /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
