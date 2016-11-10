@@ -35,6 +35,10 @@
 # Additional dpdk version to benchmark on, specified using source and name
 , qemuAsrc ? null
 , qemuAname ? null
+, duration ? "10"
+, conf ? "icmp_on_fail.conf"
+, ipv4PCap ? "ipv4-0550.pcap"
+, ipv6PCap ? "ipv6-0550.pcap"
 , lwaftrMode 
 }:
 
@@ -62,7 +66,8 @@ let
     else
       locaLib.mergeAttrsMap (qemu:
         locaLib.mergeAttrsMap (snabb:
-          locaLib.selectBenchmarks benchmarkNames { inherit snabb qemu times; mode = lwaftrMode; }
+          locaLib.selectBenchmarks benchmarkNames {
+            inherit snabb qemu times duration conf ipv4PCap ipv6PCap; mode = lwaftrMode; }
         ) snabbs
       ) subQemus;
 

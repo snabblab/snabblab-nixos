@@ -20,7 +20,7 @@ p <- p + theme(legend.position="top")
 p <- p + geom_point()
 p <- p + geom_line()
 p <- p + expand_limits(y=0)
-p <- p + facet_wrap(~ link, scales="free")
+p <- p + facet_wrap(~link, ncol=2)
 p + ggtitle("Sequential test results")
 ```
 
@@ -29,9 +29,9 @@ p + ggtitle("Sequential test results")
 [Density plot](https://en.wikipedia.org/wiki/Density_estimation) showing the distribution of results. The curve is high around common values and low around rare values. Here we can see how spread out they are, how they cluster together, etc.
 
 ```{r}
-p <- ggplot(lwaftr, aes(score, fill=snabb, color=snabb))
+p <- ggplot(lwaftr, aes(x=score, fill=snabb, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_density(alpha = 0.1)
-p <- p + facet_wrap(~ link, ncol=1, scales="free")
+p <- p + facet_wrap(~link, ncol=2, scales="free")
 p + ggtitle("Shape (distribution) of test results")
 ```
