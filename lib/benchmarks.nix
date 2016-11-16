@@ -245,10 +245,10 @@ in rec {
 
           # Generate the traffic files
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster lwaftr \
-            --size 64,64,64,64,64,594,594,594,1500 --duration ${duration} \
+            --size 64,64,64,64,64,594,594,594,1500 \
             --rate 10 --count 100000 --pcap ipv4.pcap --v4only
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster lwaftr \
-            --size 64,64,64,64,64,594,594,594,1500 --duration ${duration} \
+            --size 64,64,64,64,64,594,594,594,1500 \
             --rate 10 --count 100000 --pcap ipv6.pcap --v6only
 
           # Start the application
