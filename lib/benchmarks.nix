@@ -190,7 +190,10 @@ in rec {
 
   /* Execute `lwaftr` benchmark.
 
+     `times`: How many times each benchmark is repeated
      `duration`: Number of seconds the benchmark should last
+     `mode`: The selected benchmark
+     `ipv4PCap`, `ipv6PCap`: The packet capture files to use in benchmarks
      `conf`: What config file to use in snabb/src/program/lwaftr/tests/data/
 
   */
@@ -205,15 +208,16 @@ in rec {
     # TODO: assert mode
     let
       hardware = {
-        nic = "igalia";
-        virtualized = "igalia";
         bare = "murren";
+        nic = "igalia";
+        nic_on_a_stick = "igalia";
+        virtualized = "igalia";
       };
       checkPhases = {
         bare = ''
           cd src
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr bench \
-            -D ${duration} -y --bench-file $out/log.csv \
+            --duration ${duration} --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/data/${conf} \
             program/lwaftr/tests/benchdata/${ipv4PCap} \
             program/lwaftr/tests/benchdata/${ipv6PCap} |& tee $out/log.txt
@@ -234,6 +238,33 @@ in rec {
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
+        '';
+        # Two processes, each on their own NUMA node, talking via one NIC card (eventually)
+        nic_on_a_stick = ''
+          cd src
+
+          # Generate the traffic files
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster lwaftr \
+            --size 64,64,64,64,64,594,594,594,1500 --duration ${duration} \
+            --rate 10 --count 100000 --pcap ipv4.pcap --v4only
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster lwaftr \
+            --size 64,64,64,64,64,594,594,594,1500 --duration ${duration} \
+            --rate 10 --count 100000 --pcap ipv6.pcap --v6only
+
+          # Start the application
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr run --cpu=1 \
+            --conf program/lwaftr/tests/data/${conf} \
+            --v4 0000:$SNABB_PCI0_1 \
+            --v6 0000:$SNABB_PCI1_1 \
+            -v --bench-file /dev/null 2>&1 | tee $out/log.txt&
+          RUN_PID=$!
+
+          # Generate traffic
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest \
+            --cpu=7 --bitrate 10e9 --step 1e9 --program ramp_up \
+            --hydra --bench-file $out/log.csv \
+            ipv4.pcap IPv4 IPv6 0000:$SNABB_PCI0_0 \
+            ipv6.pcap IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
         virtualized = ''
         '';
