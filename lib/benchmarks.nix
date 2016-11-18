@@ -210,7 +210,7 @@ in rec {
       hardware = {
         bare = "murren";
         nic = "igalia";
-        nic_packet_loss = "igalia";
+        nic_on_a_stick = "igalia";
         virtualized = "igalia";
       };
       checkPhases = {
@@ -240,14 +240,13 @@ in rec {
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
         # Two processes, each on their own NUMA node, talking via one NIC card (eventually)
-        nic_packet_loss = ''
+        nic_on_a_stick = ''
           cd src
 
           # Start the application
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr run --cpu=1 \
             --conf program/lwaftr/tests/data/${conf} \
-            --v4 0000:$SNABB_PCI0_1 \
-            --v6 0000:$SNABB_PCI1_1 \
+            --on-a-stick 0000:$SNABB_PCI0_1 \
             2>&1 | tee $out/log.txt&
           RUN_PID=$!
 
@@ -255,8 +254,7 @@ in rec {
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest \
             --cpu=7 --bitrate 10e9 --step 1e9 --program ramp_up \
             --hydra --bench-file $out/log.csv \
-            program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
-            program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
+            program/lwaftr/tests/benchdata/${ipv4PCap} ALL ALL 0000:$SNABB_PCI0_0 | tee $out/loadtest.log
         '';
         virtualized = ''
         '';
