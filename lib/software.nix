@@ -60,7 +60,7 @@ rec {
   buildDpdk = version: hash: kPackages:
     let
       src = pkgs.fetchurl {
-        url = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${version}.tar.gz";
+        url = "http://fast.dpdk.org/rel/dpdk-${version}.tar.xz";
         sha256 = hash;
       };
     in buildDpdkFromSrc version src kPackages;
@@ -75,6 +75,7 @@ rec {
     in dpdk.overrideDerivation (super: {
       name = "dpdk-${version}-${kPackages.kernel.version}";
       inherit version;
+      hardeningDisable = ["stackprotector" "pic"];
       prePatch = ''
         find . -type f -exec sed -i 's/-Werror//' {} \;
       '';
@@ -85,12 +86,13 @@ rec {
 
   # DPDKs are a special case, because they need kernelPackages as input to build
   dpdks = kPackages: map (dpdk: dpdk kPackages) [
-    (buildDpdk "16.07" "1sgh55w3xpc0lb70s74cbyryxdjijk1fbv9b25jy8ms3lxaj966c")
-    (buildDpdk "16.04" "0yrz3nnhv65v2jzz726bjswkn8ffqc1sr699qypc9m78qrdljcfn")
-    (buildDpdk "2.2.0" "03b1pliyx5psy3mkys8j1mk6y2x818j6wmjrdvpr7v0q6vcnl83p")
-    (buildDpdk "2.1.0" "0h1lkalvcpn8drjldw50kipnf88ndv2wvflgkkyrmya5ga325czp")
-    (buildDpdk "2.0.0" "0gzzzgmnl1yzv9vs3bbdfgw61ckiakgqq93b9pc4v92vpsiqjdv4")
-    (buildDpdk "1.8.0" "0f8rvvp2y823ipnxszs9lh10iyiczkrhh172h98kb6fr1f1qclwz")
+    (buildDpdk "16.11" "0yji91q0q5vgl8gd2r01zzq9a6q7rgz04bkjq84qr06sy0bk14p2")
+    (buildDpdk "16.07.1" "10729ahbcknhhbjdcw3kw8avmi5yq83jd6qvmnc36qzv2scni372")
+    (buildDpdk "16.04" "1fwqljvg0lr94qlba2xzn3zqg1jcbj4yz450k72fgj4mqpjsdmys")
+    (buildDpdk "2.2.0" "1yfgcbnc4zk3dc9iva166i32h320z0aw5spy96bziy9r6ma6g4bq")
+    (buildDpdk "2.1.0" "1pnna7ww4rnhyqn0jgdgdqa7h4w0ysr2dv70229fhamxy65lsn4p")
+    (buildDpdk "2.0.0" "0yz33hsfk821h2mby69v63nm9c22k7ial1520blcx6c2qz3jll6f")
+    (buildDpdk "1.8.0" "1h15n0bhm3f2d8nihy8w5139yi5bidvy70p16m7pv4jw2kiiz4f6")
     # TODO: needs older glibc
     #(buildDpdk "1.7.1" "0yd60ww5xhf0dfl2x1pqx1m2363b2b7zp89mcya86j20gi3bgvlx")
   ];
