@@ -68,6 +68,7 @@ in {
       "intel_iommu=off"
       "isolcpus=1-5,7-11" 
     ];
+    boot.kernelModules = [ "9p" "9pnet" "9pnet_virtio" ];
     fileSystems."/boot" =
       { device = "/dev/disk/by-uuid/d12e8f61-46f9-475d-b377-0659b1a0e59e";
         fsType = "ext4";
