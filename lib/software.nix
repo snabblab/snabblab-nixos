@@ -21,7 +21,13 @@ rec {
    if snabbSrc == null
    then null
    else
-      (pkgs.callPackage snabbSrc {}).overrideDerivation (super:
+      let
+        fargs = builtins.functionArgs (pkgs.callPackage snabbSrc);
+        snabbArgs = if builtins.hasAttr "supportOpenstack" fargs
+               then {supportOpenstack = false;}
+               else {};
+      in
+      (pkgs.callPackage snabbSrc snabbArgs).overrideDerivation (super:
         {
           name = super.name + version;
           inherit version;
