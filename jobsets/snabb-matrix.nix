@@ -73,8 +73,8 @@ let
     mergeAttrsMap (kPackages:
       mergeAttrsMap (dpdk:
         let
-          #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
-          testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
+          #74: evaluate mkTestEnv early in the loop as it's expensive otherwise
+          testNixEnv = mkTestEnv { inherit kPackages dpdk; };
         in
         mergeAttrsMap (qemu:
           mergeAttrsMap (snabb:

@@ -210,15 +210,6 @@ in rec {
         virt = "igalia";
         bare = "murren";
       };
-      sshOpts = "-i $HOME/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ";
-      ubuntuImage = pkgs.fetchurl {
-        url = "https://static.domenkozar.com/ubuntu_14.04.qcow2";
-        sha256 = "1wdxfjicsirjgk0blnycp7p3d53sawjxj1m9k6bgdh8b7mz25ngj";
-      };
-      lwaftrImage = pkgs.fetchurl {
-        url = "https://static.domenkozar.com/vm_lwaftr1.qcow2";
-        sha256 = "15l52rbd8z6cw0z0jjw9gi2y3sn67w2329bjj7bmazqfqy90api4";
-      };
       checkPhases = {
         bare = ''
           cd src
@@ -246,57 +237,26 @@ in rec {
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
         virt = ''
-          export PATH=/var/setuid-wrappers/:$(pwd):$PATH:${pkgs.screen}/bin:${pkgs.openssh}/bin:${pkgs.strace}/bin:${pkgs.iputils}/bin
-          export HOME=`pwd`
+          export PATH=/var/setuid-wrappers/:$(pwd):$PATH:${pkgs.screen}/bin:${pkgs.iputils}/bin
           mv src/program/lwaftr/virt/lwaftrctl.conf.example src/lwaftrctl.conf
-          sed -i "s@~/workspace/snabb_host@$(pwd)@" src/lwaftrctl.conf
-          sed -i "s@~/workspace@$(pwd)@" src/lwaftrctl.conf
-          sed -i "s@~/vm@$(pwd)/vm@" src/lwaftrctl.conf
-          sed -i "s@/tmp/vh1a.sock@$(pwd)/vh1a.sock@" src/lwaftrctl.conf
-          sed -i "s@/tmp/vh1b.sock@$(pwd)/vh1b.sock@" src/lwaftrctl.conf
-
-          #sudo mkdir -p /dev/hugepages
-          #sudo mount -t hugetlbfs none /dev/hugepages
-          #sudo mkdir /dev/net
-          #sudo mknod /dev/net/tun c 10 200
-          #sudo chmod 0666 /dev/net/tun
-          #sleep 2
-          #sudo ip tuntap add mgmt0 mode tap
-          #sleep 2
-          #${pkgs.nettools}/bin/ifconfig -a
-
+          sed -i "s@~/workspace/snabb@$(pwd)@" src/lwaftrctl.conf
+          sed -i "s@KERNEL_PARAMS=@KERNEL_PARAMS=init=/nix/var/nix/profiles/system/init@" src/lwaftrctl.conf
+          sed -i "s@SHARED_LOCATION=@SHARED_LOCATION=~/workspace@" src/lwaftrctl.conf
+          echo 'export QEMU_ARGS="-initrd ~/.test_env/initrd"' >> src/lwaftrctl.conf
           # Prepare VMs
-          # TODO: built guest image using NixOS
-          mkdir vm
-          cp ${lwaftrImage} vm/vm_lwaftr1.qcow2
-          cp ${ubuntuImage} vm/ubuntu_14.04.qcow2
-
-          # Setup SSH private key
-          cp ${./vm_igalia_id_rsa} id_rsa
-          sudo chmod 600 id_rsa
-          echo "SSH_OPTS='${sshOpts}'" >> src/lwaftrctl.conf
+          mkdir ~/workspace
 
           # Start host and qemus
           cd src
-          program/lwaftr/virt/lwaftrctl snabbnfv start
-          program/lwaftr/virt/lwaftrctl vm start
-
-          # Generate the script for the guest
-          echo "#!/bin/bash" > run_lwaftr.sh
-          echo "screen -L -dmS lwaftr bash -c 'cd /mnt/host/src;sudo ./snabb lwaftr run -v -i --conf program/lwaftr/tests/data/${conf} --v4 0000:00:08.0 --v6 0000:00:09.0 -y --bench-file lwaftr-bench.csv'" >> run_lwaftr.sh
-          chmod +x run_lwaftr.sh
+          program/lwaftr/virt/lwaftrctl start snabbnfv
+          program/lwaftr/virt/lwaftrctl start vm
 
           # Copy over script to run lwaftr inside the guest
           source lwaftrctl.conf
-          sleep 30
-          ssh ${sshOpts} $VM_USER@$VM_IP sudo sysctl -w vm.nr_hugepages=300
-          scp ${sshOpts} run_lwaftr.sh $VM_USER@$VM_IP:~/run_lwaftr.sh
-
-          # Copy over snabb runtime dependencies
-          ${pkgs.rsync}/bin/rsync -RqPav -e "ssh ${sshOpts}" $(cat ${pkgs.writeReferencesToFile snabb}) root@$VM_IP:/
 
           # Run the benchmark
-          program/lwaftr/virt/lwaftrctl lwaftr start
+          sleep 20
+          program/lwaftr/virt/lwaftrctl start lwaftr
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
@@ -304,22 +264,23 @@ in rec {
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
 
           # We stop guest snabb for logs to be flushed
-          program/lwaftr/virt/lwaftrctl lwaftr stop
+          program/lwaftr/virt/lwaftrctl stop lwaftr
 
           # Copy CSV benchmark result from the guest
-          scp ${sshOpts} $VM_USER@$VM_IP:/mnt/host/src/lwaftr-bench.csv $out/log.csv
-          scp ${sshOpts} $VM_USER@$VM_IP:/mnt/host/src/screenlog.0 $out/log.txt
+          cp ~/workspace/lwaftr-bench.csv $out/log.csv
 
-          program/lwaftr/virt/lwaftrctl vm stop
-          program/lwaftr/virt/lwaftrctl snabbnfv stop
+          program/lwaftr/virt/lwaftrctl stop vm
+          program/lwaftr/virt/lwaftrctl stop snabbnfv
+          mv ../../qemu0.log .
         '';
       };
     name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}_conf=${conf}";
     in mkSnabbBenchTest ({
-        inherit name snabb times;
+      inherit name snabb times;
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
-      __noChroot = true;
+      testNixEnv = testing.mkTestEnv { inherit snabb conf; };
+      needsNixTestEnv = mode == "virt";
       postInstall = ''
         kill $RUN_PID || true
         /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
@@ -331,7 +292,7 @@ in rec {
       '';
     } // pkgs.lib.optionalAttrs (mode == "virt") {
       inherit qemu;
-      name = "${name}_qemu=${testing.versionToAttribute qemu.version}";
+      name = "${name}";
     });
 
   /* Given a benchmark derivation, benchmark name and a unit,

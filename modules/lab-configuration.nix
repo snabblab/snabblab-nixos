@@ -3,7 +3,7 @@
 with (import ../lib { inherit pkgs; });
 
 let
-  nixTestEnv = mkNixTestEnv {};
+  nixTestEnv = mkTestEnv {};
 in {
   require = [
     ./common.nix

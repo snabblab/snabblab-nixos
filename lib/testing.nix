@@ -2,7 +2,7 @@
 
 rec {
   # Function to build test_env qemu images needed for some benchmarks
-  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
+  mkTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
   # Default PCI assignment values for server groups
   PCIAssignments = {
@@ -39,14 +39,14 @@ rec {
                 , checkPhase # bash (string) actually executing the test
                 , hardware # on what server group should we run this?
                 , needsNixTestEnv ? false # if true, copies over our test env
-                , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
+                , testNixEnv ? (mkTestEnv {}) # qemu images and kernel
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
     pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which pkgs.qemu pkgs.utillinux ];
+      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which pkgs.qemu pkgs.utillinux pkgs.procps ];
 
       SNABB_KERNEL_PARAMS = pkgs.lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
