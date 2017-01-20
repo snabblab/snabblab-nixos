@@ -201,6 +201,7 @@ in rec {
                   , ipv4PCap ? "ipv4-0550.pcap"
                   , ipv6PCap ? "ipv6-0550.pcap"
                   , conf ? "icmp_on_fail.conf"
+                  , loadTestStep ? "0.2e9"
                   , qemu
                   , ... }:
     # TODO: assert mode
@@ -233,6 +234,7 @@ in rec {
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
+            -s ${loadTestStep} \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
@@ -260,6 +262,7 @@ in rec {
 
           # Generate traffic
           /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
+            -s ${loadTestStep} \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
 
