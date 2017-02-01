@@ -46,7 +46,7 @@ rec {
     pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which pkgs.qemu pkgs.utillinux pkgs.procps ];
+      buildInputs = with pkgs; [ git telnet tmux numactl bc iproute which qemu utillinux procps ];
 
       SNABB_KERNEL_PARAMS = pkgs.lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
