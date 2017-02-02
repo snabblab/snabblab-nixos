@@ -231,11 +231,12 @@ in rec {
             --conf program/lwaftr/tests/data/${conf} \
             --v4 0000:$SNABB_PCI0_1 \
             --v6 0000:$SNABB_PCI1_1 \
-            -v -y --bench-file $out/log.csv 2>&1 |tee $out/log.txt&
+            2>&1 | tee $out/log.txt&
           RUN_PID=$!
 
           # Generate traffic
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
+            --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
