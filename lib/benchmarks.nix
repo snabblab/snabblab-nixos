@@ -199,11 +199,13 @@ in rec {
   */
   mkBenchLWAFTR = { snabb
                   , times
-                  , duration
-                  , mode
-                  , ipv4PCap
-                  , ipv6PCap
-                  , conf
+                  , duration ? "10"
+                  , mode ? "bare"
+                  , ipv4PCap ? "ipv4-0550.pcap"
+                  , ipv6PCap ? "ipv6-0550.pcap"
+                  , conf ? "icmp_on_fail.conf"
+                  , loadTestStep ? "0.2e9"
+                  , qemu
                   , ... }:
     # TODO: assert mode
     let
@@ -211,7 +213,7 @@ in rec {
         bare = "murren";
         nic = "igalia";
         nic_on_a_stick = "igalia";
-        virtualized = "igalia";
+        virt = "igalia";
       };
       checkPhases = {
         bare = ''
@@ -236,11 +238,11 @@ in rec {
 
           # Generate traffic
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
-            --hydra --bench-file $out/log.csv \
+            -s ${loadTestStep} --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
-        # Two processes, each on their own NUMA node, talking via one NIC card (eventually)
+        # Two processes, each on their own NUMA node, talking via one NIC card
         nic_on_a_stick = ''
           cd src
 
@@ -257,24 +259,65 @@ in rec {
             --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/benchdata/${ipv4PCap} ALL ALL 0000:$SNABB_PCI0_0 | tee $out/loadtest.log
         '';
-        virtualized = ''
+        virt = ''
+          export PATH=/var/setuid-wrappers/:$(pwd):$PATH:${pkgs.screen}/bin:${pkgs.iputils}/bin
+          mv src/program/lwaftr/virt/lwaftrctl.conf.example src/lwaftrctl.conf
+          sed -i "s@~/workspace/snabb@$(pwd)@" src/lwaftrctl.conf
+          sed -i "s@KERNEL_PARAMS=@KERNEL_PARAMS=init=/nix/var/nix/profiles/system/init@" src/lwaftrctl.conf
+          sed -i "s@SHARED_LOCATION=@SHARED_LOCATION=~/workspace@" src/lwaftrctl.conf
+          echo 'export QEMU_ARGS="-initrd ~/.test_env/initrd"' >> src/lwaftrctl.conf
+          # Prepare VMs
+          mkdir ~/workspace
+
+          # Start host and qemus
+          cd src
+          program/lwaftr/virt/lwaftrctl start snabbnfv
+          program/lwaftr/virt/lwaftrctl start vm
+
+          # Copy over script to run lwaftr inside the guest
+          source lwaftrctl.conf
+
+          # Run the benchmark
+          sleep 20
+          program/lwaftr/virt/lwaftrctl start lwaftr
+
+          # Generate traffic
+          /var/setuid-wrappers/sudo numactl -m 1 taskset -c 7 ${snabb}/bin/snabb lwaftr loadtest \
+            -s ${loadTestStep} \
+            program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
+            program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
+
+          # We stop guest snabb for logs to be flushed
+          program/lwaftr/virt/lwaftrctl stop lwaftr
+
+          # Copy CSV benchmark result from the guest
+          cp ~/workspace/lwaftr-bench.csv $out/log.csv
+
+          program/lwaftr/virt/lwaftrctl stop vm
+          program/lwaftr/virt/lwaftrctl stop snabbnfv
+          mv ../../qemu0.log .
         '';
       };
-    in mkSnabbBenchTest {
-      name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}_conf=${conf}";
-      inherit snabb times;
+    name = "lwaftr_snabb=${testing.versionToAttribute snabb.version or ""}_conf=${conf}";
+    in mkSnabbBenchTest ({
+      inherit name snabb times;
       hardware = hardware.${mode};
       checkPhase = checkPhases.${mode};
+      testNixEnv = testing.mkTestEnv { inherit snabb conf; };
+      needsNixTestEnv = mode == "virt";
       postInstall = ''
         kill $RUN_PID || true
         /var/setuid-wrappers/sudo chown $(id -u):$(id -g) $out/log.csv
       '';
       toCSV = drv: ''
         sed '1d' ${drv}/log.csv > csv
-        awk -F, '{$1="lwaftr,${mode},${duration},${snabb.version},${conf},${toString drv.meta.repeatNum}" FS $1;}1' OFS=, csv >> $out/bench.csv
+        awk -F, '{$1="lwaftr,${mode},${duration},${snabb.version},${conf},${drv.meta.qemuVersion or "NA"},${toString drv.meta.repeatNum}" FS $1;}1' OFS=, csv >> $out/bench.csv
         rm csv
       '';
-    };
+    } // pkgs.lib.optionalAttrs (mode == "virt") {
+      inherit qemu;
+      name = "${name}";
+    });
 
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.

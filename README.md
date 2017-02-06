@@ -218,7 +218,7 @@ a set.
 provides an environment in which all Snabb tests/benchmark are executed. All
 software and environment settings are configured for `checkPhase` to execute
 correctly. For some benchmarks/tests `~/.test_env` inside the chrooted
-environment is populated using [mkTestNixEnv]
+environment is populated using [mkTestEnv]
 (https://github.com/snabblab/snabblab-nixos/blob/master/lib/test_env.nix)
 function that builds two qemu images (one plain NixOS and one with dpdk l2fwd
 running) and corresponding `bzImage` and `initrd` kernel fixtures.

@@ -1,82 +1,121 @@
-# Build two NixOS Qemu guest images:
+# Build NixOS Qemu guest images:
 
 # qemu_img: Plain NixOS guest with some tools like 
 # dpdk_img: Same as the above plus dpdk l2fwd tied to an interface
+# lwaftr_img: lwaft benchmarks
 
 { pkgs }:
 
 { kPackages ? pkgs.linuxPackages
-, dpdk ? pkgs.linuxPackages.dpdk }:
-   let
-      # modules and NixOS config for plain qemu image
-      snabb_modules = [
-        <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
-        ({config, pkgs, ...}: {
-          # Needed tools inside the guest
-          environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
+, dpdk ? pkgs.linuxPackages.dpdk
+, snabb ? null
+, conf ? null
+}:
 
-          fileSystems."/".device = "/dev/disk/by-label/nixos";
-          boot.loader.grub.device = "/dev/sda";
+let
+   # modules and NixOS config for plain qemu image
+   snabb_modules = [
+     <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
+     ({config, pkgs, ...}: {
+       # Needed tools inside the guest
+       environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
 
-          # Options needed by tests
-          boot.kernelPackages = kPackages;
-          networking.firewall.enable = pkgs.lib.mkOverride 150 false;
-          services.mingetty.autologinUser = "root";
-          users.extraUsers.root.initialHashedPassword = pkgs.lib.mkOverride 150 "";
-          networking.usePredictableInterfaceNames = false;
+       fileSystems = {
+         "/".device = "/dev/disk/by-label/nixos";
+         "/share" = { device = "share";
+                      fsType = "9p";
+                      options = [ "trans=virtio" "version=9p2000.L" "veryloose" ];
+                    };
+       };
+       boot.loader.grub.device = "/dev/sda";
 
-          # Make sure telnet serial port is enabled
-          systemd.services."serial-getty@ttyS0".wantedBy = [ "multi-user.target" ];
+       # Options needed by tests
+       boot.kernelPackages = kPackages;
+       networking.firewall.enable = pkgs.lib.mkOverride 150 false;
+       services.mingetty.autologinUser = "root";
+       users.extraUsers.root.initialHashedPassword = pkgs.lib.mkOverride 150 "";
+       networking.usePredictableInterfaceNames = false;
 
-          # Redirect all processes to the serial console.
-          services.journald.extraConfig = ''
-            ForwardToConsole=yes
-            MaxLevelConsole=debug
-          '';
-        })
-      ];
-      snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
+       # Make sure telnet serial port is enabled
+       systemd.services."serial-getty@ttyS0".wantedBy = [ "multi-user.target" ];
 
-      # modules and NixOS config for dpdk qmemu image
-      snabb_modules_dpdk = [
-        ({config, pkgs, lib, ...}:
-          let
-            dpdk_bind = pkgs.fetchurl {
-              url = "https://raw.githubusercontent.com/scylladb/dpdk/8ea56fadc9a49c575bee6bb3892bc17dd9ec4ab6/tools/dpdk_nic_bind.py";
-              sha256 = "0z8big9gh49q9kh0jjg1p9g5ywwvb130r3bmhhpbgx7blhk9zb7f";
-            };
-          in {
-            systemd.services.dpdk = {
-              wantedBy = [ "multi-user.target" ];
-              after = [ "network.target" ];
-              path = with pkgs; [ kmod python pciutils iproute utillinux ];
-              script = ''
-                mkdir -p /hugetlbfs
-                mount -t hugetlbfs nodev /hugetlbfs
-                echo 64 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-                MODULE_DIR=/run/current-system/kernel-modules/lib/modules modprobe uio
-                insmod ${dpdk}/kmod/igb_uio.ko
-                python ${dpdk_bind} --bind=igb_uio 00:03.0
-                ${dpdk.examples}/l2fwd/x86_64-native-linuxapp-gcc/l2fwd -c 0x1 -n1 -- -p 0x1
-              '';
-            };
-          }
-        )
-      ];
-      snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
-      qemu_img = pkgs.lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
-        inherit pkgs;
-        lib = pkgs.lib;
-        config = snabb_config;
-        partitioned = true;
-        format = "raw";
-        diskSize = 2 * 1020;
-      };
-      qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
-      in pkgs.runCommand "test-env-nix-${dpdk.name}" {} ''
-        mkdir -p $out
-        ln -s ${qemu_img}/nixos.img $out/qemu.img
-        ln -s ${qemu_dpdk_img}/nixos.img $out/qemu-dpdk.img
-        ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
-        ln -s ${snabb_config.system.build.toplevel}/initrd $out/initrd
-      ''
+       # Redirect all processes to the serial console.
+       services.journald.extraConfig = ''
+         ForwardToConsole=yes
+         MaxLevelConsole=debug
+       '';
+     })
+   ];
+   snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
+
+   # modules and NixOS config for dpdk qemu image
+   snabb_modules_dpdk = [
+     ({config, pkgs, lib, ...}:
+       let
+         dpdk_bind = pkgs.fetchurl {
+           url = "https://raw.githubusercontent.com/scylladb/dpdk/8ea56fadc9a49c575bee6bb3892bc17dd9ec4ab6/tools/dpdk_nic_bind.py";
+           sha256 = "0z8big9gh49q9kh0jjg1p9g5ywwvb130r3bmhhpbgx7blhk9zb7f";
+         };
+       in {
+         systemd.services.dpdk = {
+           wantedBy = [ "multi-user.target" ];
+           after = [ "network.target" ];
+           path = with pkgs; [ kmod python pciutils iproute utillinux ];
+           script = ''
+             mkdir -p /hugetlbfs
+             mount -t hugetlbfs nodev /hugetlbfs
+             echo 64 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+             MODULE_DIR=/run/current-system/kernel-modules/lib/modules modprobe uio
+
+             ${dpdk.examples}/l2fwd/x86_64-native-linuxapp-gcc/l2fwd -c 0x1 -n1 -- -p 0x1
+           '';
+         };
+       }
+     )
+   ];
+   snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
+
+   # modules and NixOS config for lwaftr qemu image
+   snabb_modules_lwaftr = [
+     ({config, pkgs, lib, ... }:
+       {
+         systemd.services.lwaftr = {
+           after = [ "network.target" ];
+           path = with pkgs; [ pciutils iproute utillinux procps ];
+           script = ''
+             mkdir -p /hugetlbfs
+             mount -t hugetlbfs nodev /hugetlbfs
+             cd /share
+             cp -R ${snabb.src} snabb
+             ${snabb}/bin/snabb lwaftr run -v -i --conf snabb/src/program/lwaftr/tests/data/${conf} \
+               --v4 0000:00:08.0 --v6 0000:00:09.0 -y --bench-file lwaftr-bench.csv
+           '';
+         };
+         boot.postBootCommands = ''
+             echo "systemctl start lwaftr" > /root/start-lwaftr.sh
+             echo "systemctl stop lwaftr" > /root/stop-lwaftr.sh
+             chmod +x /root/*.sh
+         '';
+       }
+     )
+   ];
+   snabb_config_lwaftr = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_lwaftr ++ snabb_modules; }).config;
+
+   qemu_img = pkgs.lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
+     inherit pkgs;
+     lib = pkgs.lib;
+     config = snabb_config;
+     partitioned = true;
+     format = "raw";
+     diskSize = 2 * 1020;
+   };
+   qemu_dpdk_img = qemu_img.override { config = snabb_config_dpdk; };
+   qemu_lwaftr_img = qemu_img.override { config = snabb_config_lwaftr; };
+in pkgs.runCommand "test-env-nix-${dpdk.name}" {} ''
+  mkdir -p $out
+  ln -s ${qemu_img}/nixos.img $out/qemu.img
+  ln -s ${qemu_dpdk_img}/nixos.img $out/qemu-dpdk.img
+  ln -s ${qemu_lwaftr_img}/nixos.img $out/lwaftr-vm.img
+  ln -s ${snabb_config.system.build.kernel}/bzImage $out/bzImage
+  ln -s ${snabb_config.system.build.toplevel}/initrd $out/initrd
+''
