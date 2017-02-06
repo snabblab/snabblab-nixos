@@ -238,7 +238,7 @@ in rec {
 
           # Generate traffic
           /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
-            -s ${loadTestStep} --hydra --bench-file $out/log.csv \
+            --step ${loadTestStep} --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/benchdata/${ipv4PCap} IPv4 IPv6 0000:$SNABB_PCI0_0 \
             program/lwaftr/tests/benchdata/${ipv6PCap} IPv6 IPv4 0000:$SNABB_PCI1_0 | tee $out/loadtest.log
         '';
@@ -254,8 +254,8 @@ in rec {
           RUN_PID=$!
 
           # Generate traffic
-          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest \
-            --cpu=7 --bitrate 10e9 --step 1e9 --program ramp_up \
+          /var/setuid-wrappers/sudo ${snabb}/bin/snabb lwaftr loadtest --cpu=7 \
+            --bitrate 10e9 --step ${loadTestStep} --program ramp_up \
             --hydra --bench-file $out/log.csv \
             program/lwaftr/tests/benchdata/${ipv4PCap} ALL ALL 0000:$SNABB_PCI0_0 | tee $out/loadtest.log
         '';
