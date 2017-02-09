@@ -244,8 +244,8 @@ uses R to generate HTML report.
 [NixOps](https://nixos.org/nixops/manual/) is used for provisioning the
 machines.
 
-   $ ssh user@eiger.snabb.co
-   $ cd snabblab-nixos
+    $ ssh deploy@eiger.snabb.co
+    $ cd snabblab-nixos
 
 It uses an sqlite database (`~/.nixops/deployments.nixops`) to store state
 about the provisioning. For example SSH keys, path to nix files, current
