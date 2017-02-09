@@ -238,9 +238,6 @@ uses R to generate HTML report.
 
 ## Snabblab deployments
 
-Note: this is [very WIP](https://github.com/snabblab/snabblab-nixos/pull/39)
-and not all servers are deployed using this workflow yet.
-
 
 ### Initial deploy
 
@@ -288,13 +285,14 @@ First, create a nixops deployment:
 
 ### Automatic deployments
 
+Note: this is [very WIP](https://github.com/snabblab/snabblab-nixos/pull/39)
+and not all servers are deployed using this workflow yet.
+
 A developer pushes a configuration change into Git, Hydra builds and tests it,
 servers are setup to automatically update themselves from Hydra. For each
 machine there is a [separate channel]
 (https://hydra.snabb.co/jobset/domenkozar-sandbox/snabblab#tabs-channels)
 that serves up that machine's software and configuration.
-
-This is WIP and only build- machines are automatically deployed.
 
 
 ### Testing Snabblab changes manually
