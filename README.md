@@ -256,7 +256,7 @@ First, create a nixops deployment:
     $ nixops create -d lab-production ./machines/lab.nix ./machines/lab-production.nix
 
 
-#### Bare metal
+### Bare metal
 
 1. The server needs a basic NixOS install running SSH with your public key
    configured.
@@ -265,10 +265,11 @@ First, create a nixops deployment:
 
 3. Bootstrap:
 
+
     $ nixops deploy -d lab-production --include mymachine
 
 
-#### Hetzner
+### Hetzner
 
 1. Edit `machines/lab.nix` and `machines/lab-production.nix` and add a new
    machine.
@@ -276,9 +277,11 @@ First, create a nixops deployment:
 2. To bootstrap Hetzner machine we need to use https://robot.your-server.de/
    account:
 
-    $ HETZNER_ROBOT_USER=<user> HETZNER_ROBOT_PASS=<pass> deploy -d lab-production --include mymachine
+
+    $ HETZNER_ROBOT_USER=<user> HETZNER_ROBOT_PASS=<pass> nixops deploy -d eiger -I nixpkgs=http://nixos.org/channels/nixos-16.09/nixexprs.tar.xz --include eiger
 
 3. Copy generated Nix configuration into separate file:
+
 
     $ nixops export -d lab-production | ./convert_export.py > ./machines/lab-export.nix 
 

@@ -3,9 +3,6 @@
 with lib;
 
 let
-  # can't upgrade further due to https://github.com/NixOS/hydra/commit/4151be7e69957d22af712dd5410b5ad8aa3a2289
-  # We use our own fork with some modifications
-  hydraSrc = builtins.fetchTarball https://github.com/domenkozar/hydra/tarball/1c2c2cdf954cedf4e3db0f5bdd12d461e00ea9c0;
   commonBuildMachineOpt = {
     speedFactor = 1;
     sshKey = "/etc/nix/id_buildfarm";
@@ -14,14 +11,6 @@ let
     supportedFeatures = [ "kvm" "nixos-test" ];
   };
 in {
-  imports = [ "${hydraSrc}/hydra-module.nix" ];
-
-  # make sure we're using the platform on which hydra is supposed to run
-  assertions = lib.singleton {
-    assertion = pkgs.system == "x86_64-linux";
-    message = "unsupported system ${pkgs.system}";
-  };
-
   environment.etc = lib.singleton {
     target = "nix/id_buildfarm";
     source = ../secrets/id_buildfarm;
@@ -85,19 +74,18 @@ in {
     hydraURL = "http://hydra.snabb.co";
     notificationSender = "hydra@hydra.snabb.co";
     port = 8080;
+    # workaround https://github.com/NixOS/hydra/issues/297
+    useSubstitutes = true;
     # max output is 4GB because of openstack image
     extraConfig = ''
       binary_cache_secret_key_file = /etc/nix/hydra.snabb.co-1/secret
       max_output_size = 4294967296
     '';
     logo = (pkgs.fetchurl {
-      url    = "http://snabb.co/snabb_screen.png";
-      sha256 = "0xz0qr59b4fi2x9rwszlrj3020isbzqir68gvsj0yfab0jpj8mbc";
+      url    = "https://avatars2.githubusercontent.com/u/1913310?s=40";
+      sha256 = "087zlf6r57zgz05q875bjs0ljmvxxla4nbr64gxccxac222vw77w";
     });
   };
-
-  # workaround https://github.com/NixOS/hydra/issues/297
-  systemd.services.hydra-queue-runner.serviceConfig.ExecStart = lib.mkForce "@${config.services.hydra.package}/bin/hydra-queue-runner hydra-queue-runner -v";
 
   # this is most important to us, so prioritize cpu right after the kernel
   systemd.services.hydra-evaluator.serviceConfig.Nice = -19;
@@ -128,11 +116,6 @@ in {
       fi
     '';
   };
-
-  users.users.hydra.uid = config.ids.uids.hydra;
-  users.users.hydra-www.uid = config.ids.uids.hydra-www;
-  users.users.hydra-queue-runner.uid = config.ids.uids.hydra-queue-runner;
-  users.groups.hydra.gid = config.ids.gids.hydra;
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
