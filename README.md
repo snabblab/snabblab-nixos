@@ -265,8 +265,7 @@ First, create a nixops deployment:
 
 3. Bootstrap:
 
-
-    $ nixops deploy -d lab-production --include mymachine
+    `$ nixops deploy -d lab-production --include mymachine`
 
 
 ### Hetzner
@@ -277,13 +276,11 @@ First, create a nixops deployment:
 2. To bootstrap Hetzner machine we need to use https://robot.your-server.de/
    account:
 
-
-    $ HETZNER_ROBOT_USER=<user> HETZNER_ROBOT_PASS=<pass> nixops deploy -d eiger -I nixpkgs=http://nixos.org/channels/nixos-16.09/nixexprs.tar.xz --include eiger
+    `$ HETZNER_ROBOT_USER=<user> HETZNER_ROBOT_PASS=<pass> nixops deploy -d eiger -I nixpkgs=http://nixos.org/channels/nixos-16.09/nixexprs.tar.xz --include eiger`
 
 3. Copy generated Nix configuration into separate file:
 
-
-    $ nixops export -d lab-production | ./convert_export.py > ./machines/lab-export.nix 
+    `$ nixops export -d lab-production | ./convert_export.py > ./machines/lab-export.nix`
 
 
 ### Automatic deployments
