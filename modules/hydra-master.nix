@@ -49,12 +49,6 @@ in {
       })
     ] ++ (map (i:
       (commonBuildMachineOpt // {
-        hostName = "build-${toString i}.snabb.co";
-        maxJobs = 8;
-      })
-    ) (range 1 4))
-    ++ (map (i:
-      (commonBuildMachineOpt // {
         hostName = "murren-${toString i}.snabb.co";
         maxJobs = 1;
         supportedFeatures = [ "murren" ] ++ commonBuildMachineOpt.supportedFeatures;
