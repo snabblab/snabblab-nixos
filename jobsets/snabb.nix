@@ -3,6 +3,8 @@
 { pkgs ? (import <nixpkgs> {})
 # which Snabb source directory is used for testing
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
+# which lwAftr branch is used
+, lwaftrSrc ? (builtins.fetchTarball https://github.com/Igalia/snabb/tarball/lwaftr)
 # what hardware group is used when executing the jobs
 , hardware ? "lugano"
 }:
@@ -12,6 +14,10 @@ let
 in rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
+  lwaftr = import "${lwaftrSrc}/tarball.nix" {
+    hydraName = "snabb-lwaftr";
+    src = ${lwaftrSrc};
+  };
   tests = local_lib.mkSnabbTest {
     name = "snabb-tests";
     inherit hardware snabb;
