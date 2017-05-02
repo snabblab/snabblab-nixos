@@ -344,6 +344,12 @@ let
       description = "Andy Page";
       openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCZ55DNWDCUGPa+Y2vtlNscnyIqtZWCv1S3Owxw4YOyCHenFMJqENv0RN5tY388OBHB7FAp9POQRsl0mVefRopRgtU5y3u4ZUm3JKYNp/YbqS2ohP5fA1Q/355ciqCdLZ9z7dhk0f+1NYte7UekElW6HX9o/rAJ6JbgFUwpYgE6JHOK2VGV8AZEvAe1w8p7FRVtQdvN+EWF091sFwqUVBdlhxQUZslbDyJfnO8X4xqo1hgfRsnjqbJpbDYybqnj4EhlVZYsdbnZLuFIrvkZF3nTjNsPHvYO+WQgym39HmyMGo7mxxpDfO4YAspSorfCKS39xeUNT/O+sBbRQRBw0IuwkhfzvCr1F6f86YE6Kmwehb++Htm4qU66WLTcdm4WNoDIysQV4gzzbXKnmefwykY8F9V1H1KkrXj8OhPAd+iw+lXH3txVcR8r4v7lirxHJ+A2oNuh7DCpPTNzvKdij4Z3qAOMpNsgnHjgsE5FxdcmIKsMpgIX3ngX6wovOk2jllQACPXCVVkUI5izA+0zRXR7f15+t4SDw/6QMSa/nC+Ds350D2sa4tnT8dsQBLN7q83GjQ7B4ygaeEe3TnkIqCO6tdVWgMlq/nQjlgRYx+5X2+rYUFGL12LSDJgor+lvaMTo9jsI1qSJpKV5H1v4uxJgrAG/Tj5fcwsVdOHYhqsIkw==" ];
     } // commonUserAttrs;
+
+    miguel = {
+      uid = 1056;
+      description = "Miguel de Val-Borro";
+      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC33oenrfd2w22VkK/ISFTHhXX/F3UgzXBagmRigXGkmnJrNm4y1ykfX9dn0Tghx1orlrX823SgoC7EM4fiCJLrXlerQ1z5kKU9dXMLIFPcJbTu+kigMJJaoM+ErAw3M7MWphNJ6gauD43PPjXWdCby8sTkpgAY+J6Vq5808TPWIePE9S3kJr9lwwgDWG7esDJHoOvmGx7BPLUIxWGteafRW8HKZs+DZftUtm/qzwEDv8SWwmuqzv5edKo5xX3CNxQ9Zw7PkRI7MyWNfmiUsAqPyv86uSQrFa/eDjbIkMf2+k3p0BaTuCYZN0QJnCqIP8Rg2hOOE8xq9nvv3JRNO0CB migueldvb" ];
+    } // commonUserAttrs;
   };
 in {
   options.snabblab.users = {
