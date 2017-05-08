@@ -2,16 +2,25 @@
 
 rec {
   # Function to build test_env qemu images needed for some benchmarks
-  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
+  mkTestEnv = import ./test_env.nix { pkgs = pkgs; };
 
-  # Default PCCI assignment values for server groups
+  # Default PCI assignment values for server groups
   PCIAssignments = {
     lugano = {
       SNABB_PCI0 = "0000:01:00.0";
       SNABB_PCI_INTEL0 = "0000:01:00.0";
       SNABB_PCI_INTEL1 = "0000:01:00.1";
     };
+    # Hetzner servers, no NIC
     murren = {};
+    # Snabb2 server for lwaftr
+    igalia = {
+      # 81:00.X to itself and 02:00.X <-> 82:00.X; 03:00.X <-> 83:00.X
+      SNABB_PCI0_0 = "82:00.0";
+      SNABB_PCI0_1 = "02:00.0";
+      SNABB_PCI1_0 = "82:00.1";
+      SNABB_PCI1_1 = "02:00.1";
+    };
   };
 
   # Given a server group name such as "lugano"
@@ -30,14 +39,14 @@ rec {
                 , checkPhase # bash (string) actually executing the test
                 , hardware # on what server group should we run this?
                 , needsNixTestEnv ? false # if true, copies over our test env
-                , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
+                , testNixEnv ? (mkTestEnv {}) # qemu images and kernel
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
                 , ...
                 }@attrs:
     pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which pkgs.qemu pkgs.utillinux ];
+      buildInputs = with pkgs; [ git telnet tmux numactl bc iproute which qemu utillinux procps ];
 
       SNABB_KERNEL_PARAMS = pkgs.lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
@@ -74,7 +83,7 @@ rec {
           # if pipe failed, note that so it's eaiser to inspect end result
           [ "''${PIPESTATUS[0]}" -ne 0 ] && touch $out/nix-support/failed
           set -o pipefail
-      '';
+        '';
 
       # Adds all files as log types to build products
       installPhase = ''
@@ -102,7 +111,7 @@ rec {
      => { a = "foo"; b = "bar"; }
 
   */
-  mergeAttrs = mergeAttrsMap pkgs.lib.constant;
+  mergeAttrs = mergeAttrsMap pkgs.lib.id;
   mergeAttrsMap = f: attrs: pkgs.lib.foldl (x: y: x // (f y)) {} attrs;
 
   /* Convert dots in the version to dashes.

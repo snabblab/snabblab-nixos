@@ -3,7 +3,7 @@
 with (import ../lib { inherit pkgs; });
 
 let
-  nixTestEnv = mkNixTestEnv {};
+  nixTestEnv = mkTestEnv {};
 in {
   require = [
     ./common.nix
@@ -32,7 +32,7 @@ in {
     mkdir -p /var/lib/snabb-test-fixtures/
     for f in ${nixTestEnv}/*; do
       export f_name=$(${pkgs.coreutils}/bin/basename $f)
-      if ! ${pkgs.diffutils}/bin/cmp ${test_env}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
+      if ! ${pkgs.diffutils}/bin/cmp ${nixTestEnv}/$f_name /var/lib/snabb-test-fixtures/$f_name &> /dev/null; then
         cp --no-preserve=mode $f /var/lib/snabb-test-fixtures/
       fi
     done
@@ -44,13 +44,13 @@ in {
 
   # mount /hugetlbfs for snabbnfv
   systemd.mounts = [
-     { where = "/hugetlbfs";
-         enable  = true;
-         what  = "hugetlbfs";
-         type  = "hugetlbfs";
-         options = "pagesize=2M";
-         requiredBy  = ["basic.target"];
-     }
+    { where = "/hugetlbfs";
+      enable  = true;
+      what  = "hugetlbfs";
+      type  = "hugetlbfs";
+      options = "pagesize=2M";
+      requiredBy  = ["basic.target"];
+    }
   ];
 
   users.motd = ''

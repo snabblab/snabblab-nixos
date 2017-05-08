@@ -14,7 +14,8 @@ in {
     host_name ${config.networking.hostName}${hostnameSuffix}
   '';
 
+  users.extraUsers.munin.shell = "${pkgs.bash}/bin/bash";
   users.extraUsers.munin.openssh.authorizedKeys.keys = pkgs.lib.singleton ''
-    command="/run/current-system/sw/bin/false" ${pkgs.lib.readFile ./../secrets/id_buildfarm.pub}
+    command="${pkgs.utillinux}/bin/flock -x /var/lock/lab nc localhost 4949" ${pkgs.lib.readFile ./../secrets/id_buildfarm.pub}
   '';
 }
