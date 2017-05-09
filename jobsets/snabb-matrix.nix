@@ -88,7 +88,7 @@ in rec {
   # All versions of software used in benchmarks
   software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
   benchmarks = benchmarks-list;
-  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list) "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit;
+  benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list) "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit";
   benchmark-reports =
     if (reports == [])
     then throw "'reports' input list should contain at least one element of: ${lib.concatStringsSep ", " listReports}"
