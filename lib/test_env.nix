@@ -13,7 +13,7 @@
         <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
         ({config, pkgs, ...}: {
           # Needed tools inside the guest
-          environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
+          environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump ipsecTools nmap (hiPrio netcat-openbsd) iperf2 ];
 
           fileSystems."/".device = "/dev/disk/by-label/nixos";
           boot.loader.grub.device = "/dev/sda";
