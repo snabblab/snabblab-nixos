@@ -92,7 +92,7 @@ rec {
     (buildDpdk "2.2.0" "1yfgcbnc4zk3dc9iva166i32h320z0aw5spy96bziy9r6ma6g4bq")
     (buildDpdk "2.1.0" "1pnna7ww4rnhyqn0jgdgdqa7h4w0ysr2dv70229fhamxy65lsn4p")
     (buildDpdk "2.0.0" "0yz33hsfk821h2mby69v63nm9c22k7ial1520blcx6c2qz3jll6f")
-    (buildDpdk "1.8.0" "1h15n0bhm3f2d8nihy8w5139yi5bidvy70p16m7pv4jw2kiiz4f6")
+#    (buildDpdk "1.8.0" "1h15n0bhm3f2d8nihy8w5139yi5bidvy70p16m7pv4jw2kiiz4f6")
     # TODO: needs older glibc
     #(buildDpdk "1.7.1" "0yd60ww5xhf0dfl2x1pqx1m2363b2b7zp89mcya86j20gi3bgvlx")
   ];
