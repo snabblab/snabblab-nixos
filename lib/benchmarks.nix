@@ -21,7 +21,7 @@ in rec {
 
      The rest of the attributes are specified in testing.nix:`mkSnabbTest`
   */
-  mkSnabbBenchTest = { name, times, toCSV, ... }@attrs:
+  mkSnabbBenchTest = { name, times, keepShm, toCSV, ... }@attrs:
     let
       # patch needed for Snabb v2016.05 and lower
       testEnvPatch = pkgs.fetchurl {
@@ -42,6 +42,23 @@ in rec {
               cp qemu*.log $out/ || true
               cp snabb*.log $out/ || true
             '';
+            SNABB_SHM_KEEP=keepShm;
+            postInstall = ''
+              echo "POST INSTALL"
+              echo "keepShm = $keepShm"
+              sudo chmod a+rX /var/run/snabb
+              find /var/run
+              if [ -n "$keepShm" ]; then
+                set -x
+                mkdir $out/shm
+                for dir in /var/run/snabb/[0-9]*; do
+                  file=$out/shm/$(basename $dir).tar
+                  sudo bash -c "cd $dir; tar cf $file *"
+                  sudo chown $(whoami) $file
+                  xz -0 -T0 $file
+                done
+              fi
+            '';
             meta = {
               snabbVersion = attrs.snabb.version or "";
               qemuVersion = attrs.qemu.version or "";
@@ -59,12 +76,12 @@ in rec {
      `basic1` has no dependencies except Snabb,
      being a minimal configuration for a benchmark.    
   */
-  mkMatrixBenchBasic = { snabb, times, hardware ? "murren", ... }:
+  mkMatrixBenchBasic = { snabb, times, hardware ? "murren", keepShm, ... }:
     mkSnabbBenchTest {
       name = "basic1_snabb=${testing.versionToAttribute snabb.version or ""}_packets=100e6";
-      inherit snabb times hardware;
+      inherit snabb times hardware keepShm;
       checkPhase = ''
-        /var/setuid-wrappers/sudo ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
+        /var/setuid-wrappers/sudo -E ${snabb}/bin/snabb snabbmark basic1 100e6 |& tee $out/log.txt
       '';
       toCSV = drv: ''
         score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
@@ -88,7 +105,7 @@ in rec {
       '';
       checkPhase = ''
         cd src
-        /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster replay --duration 1 \
+        /var/setuid-wrappers/sudo -E ${snabb}/bin/snabb packetblaster replay --duration 1 \
           program/snabbnfv/test_fixtures/pcap/64.pcap "$SNABB_PCI_INTEL0" |& tee $out/log.txt
       '';
     };
@@ -109,7 +126,7 @@ in rec {
         ${writeCSV drv "blastsynth" "Mpps"}
       '';
       checkPhase = ''
-        /var/setuid-wrappers/sudo ${snabb}/bin/snabb packetblaster synth \
+        /var/setuid-wrappers/sudo -E ${snabb}/bin/snabb packetblaster synth \
           --src 11:11:11:11:11:11 --dst 22:22:22:22:22:22 --sizes 64 \
           --duration 1 "$SNABB_PCI_INTEL0" |& tee $out/log.txt
       '';

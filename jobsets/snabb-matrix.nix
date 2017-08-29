@@ -40,6 +40,9 @@
 # Additional dpdk version to benchmark on, specified using source and name
 , qemuAsrc ? null
 , qemuAname ? null
+# Optionally keep the shm folders
+, keepShm ? false
+
 }:
 
 with (import nixpkgs {});
@@ -78,7 +81,7 @@ let
         in
         mergeAttrsMap (qemu:
           mergeAttrsMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv; }
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv keepShm; }
           ) snabbs
         ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))

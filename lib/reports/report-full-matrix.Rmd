@@ -3,7 +3,6 @@ title: "NFV test matrix"
 output:
   html_document:
     toc: true
-    toc_float: true
     toc_depth: 3
 ---
 
