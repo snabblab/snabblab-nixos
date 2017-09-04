@@ -16,7 +16,7 @@ in rec {
   snabb = import "${snabbSrc}" {};
   lwaftr = import "${lwaftrSrc}/tarball.nix" {
     hydraName = "snabb-lwaftr";
-    src = ${lwaftrSrc};
+    src = "${lwaftrSrc}";
   };
   tests = local_lib.mkSnabbTest {
     name = "snabb-tests";
