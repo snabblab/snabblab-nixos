@@ -188,6 +188,29 @@ in rec {
         '';
     };
 
+  /* Execute `vita-loopback` benchmark.
+
+     `vita-loopback` has no dependencies except Snabb. Packet size can be
+     specified via pktsize.
+  */
+  mkMatrixBenchVitaLoopback = { snabb, times, pktsize ? "IMIX", hardware ? "murren", ... }:
+    mkSnabbBenchTest {
+      name = "vita-loopback_pktsize=${pktsize}_packets=100e6_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware;
+      meta = { inherit pktsize; };
+      toCSV = drv: ''
+        score=$(awk '/Gbps/ {print $(NF-1)}' < ${drv}/log.txt)
+        ${writeCSV drv "vita-loopback" "Gbps"}
+      '';
+      checkPhase = ''
+        cd src
+        export SNABB_SHM_ROOT=$out/shm
+        export SNABB_SHM_KEEP=1
+        /var/setuid-wrappers/sudo -E ${snabb}/bin/snabb snsh program/vita/test.lua ${pktsize} 100e6 |& tee $out/log.txt
+      '';
+
+    };
+
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -296,5 +319,11 @@ in rec {
       dpdk-soft-base-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
       dpdk-soft-nomrg-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
       dpdk-soft-noind-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
+
+      vita-loopback = mkMatrixBenchVitaLoopback;
+      vita-loopback-imix = params: mkMatrixBenchVitaLoopback (params // {pktsize = "IMIX"; hardware = "murren";});
+      vita-loopback-60 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "60"; hardware = "murren";});
+      vita-loopback-600 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "600"; hardware = "murren";});
+      vita-loopback-1000 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "1000"; hardware = "murren";});
     };
 }
