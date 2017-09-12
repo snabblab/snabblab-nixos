@@ -47,16 +47,13 @@ in rec {
               echo "POST INSTALL"
               echo "keepShm = $keepShm"
               sudo chmod a+rX /var/run/snabb
-              find /var/run
               if [ -n "$keepShm" ]; then
-                set -x
-                mkdir $out/shm
-                for dir in /var/run/snabb/[0-9]*; do
-                  file=$out/shm/$(basename $dir).tar
-                  sudo bash -c "cd $dir; tar cf $file *"
-                  sudo chown $(whoami) $file
-                  xz -0 -T0 $file
-                done
+                cd /var/run/snabb
+                sudo tar cvf $out/snabb.tar [0-9]*
+                sudo chown $(whoami):$(id -g -n) $out/snabb.tar
+                xz -0 -T0 $out/snabb.tar
+                mkdir -p $out/nix-support
+                echo "file tarball $out/snabb.tar.xz" >> $out/nix-support/hydra-build-products
               fi
             '';
             meta = {
