@@ -204,9 +204,11 @@ in rec {
       '';
       checkPhase = ''
         cd src
-        export SNABB_SHM_ROOT=$out/shm
+        export SNABB_SHM_ROOT=$(mktemp -d)
         export SNABB_SHM_KEEP=1
         /var/setuid-wrappers/sudo -E ${snabb}/bin/snabb snsh program/vita/test.lua ${pktsize} 100e6 |& tee $out/log.txt
+        (cd $SNABB_SHM_ROOT && tar cvzf $out/shm.tar.gz *)
+        rm -rf $SNABB_SHM_ROOT
       '';
 
     };
