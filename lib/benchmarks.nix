@@ -210,10 +210,10 @@ in rec {
      `vita-loopback` has no dependencies except Snabb. Packet size can be
      specified via pktsize.
   */
-  mkMatrixBenchVitaLoopback = { snabb, times, pktsize ? "IMIX", hardware ? "murren", ... }:
+  mkMatrixBenchVitaLoopback = { snabb, times, pktsize ? "IMIX", hardware ? "murren", keepShm, ... }:
     mkSnabbBenchTest {
       name = "vita-loopback_pktsize=${pktsize}_packets=100e6_snabb=${testing.versionToAttribute snabb.version or ""}";
-      inherit snabb times hardware;
+      inherit snabb times hardware keepShm;
       meta = { inherit pktsize; };
       toCSV = drv: ''
         score=$(awk '/Gbps/ {print $(NF-1)}' < ${drv}/log.txt)
