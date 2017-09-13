@@ -1,5 +1,5 @@
 ---
-title: "Simple functional benchmarks"
+title: "Vita benchmark report"
 output:
   html_document:
     toc: true
@@ -7,16 +7,7 @@ output:
     toc_float: true
 ---
 
-# Vita benchmark report
-
-This report makes a basic comparison of how several Vita versions perform.
-
-Benchmarks:
-
-* `vita-loopback` is a synthetic benchmark measuring Vita performance on a
-  single route with multiple packet sizes.
-
-## Setup
+# Setup
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.width = 10, fig.height = 10)
@@ -24,10 +15,17 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.width = 10, fig.height = 10
 
 ```{r}
 library(ggplot2)
-dat <- read.csv("bench.csv")
-d <- as.data.frame(dat)
-# "sliced" is the dataset with unwanted rows excluded
-sliced <- subset(d, subset=(benchmark == "vita-loopback"))
+results <- as.data.frame(read.csv("bench.csv"))
+```
+
+# vita-loopback
+
+`vita-loopback` is a synthetic benchmark measuring Vita performance on a
+single route with multiple packet sizes.
+
+```{r}
+# Select successful (score present) vita-loopback results
+loopback = subset(results, subset=(benchmark == "vita-loopback" & score))
 ```
 
 ## Line graph
@@ -37,7 +35,7 @@ look at the results. The Y-scale starts at 0 to put the absolute differences in
 perspective.
 
 ```{r}
-p <- ggplot(sliced, aes(y=score, x=id, color=snabb))
+p <- ggplot(loopback, aes(y=score, x=id, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_point()
 p <- p + geom_line()
@@ -53,7 +51,7 @@ distribution of results. The Y-axis origin is free to put focus on the relative
 differences.
 
 ```{r}
-p <- ggplot(sliced, aes(x=id, y=score, color=snabb))
+p <- ggplot(loopback, aes(x=id, y=score, color=snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_boxplot(alpha=0.50)
 p <- p + facet_grid(pktsize ~ benchmark, scales = "free")
@@ -68,9 +66,69 @@ rare values. Here we can see how spread out they are, how they cluster
 together, etc.
 
 ```{r}
-p <- ggplot(sliced, aes(score, fill = snabb, color = snabb))
+p <- ggplot(loopback, aes(score, fill = snabb, color = snabb))
 p <- p + theme(legend.position="top")
 p <- p + geom_density(alpha = 0.1)
 p <- p + facet_grid(pktsize ~ benchmark, scales = "free")
 p + ggtitle("Shape (distribution) of test results")
+```
+
+## Cluster analysis
+
+Cluster analysis using density-based spatial clustering of applications with
+noise (DBSCAN).
+
+```{r}
+library(fpc)
+
+cluster_label <- function (n) {
+  if (n == 0) { NA } else { sprintf("c%s", n) }
+}
+
+plot_clusters <- function (conf) {
+  eps <- sd(conf$score)/mean(conf$score) # eps := Coefficient of variation
+  MinPts <- round(nrow(conf)/100)        # MinPts := 1% of total points
+  scores <- data.frame(conf$score)
+  conf$cluster <- dbscan(scores, eps=eps, MinPts=MinPts)$cluster
+  # Ensure cluster labels are discrete
+  conf$cluster <- sapply(conf$cluster, cluster_label)
+  p <- ggplot(conf, aes(y=score, x=id, color=cluster))
+  p <- p + theme(legend.position="top")
+  p <- p + geom_point()
+  p <- p + facet_grid(snabb ~ benchmark, scales = "free")
+  p + ggtitle("Sequential test results colored by cluster")
+}
+```
+
+### pktsize=IMIX
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="IMIX")))
+```
+
+### pktsize=60
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="60")))
+```
+
+### pktsize=600
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="600")))
+```
+
+### pktsize=1000
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="1000")))
+```
+
+
+## Tukey test
+
+Differences between Vita versions.
+
+```{r}
+TukeyHSD(aov(score ~ snabb, data=loopback))
 ```

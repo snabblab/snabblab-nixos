@@ -257,7 +257,7 @@ in rec {
     mkBenchmarkReport = csv: benchmarksList: reportName:
     pkgs.stdenv.mkDerivation {
       name = "snabb-report";
-      buildInputs = with pkgs.rPackages; [ rmarkdown ggplot2 dplyr pkgs.R pkgs.pandoc pkgs.which ];
+      buildInputs = with pkgs.rPackages; [ fpc rmarkdown ggplot2 dplyr pkgs.R pkgs.pandoc pkgs.which ];
       # Build reports on Hydra localhost to spare time on copying
       requiredSystemFeatures = [ "local" ];
       # TODO: use writeText until runCommand uses passAsFile (16.09)
