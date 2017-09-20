@@ -87,7 +87,8 @@ cluster_label <- function (prefix) {
 
 print_ellipsis <- function (v, n) {
   cat(v[1:min(length(v), n)])
-  if (length(v) > n) { cat("...\n") }
+  if (length(v) > n) { cat("...") }
+  cat("\n")
 }
 
 plot_clusters <- function (conf) {
