@@ -152,5 +152,5 @@ plot_clusters(subset(loopback, subset=(pktsize=="1000")))
 Differences between Vita versions.
 
 ```{r}
-TukeyHSD(aov(score ~ snabb, data=loopback))
+TukeyHSD(aov(score ~ snabb + pktsize, data=loopback))
 ```
