@@ -344,6 +344,12 @@ let
       description = "Andy Page";
       openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCZ55DNWDCUGPa+Y2vtlNscnyIqtZWCv1S3Owxw4YOyCHenFMJqENv0RN5tY388OBHB7FAp9POQRsl0mVefRopRgtU5y3u4ZUm3JKYNp/YbqS2ohP5fA1Q/355ciqCdLZ9z7dhk0f+1NYte7UekElW6HX9o/rAJ6JbgFUwpYgE6JHOK2VGV8AZEvAe1w8p7FRVtQdvN+EWF091sFwqUVBdlhxQUZslbDyJfnO8X4xqo1hgfRsnjqbJpbDYybqnj4EhlVZYsdbnZLuFIrvkZF3nTjNsPHvYO+WQgym39HmyMGo7mxxpDfO4YAspSorfCKS39xeUNT/O+sBbRQRBw0IuwkhfzvCr1F6f86YE6Kmwehb++Htm4qU66WLTcdm4WNoDIysQV4gzzbXKnmefwykY8F9V1H1KkrXj8OhPAd+iw+lXH3txVcR8r4v7lirxHJ+A2oNuh7DCpPTNzvKdij4Z3qAOMpNsgnHjgsE5FxdcmIKsMpgIX3ngX6wovOk2jllQACPXCVVkUI5izA+0zRXR7f15+t4SDw/6QMSa/nC+Ds350D2sa4tnT8dsQBLN7q83GjQ7B4ygaeEe3TnkIqCO6tdVWgMlq/nQjlgRYx+5X2+rYUFGL12LSDJgor+lvaMTo9jsI1qSJpKV5H1v4uxJgrAG/Tj5fcwsVdOHYhqsIkw==" ];
     } // commonUserAttrs;
+    
+    odintsov = {
+      uid = 1056;
+      description = "Pavel Odintsov";
+      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCh8AEPqBpAK9bIENtHAFzvZ0ZW/zhIMwYp+SOdBg89PmlYfbKw4mm+ZZKiu8w01eIMFfGz7WkBB/NFeEZEqq4gswZ7GtRCy5JIXITHpSFcb7sWVQRT9J/UPD9JyMCdzl7lnybpX7PNtBwd3ZlkDxKuphvq+k64uzMATomte5KmFJhp5Wp4a8QlEaZfrERCwfF4S9NxfdcToiuhN+Sq/lED8bcIcrzO9tp9ZK0qtJL9WSphqtUvX05qnCYJN+Hc9WBvEHYyGMC1YHS/sYEJ+W1vbyGJfTZci+lOdlc7IfxC9NibBhmfBkxH5dG4LTktbOtXAbGhJCQy/fX8k5IdKd+j" ];
+    } // commonUserAttrs;
   };
 in {
   options.snabblab.users = {
