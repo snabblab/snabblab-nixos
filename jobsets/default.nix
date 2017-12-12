@@ -22,7 +22,7 @@ let
     checkinterval = 60;
     inputs = {
       nixpkgs = mkFetchGithub "https://github.com/NixOS/nixpkgs-channels.git nixos-16.03";
-      snabblab = mkFetchGithub "https://github.com/snabblab/snabblab-nixos.git master";
+      snabblab = mkFetchGithub "https://github.com/snabblab/snabblab-nixos.git snabb-pr-testing";
     };
     enableemail = false;
     emailoverride = "";
