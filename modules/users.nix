@@ -350,6 +350,12 @@ let
       description = "ikdc";
       openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/5tMHqe84Szg47/fMRxnwmqSou+bON4sqGxKW3WPIH3Fn2FI0Pn3djNA2MQcLkq9YIk649uWMgMnj0e4aFNaGVu83jz82p3ZSjPki7EI51I4g2cCW0ckyEsSVH2oCDkdfqq26kGda4j0OW2xegTj8rN+p0JyqJVJq/wkespGbJhhJrPU8hmrg/s5NjmpCD9ehRvjcUA0R/CQvnDaav3U5JsivyJiIlnALQTHVH6xFUQBLC+HfSaSspUgoxAVxsPcmXWRQkKDYZh4gW6Q687O/9rhZCD/s4ooa7dRvmzrTB9nC3TkolPH5mYTHWvInXSsLPqy+Gre94kBKKac3br0P ikdc@moria-alpha" ];
     } // commonUserAttrs;
+
+    asumu = {
+      uid = 1057;
+      description = "Asumu Takikawa";
+      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3RKIz0limcQ7wy3pcKYERhkWEHb80L+RxKCQEhT9wWHdYGQTnzsmw+Fjgn0sk1BvI7uA7jZuQQqWFJ8t4SLy0NCBLSk3dDphyKKq1GVRzaDbSBQ9SVuuMvdziP/0D8KfqfGyL+Bxs6nOM2RCljx1goe+ojJPuTrUSJXh7azok5yf9V8xuKOl7l/sRYP/G+X4+jCuC6ult5dG7D77F6FIXTbQMxYTEt4utZdYw/fm4R/21wNSgUK0YnsH1bezCUDceQA/t3fi7PF+oUjK5iXBXh0rB5/CoJL1wIy8fxtrmne5E7pblZS05p2h10Hzq/l0zXwZ0JBS1hOybFZIlricX" ];
+    } // commonUserAttrs;
   };
 in {
   options.snabblab.users = {
