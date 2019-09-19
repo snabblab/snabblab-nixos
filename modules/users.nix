@@ -350,6 +350,12 @@ let
       description = "ikdc";
       openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/5tMHqe84Szg47/fMRxnwmqSou+bON4sqGxKW3WPIH3Fn2FI0Pn3djNA2MQcLkq9YIk649uWMgMnj0e4aFNaGVu83jz82p3ZSjPki7EI51I4g2cCW0ckyEsSVH2oCDkdfqq26kGda4j0OW2xegTj8rN+p0JyqJVJq/wkespGbJhhJrPU8hmrg/s5NjmpCD9ehRvjcUA0R/CQvnDaav3U5JsivyJiIlnALQTHVH6xFUQBLC+HfSaSspUgoxAVxsPcmXWRQkKDYZh4gW6Q687O/9rhZCD/s4ooa7dRvmzrTB9nC3TkolPH5mYTHWvInXSsLPqy+Gre94kBKKac3br0P ikdc@moria-alpha" ];
     } // commonUserAttrs;
+    
+    nolanr = {
+      uid = 1057;
+      description = "Nolan Rudolph";
+      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfh1V9mrWe2oWmX3SNUfB3Le6U/RRFNhW24W7j9J8iHOFoB3q+cA3AZ1nOib28YNgUyDBBy1CKU+6pq06VthQ/uCMfU+NDEgxGAFxw70yjZwdTYkm23OQn3RYywhNco4SHUYoR/aMbim2aGpXYvGtfl1xYlWb7+VJqsUBK5HOS93O4WY751padlaOGF+5HPYE1/tdfyEVLzt8P54xvfFKH6UuQrnpQr79ZZbXlJBsSv8rvEqZRLp9Alymih6oDnJkFZb16xHqqRDRLVFzaQdJJfEI+Dn1SX2lDoJGxuiXyHN3wI91b9av/XCf+JqW+AYn8eIZ7ejMUEOW2qmkgGW8n nolan@nolan" ];
+    } // commonUserAttrs;
   };
 in {
   options.snabblab.users = {
