@@ -26,7 +26,7 @@ in rec {
       # patch needed for Snabb v2016.05 and lower
       testEnvPatch = pkgs.fetchurl {
         url = "https://github.com/snabbco/snabb/commit/e78b8b2d567dc54cad5f2eb2bbb9aadc0e34b4c3.patch";
-        sha256 = "1nwkj5n5hm2gg14dfmnn538jnkps10hlldav3bwrgqvf5i63srwl";
+        sha256 = "12k4217y6d30l6cn9gq53s1wz3m31gacj9ppsgdq2wk72v4s7j06";
       };
       snabbBenchmark = num:
         let
