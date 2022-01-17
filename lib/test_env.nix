@@ -3,14 +3,14 @@
 # qemu_img: Plain NixOS guest with some tools like 
 # dpdk_img: Same as the above plus dpdk l2fwd tied to an interface
 
-{ pkgs }:
+{ pkgs, nixpkgs }:
 
 { kPackages ? pkgs.linuxPackages
 , dpdk ? pkgs.linuxPackages.dpdk }:
    let
       # modules and NixOS config for plain qemu image
       snabb_modules = [
-        <nixpkgs/nixos/modules/profiles/qemu-guest.nix>
+        "${nixpkgs}/nixos/modules/profiles/qemu-guest.nix"
         ({config, pkgs, ...}: {
           # Needed tools inside the guest
           environment.systemPackages = with pkgs; [ inetutils screen python pciutils ethtool tcpdump (hiPrio netcat-openbsd) iperf2 ];
@@ -35,7 +35,7 @@
           '';
         })
       ];
-      snabb_config = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules; }).config;
+      snabb_config = (import "${nixpkgs}/nixos/lib/eval-config.nix" { modules = snabb_modules; }).config;
 
       # modules and NixOS config for dpdk qmemu image
       snabb_modules_dpdk = [
@@ -63,8 +63,8 @@
           }
         )
       ];
-      snabb_config_dpdk = (import <nixpkgs/nixos/lib/eval-config.nix> { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
-      qemu_img = pkgs.lib.makeOverridable (import <nixpkgs/nixos/lib/make-disk-image.nix>) {
+      snabb_config_dpdk = (import "${nixpkgs}/nixos/lib/eval-config.nix" { modules = snabb_modules_dpdk ++ snabb_modules; }).config;
+      qemu_img = pkgs.lib.makeOverridable (import "${nixpkgs}/nixos/lib/make-disk-image.nix") {
         inherit pkgs;
         lib = pkgs.lib;
         config = snabb_config;

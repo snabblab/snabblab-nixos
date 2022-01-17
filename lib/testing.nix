@@ -1,8 +1,8 @@
-{ pkgs }:
+{ pkgs, nixpkgs }:
 
 rec {
   # Function to build test_env qemu images needed for some benchmarks
-  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
+  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; nixpkgs = nixpkgs; };
 
   # Default PCCI assignment values for server groups
   PCIAssignments = {

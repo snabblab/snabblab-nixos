@@ -46,7 +46,7 @@
 }:
 
 with (import nixpkgs {});
-with (import ../lib { pkgs = (import nixpkgs {}); });
+with (import ../lib { pkgs = (import nixpkgs {}); inherit nixpkgs; });
 
 let
   # Legacy naming

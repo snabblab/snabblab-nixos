@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, nixpkgs }:
 
 # build* functions are responsible for building software given their source or version
 

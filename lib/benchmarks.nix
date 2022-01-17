@@ -1,12 +1,12 @@
-{ pkgs }:
+{ pkgs, nixpkgs }:
 
 # Functions for executing benchmarks on different hardware groups,
 # collecting results by parsing logs and converting them to CSV and
 # generating reports using Rmarkdown.
 
 let
-  testing = import ./testing.nix { inherit pkgs; };
-  software = import ./software.nix { inherit pkgs; };
+  testing = import ./testing.nix { inherit pkgs nixpkgs; };
+  software = import ./software.nix { inherit pkgs nixpkgs; };
 in rec {
   /* Execute a benchmark named as specified using `name` parameter,
      repeated as many times as the integer `times`.
