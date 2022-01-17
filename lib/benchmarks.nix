@@ -21,7 +21,7 @@ in rec {
 
      The rest of the attributes are specified in testing.nix:`mkSnabbTest`
   */
-  mkSnabbBenchTest = { name, times, keepShm, toCSV, ... }@attrs:
+  mkSnabbBenchTest = { name, times, keepShm ? false, toCSV, ... }@attrs:
     let
       # patch needed for Snabb v2016.05 and lower
       testEnvPatch = pkgs.fetchurl {
