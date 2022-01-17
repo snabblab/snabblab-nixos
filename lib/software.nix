@@ -40,7 +40,7 @@ rec {
     let
       snabbPatch = pkgs.fetchurl {
         url = "https://github.com/SnabbCo/qemu/commit/f393aea2301734647fdf470724433f44702e3fb9.patch";
-        sha256 = "0hpnfdk96rrdaaf6qr4m4pgv40dw7r53mg95f22axj7nsyr8d72x";
+        sha256 = "07jbnxj97p8cvhbxxyfylqa5ppsflrr0kxn3d82bdylns82cyfm6";
         name = "snabb-patch";
       };
     in pkgs.qemu.overrideDerivation (super: {
