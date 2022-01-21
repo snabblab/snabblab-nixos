@@ -50,6 +50,7 @@ in rec {
               if [ -n "$keepShm" ]; then
                 cd /var/run/snabb
                 sudo tar cvf $out/snabb.tar [0-9]*
+                sudo rm -rf [0-9]*
                 sudo chown $(whoami):$(id -g -n) $out/snabb.tar
                 xz -0 -T0 $out/snabb.tar
                 mkdir -p $out/nix-support
@@ -91,10 +92,10 @@ in rec {
     `packetblaster` sets "lugano" as default hardware group,
     as the benchmark depends on having a NIC installed.
   */
-  mkMatrixBenchPacketblaster = { snabb, times, hardware ? "lugano", ... }:
+  mkMatrixBenchPacketblaster = { snabb, times, hardware ? "lugano", keepShm, ... }:
     mkSnabbBenchTest {
       name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-64";
-      inherit snabb times hardware;
+      inherit snabb times hardware keepShm;
       toCSV = drv: ''
         pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
         score=$(echo "scale=2; $pps / 1000000" | bc)
@@ -112,10 +113,10 @@ in rec {
     Similar to `packetblaster` benchmark, but use "synth"
     command with size 64.
   */
-  mkMatrixBenchPacketblasterSynth = { snabb, times, ... }:
+  mkMatrixBenchPacketblasterSynth = { snabb, times, keepShm, ... }:
     mkSnabbBenchTest {
       name = "${testing.versionToAttribute snabb.version or ""}-packetblaster-synth-64";
-      inherit snabb times;
+      inherit snabb times keepShm;
       hardware = "lugano";
       toCSV = drv: ''
         pps=$(cat ${drv}/log.txt | grep TXDGPC | cut -f 3 | sed s/,//g)
@@ -136,7 +137,7 @@ in rec {
 
      If hardware group doesn't use have a NIC, ports can be specified.
   */
-  mkMatrixBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano", testNixEnv, ... }:
+  mkMatrixBenchNFVIperf = { snabb, times, qemu, kPackages, conf ? "NA", hardware ? "lugano", testNixEnv, keepShm, ... }:
     let
       iperfports = {
         base         = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/same_vlan.ports";
@@ -147,7 +148,7 @@ in rec {
       };
     in mkSnabbBenchTest {
       name = "iperf_conf=${conf}_snabb=${testing.versionToAttribute snabb.version or ""}_kernel=${testing.versionToAttribute kPackages.kernel.version}_qemu=${testing.versionToAttribute qemu.version}";
-      inherit hardware kPackages snabb times qemu testNixEnv;
+      inherit hardware kPackages snabb times qemu testNixEnv keepShm;
       toCSV = drv: ''
         score=$(awk '/^IPERF-/ { print $2 }' < ${drv}/log.txt)
         ${writeCSV drv "iperf" "Gbps"}
@@ -167,7 +168,7 @@ in rec {
 
      If hardware group doesn't use have a NIC then conf and pktsize are required
   */
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, ... }:
+  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, keepShm, ... }:
     let
       dpdkports = {
         base  = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench.port";
@@ -181,7 +182,7 @@ in rec {
     then []
     else mkSnabbBenchTest rec {
       name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${testing.versionToAttribute snabb.version or ""}_dpdk=${testing.versionToAttribute dpdk.version}_qemu=${testing.versionToAttribute qemu.version}";
-      inherit snabb qemu times hardware dpdk kPackages testNixEnv;
+      inherit snabb qemu times hardware dpdk kPackages testNixEnv keepShm;
       needsNixTestEnv = true;
       toCSV = drv: ''
         score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
@@ -228,7 +229,7 @@ in rec {
   */
   writeCSV = drv: benchName: unit: ''
     if test -z "$score"; then score="NA"; fi
-    echo ${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+    echo ${drv},${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
   '';
 
   # Generate CSV out of collection of benchmarking logs
@@ -243,7 +244,7 @@ in rec {
         source $stdenv/setup
         mkdir -p $out/nix-support
 
-        echo "benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+        echo "drv,benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
         ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
         # Make CSV file available via Hydra
