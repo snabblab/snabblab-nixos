@@ -66,7 +66,33 @@ nix-build \
     --arg qemuVersions '["2.6.2"]' \
     --arg dpdkVersions '["16.11"]' \
     --show-trace \
+    --keepShm true
     -A benchmark-csv \
     -A benchmark-reports \
     jobsets/snabb-matrix.nix
 ```
+
+## Running tests
+
+I’ve run the test suite like so
+
+```
+#!/usr/bin/env bash
+
+repository=snabbco/snabb
+branch=max-next
+
+nix-build \
+    --arg snabbSrc "builtins.fetchTarball https://github.com/${repository}/tarball/${branch}" \
+    --argstr hardware "murren" \
+    --show-trace \
+    -A tests \
+    jobsets/snabb.nix
+```
+
+You can also enter the test environment
+by substituting nix-build with nix-shell.
+
+I needed to navigate
+to a clean, matching snabb source tree
+and run `eval "$buildPhase"`.
