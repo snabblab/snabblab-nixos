@@ -1,6 +1,6 @@
 # Build Snabb, Snabb manual and run tests for given Snabb branch
 
-{ pkgs ? (import <nixpkgs> {})
+{ nixpkgs ? (builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
 # which Snabb source directory is used for testing
 , snabbSrc ? (builtins.fetchTarball https://github.com/snabbco/snabb/tarball/next)
 # which lwAftr branch is used
@@ -10,13 +10,14 @@
 }:
 
 let
-  local_lib = import ../lib { inherit pkgs; };
+  pkgs = (import nixpkgs {});
+  local_lib = import ../lib { inherit pkgs nixpkgs; };
 in rec {
   manual = import "${snabbSrc}/src/doc" {};
   snabb = import "${snabbSrc}" {};
   lwaftr = import "${lwaftrSrc}/tarball.nix" {
     hydraName = "snabb-lwaftr";
-    src = ${lwaftrSrc};
+    src = "${lwaftrSrc}";
   };
   tests = local_lib.mkSnabbTest {
     name = "snabb-tests";
