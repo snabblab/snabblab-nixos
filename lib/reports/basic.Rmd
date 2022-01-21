@@ -9,11 +9,9 @@ automatically-executed benchmarking campaign.
 knitr::opts_chunk$set(error=TRUE)
 library(ggplot2)
 dat <- read.csv("bench.csv")
-dat$mtu <- as.factor(dat$mtu)
 d <- as.data.frame(dat)
 
 iperf <- subset(d, subset=(benchmark == "iperf"))
-iperf <- subset(iperf, subset=(mtu == "1500"))
 
 l2fwd <- subset(d, subset=(benchmark=="l2fwd"))
 summary(d)
