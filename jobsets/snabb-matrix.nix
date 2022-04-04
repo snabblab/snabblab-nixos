@@ -42,7 +42,8 @@
 , qemuAname ? null
 # Optionally keep the shm folders
 , keepShm ? false
-
+# sudo to use in tests
+, sudo ? "/usr/bin/sudo"
 }:
 
 with (import nixpkgs {});
@@ -81,7 +82,7 @@ let
         in
         mergeAttrsMap (qemu:
           mergeAttrsMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv keepShm; }
+            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv keepShm sudo; }
           ) snabbs
         ) subQemus
       ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))

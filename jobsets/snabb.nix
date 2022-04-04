@@ -7,6 +7,8 @@
 , lwaftrSrc ? (builtins.fetchTarball https://github.com/Igalia/snabb/tarball/lwaftr)
 # what hardware group is used when executing the jobs
 , hardware ? "lugano"
+# sudo to use in tests
+, sudo ? "/usr/bin/sudo"
 }:
 
 let
@@ -21,11 +23,11 @@ in rec {
   };
   tests = local_lib.mkSnabbTest {
     name = "snabb-tests";
-    inherit hardware snabb;
+    inherit hardware snabb sudo;
     needsNixTestEnv = true;
     checkPhase = ''
       # run tests
-      sudo -E make test -C src/ |& tee $out/tests.log
+      ${sudo} -E make test -C src/ |& tee $out/tests.log
 
       if grep -q ERROR $out/tests.log; then
           touch $out/nix-support/failed

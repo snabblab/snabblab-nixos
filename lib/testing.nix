@@ -20,7 +20,7 @@ rec {
     let
       pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments group as ${hardware}");
     in  pcis  // {
-      requiredSystemFeatures = [ hardware ];
+      #requiredSystemFeatures = [ hardware ];
     };
 
   # Function for running commands in environment as Snabb expects tests to run
@@ -32,6 +32,7 @@ rec {
                 , needsNixTestEnv ? false # if true, copies over our test env
                 , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
+                , sudo # sudo to use
                 , ...
                 }@attrs:
     pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
@@ -50,8 +51,8 @@ rec {
         export HOME=$TMPDIR
 
         # setup expected directories
-        sudo mkdir -p /var/{run,tmp} /hugetlbfs
-        sudo mount -t hugetlbfs none /hugetlbfs
+        ${sudo} mkdir -p /var/{run,tmp} /hugetlbfs
+        ${sudo} mount -t hugetlbfs none /hugetlbfs
 
         # make sure we reuse the snabb built in another derivation
         ln -s ${snabb}/bin/snabb src/snabb
