@@ -1,4 +1,4 @@
-# Make a matrix benchmark out of Snabb + DPDK + QEMU + Linux (for iperf) combinations
+# Make a matrix benchmark out of Snabb + QEMU + Linux (for iperf) combinations
 # and generate a report based on the logs
 
 # Specify how many times each benchmark is repeated
@@ -30,14 +30,8 @@
 , reports ? []
 # What kernel versions to benchmark on, for possible values see lib/benchmarks.nix
 , kernelVersions ? ["3.18"]  # fix kernel for now to reduce memory usage
-# What dpdk versions to benchmark on, for possible values see lib/benchmarks.nix
-, dpdkVersions ? []
-# Additional qemu version to benchmark on, specified using source and name
-, dpdkAsrc ? null
-, dpdkAname ? null
 # What qemu versions to benchmark on, for possible values see lib/benchmarks.nix
 , qemuVersions ? []
-# Additional dpdk version to benchmark on, specified using source and name
 , qemuAsrc ? null
 , qemuAname ? null
 # Optionally keep the shm folders
@@ -64,7 +58,6 @@ let
   ];
 
   customQemu = buildQemuFromSrc qemuAname qemuAsrc false;
-  customDpdk = buildDpdkFromSrc dpdkAname dpdkAsrc;
 
   subKernelPackages = selectKernelPackages kernelVersions;
   subQemus = (selectQemus qemuVersions) ++ (if qemuAsrc != null then [customQemu] else []);
@@ -75,22 +68,20 @@ let
     then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
     else
     mergeAttrsMap (kPackages:
-      mergeAttrsMap (dpdk:
-        let
-          #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
-          testNixEnv = mkNixTestEnv { inherit kPackages dpdk; };
-        in
-        mergeAttrsMap (qemu:
-          mergeAttrsMap (snabb:
-            selectBenchmarks benchmarkNames { inherit snabb qemu dpdk times kPackages testNixEnv keepShm sudo; }
-          ) snabbs
-        ) subQemus
-      ) ((selectDpdks dpdkVersions kPackages) ++ (if dpdkAsrc != null then [(customDpdk kPackages)] else []))
+      let
+        #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
+        testNixEnv = mkNixTestEnv { inherit kPackages; };
+      in
+      mergeAttrsMap (qemu:
+        mergeAttrsMap (snabb:
+          selectBenchmarks benchmarkNames { inherit snabb qemu times kPackages testNixEnv keepShm sudo; }
+        ) snabbs
+      ) subQemus
     ) subKernelPackages;
 
 in rec {
   # All versions of software used in benchmarks
-  software = listDrvToAttrs (snabbs ++ subQemus ++ (selectDpdks dpdkVersions linuxPackages_3_18));
+  software = listDrvToAttrs (snabbs ++ subQemus);
   benchmarks = benchmarks-list;
   benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
   benchmark-reports =

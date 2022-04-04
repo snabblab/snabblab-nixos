@@ -53,36 +53,6 @@ p + ggtitle("iperf by kernel")
 TukeyHSD(aov(score ~ config, data=iperf))
 ```
 
-## l2fwd
-
-These benchmarks summarize DPDK `l2fwd` performance running inside a
-VM with multiple DPDK versions and Virtio-net options.
-
-### Raw data
-
-```{r}
-p <- ggplot(l2fwd, aes(y=score, x=1))
-p <- p + geom_jitter()
-p + ggtitle("l2fwd sample application from DPDK")
-```
-
-### Color by DPDK
-
-```{r}
-p <- ggplot(l2fwd, aes(y=score, x=1, color=dpdk))
-p <- p + geom_jitter()
-p + ggtitle("l2fwd colored by DPDK version")
-```
-
-### Split by DPDK
-
-```{r}
-p <- ggplot(l2fwd, aes(x=config, y=score, color=dpdk))
-p <- p + geom_jitter()
-p <- p + facet_grid(. ~ dpdk)
-p + ggtitle("l2fwd split by DPDK version")
-```
-
 ### Boxplot
 
 ```{r}

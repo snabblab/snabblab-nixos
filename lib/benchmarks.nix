@@ -61,11 +61,10 @@ in rec {
               snabbVersion = attrs.snabb.version or "";
               qemuVersion = attrs.qemu.version or "";
               kernelVersion = attrs.kPackages.kernel.version or "";
-              dpdkVersion = attrs.dpdk.version or "";
               repeatNum = num;
               inherit sudo toCSV;
             } // (attrs.meta or {});
-          } // removeAttrs attrs [ "times" "toCSV" "dpdk" "kPackages" "meta" "name"]));
+          } // removeAttrs attrs [ "times" "toCSV" "kPackages" "meta" "name"]));
         };
     in testing.mergeAttrsMap snabbBenchmark (pkgs.lib.range 1 times);
 
@@ -161,47 +160,6 @@ in rec {
       '';
     };
 
-  /* Execute `l2fwd/dpdk` benchmark.
-
-     Requires `testNixEnv` built fixtures providing qemu images.
-
-     If hardware group doesn't use have a NIC then conf and pktsize are required
-  */
-  mkMatrixBenchNFVDPDK = { snabb, qemu, kPackages, dpdk, hardware ? "lugano", times, pktsize ? "", conf ? "", testNixEnv, keepShm, sudo, ... }:
-    let
-      dpdkports = {
-        base  = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench.port";
-        nomrg = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench-no-mrg_rxbuf.port";
-        noind = "program/snabbnfv/test_fixtures/nfvconfig/test_functions/snabbnfv-bench-no-indirect_desc.port";
-      };
-    in
-    # there is no reason to run this benchmark on multiple kernels
-    # 3.18 kernel must be used for older dpdks
-    if (pkgs.lib.substring 0 4 (kPackages.kernel.version) != "3.18")
-    then []
-    else mkSnabbBenchTest rec {
-      name = "l2fwd_pktsize=${pktsize}_conf=${conf}_snabb=${testing.versionToAttribute snabb.version or ""}_dpdk=${testing.versionToAttribute dpdk.version}_qemu=${testing.versionToAttribute qemu.version}";
-      inherit snabb qemu times hardware dpdk kPackages testNixEnv keepShm sudo;
-      needsNixTestEnv = true;
-      toCSV = drv: ''
-        score=$(awk '/^Rate\(Mpps\):/ { print $2 }' < ${drv}/log.txt)
-        ${writeCSV drv "l2fwd" "Mpps"}
-      '';
-      meta = { inherit pktsize conf; };
-      checkPhase = 
-        if hardware == "murren"
-        then ''
-          cd src
-
-          export SNABB_PACKET_SIZES=${pktsize}
-          export SNABB_DPDK_BENCH_CONF=${dpdkports.${conf}}
-          ${sudo} -E timeout 120 program/snabbnfv/dpdk_bench.sh |& tee $out/log.txt
-        '' else ''
-          cd src
-          ${sudo} -E timeout 120 program/snabbnfv/packetblaster_bench.sh |& tee $out/log.txt
-        '';
-    };
-
   /* Execute `vita-loopback` benchmark.
 
      `vita-loopback` has no dependencies except Snabb. Packet size can be
@@ -228,7 +186,7 @@ in rec {
   */
   writeCSV = drv: benchName: unit: ''
     if test -z "$score"; then score="NA"; fi
-    echo ${drv},${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${drv.meta.dpdkVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
+    echo ${drv},${benchName},${drv.meta.pktsize or "NA"},${drv.meta.conf or "NA"},${drv.meta.snabbVersion or "NA"},${drv.meta.kernelVersion or "NA"},${drv.meta.qemuVersion or "NA"},${toString drv.meta.repeatNum},$score,${unit} >> $out/bench.csv
   '';
 
   # Generate CSV out of collection of benchmarking logs
@@ -243,7 +201,7 @@ in rec {
         source $stdenv/setup
         mkdir -p $out/nix-support
 
-        echo "drv,benchmark,pktsize,config,snabb,kernel,qemu,dpdk,id,score,unit" > $out/bench.csv
+        echo "drv,benchmark,pktsize,config,snabb,kernel,qemu,id,score,unit" > $out/bench.csv
         ${pkgs.lib.concatMapStringsSep "\n" (drv: drv.meta.toCSV drv) benchmarkList}
 
         # Make CSV file available via Hydra
@@ -297,10 +255,6 @@ in rec {
       if versions == []
       then software.qemus
       else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) software.qemus) versions;
-    selectDpdks = versions: kPackages:
-      if versions == []
-      then (software.dpdks kPackages)
-      else pkgs.lib.concatMap (version: pkgs.lib.filter (matchesVersionPrefix version) (software.dpdks kPackages)) versions;
     selectKernelPackages = versions:
       if versions == []
       then software.kernelPackages
@@ -323,14 +277,6 @@ in rec {
       iperf-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "ipsec"; hardware = "murren";});
       iperf-l2tpv3 = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3"; hardware = "murren";});
       iperf-l2tpv3-ipsec = params: mkMatrixBenchNFVIperf (params // {conf = "l2tpv3_ipsec"; hardware = "murren";});
-
-      dpdk = mkMatrixBenchNFVDPDK;
-      dpdk-soft-base-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "base"; hardware = "murren";});
-      dpdk-soft-nomrg-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "nomrg"; hardware = "murren";});
-      dpdk-soft-noind-256 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "256"; conf = "noind"; hardware = "murren";});
-      dpdk-soft-base-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "base"; hardware = "murren";});
-      dpdk-soft-nomrg-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "nomrg"; hardware = "murren";});
-      dpdk-soft-noind-64 = params: mkMatrixBenchNFVDPDK (params // {pktsize = "64"; conf = "noind"; hardware = "murren";});
 
       vita-loopback = mkMatrixBenchVitaLoopback;
       vita-loopback-imix = params: mkMatrixBenchVitaLoopback (params // {pktsize = "IMIX"; hardware = "murren";});
