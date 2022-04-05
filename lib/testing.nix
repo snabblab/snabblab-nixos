@@ -49,6 +49,7 @@ rec {
       buildPhase = ''
         export PATH=$PATH:/var/setuid-wrappers/
         export HOME=$TMPDIR
+        export QEMU=$(which qemu-system-x86_64)
 
         # setup expected directories
         ${sudo} mkdir -p /var/{run,tmp} /hugetlbfs
