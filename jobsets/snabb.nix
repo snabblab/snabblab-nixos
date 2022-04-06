@@ -6,7 +6,7 @@
 # which lwAftr branch is used
 , lwaftrSrc ? (builtins.fetchTarball https://github.com/Igalia/snabb/tarball/lwaftr)
 # what hardware group is used when executing the jobs
-, hardware ? "lugano"
+, hardware ? "murren"
 # sudo to use in tests
 , sudo ? "/usr/bin/sudo"
 }:
