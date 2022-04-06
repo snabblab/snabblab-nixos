@@ -181,6 +181,32 @@ in rec {
 
     };
 
+  /* Execute `interlink-wait` benchmark.
+
+     `interlink-wait` has no dependencies except Snabb.
+         - duration specifies benchmark duration
+         - nreceivers specifies number of receiver links (1-to-n core topology)
+
+      Requires SNABB_CPUS to be set.
+  */
+  mkMatrixBenchInterlinkWait = { snabb, times, duration ? "3", nreceivers ? "1", hardware ? "murren", keepShm, sudo, ... }:
+    mkSnabbBenchTest {
+      name = "interlink-wait_duration=${duration}_nreceivers=${nreceivers}_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware keepShm sudo;
+      meta = { inherit duration nreceivers; };
+      toCSV = drv: ''
+        score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
+        ${writeCSV drv "interlink-wait" "Mpps"}
+      '';
+      checkPhase = ''
+        cd src
+        [ -z "$SNABB_CPUS" ] && (echo "SNABB_CPUS not set"; exit 1)
+        ${sudo} -E ${snabb}/bin/snabb snsh apps/interlink/wait_test.snabb ${duration} ${nreceivers} $SNABB_CPUS \
+          2>&1 >interlink_latency.csv | tee $out/log.txt
+      '';
+
+    };
+
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -283,5 +309,8 @@ in rec {
       vita-loopback-60 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "60"; hardware = "murren";});
       vita-loopback-600 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "600"; hardware = "murren";});
       vita-loopback-1000 = params: mkMatrixBenchVitaLoopback (params // {pktsize = "1000"; hardware = "murren";});
+
+      interlink-single = params: mkMatrixBenchInterlinkWait (params // {nreceivers = "1";});
+      interlink-multi = params: mkMatrixBenchInterlinkWait (params // {nreceivers = "3";});
     };
 }
