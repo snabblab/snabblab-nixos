@@ -38,6 +38,8 @@
 , keepShm ? false
 # sudo to use in tests
 , sudo ? "/usr/bin/sudo"
+# which hardware are we using
+, hardware ? "murren"
 }:
 
 with (import nixpkgs {});
@@ -74,7 +76,7 @@ let
       in
       mergeAttrsMap (qemu:
         mergeAttrsMap (snabb:
-          selectBenchmarks benchmarkNames { inherit snabb qemu times kPackages testNixEnv keepShm sudo; }
+          selectBenchmarks benchmarkNames { inherit snabb qemu times kPackages testNixEnv keepShm sudo hardware; }
         ) snabbs
       ) subQemus
     ) subKernelPackages;
