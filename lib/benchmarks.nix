@@ -207,6 +207,63 @@ in rec {
 
     };
 
+  /* Execute `mellanox-source-sink` benchmark.
+
+     `mellanox-source-sink` depends on SNABB_PCI_CONNECTX_0 and SNABB_PCI_CONNECTX_1
+     (wired to each other), as well as SNABB_CPUS0 and SNABB_CPUS1.
+       - pktsize specifies packet size
+       - conf specifies extra benchmark options
+  */
+  mkMatrixBenchMellanoxSourceSink = { snabb, times, pktsize ? "IMIX", conf ? "", hardware ? "murren", keepShm, sudo, ... }:
+    mkSnabbBenchTest {
+      name = "mellanox-source-sink_pktsize=${pktsize}_packets=100e6_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware keepShm sudo;
+      meta = { inherit pktsize; conf = builtins.replaceStrings [","] [" "] conf; };
+      toCSV = drv: ''
+        score=$(awk '/Rx Rate/ {print $(NF-1)}' < ${drv}/log.txt)
+        ${writeCSV drv "mellanox-source-sink" "Mpps"}
+      '';
+      checkPhase = ''
+        cd src
+        [ -z "$SNABB_CPUS0" ] && (echo "SNABB_CPUS0 not set"; exit 1)
+        [ -z "$SNABB_CPUS1" ] && (echo "SNABB_CPUS0 not set"; exit 1)
+        [ -z "$SNABB_PCI_CONNECTX_0" ] && (echo "SNABB_PCI_CONNECTX_0 not set"; exit 1)
+        [ -z "$SNABB_PCI_CONNECTX_1" ] && (echo "SNABB_PCI_CONNECTX_1 not set"; exit 1)
+        ${sudo} -E ${snabb}/bin/snabb snsh apps/mellanox/benchmark.snabb \
+          -a "$SNABB_PCI_CONNECTX_0" -b "$SNABB_PCI_CONNECTX_1" -A "$SNABB_CPUS0" -B "$SNABB_CPUS1" \
+          -m source-sink -w 6 -q 4 -n 100e6 \
+          -s ${pktsize} ${conf} |& tee $out/log.txt
+      '';
+
+    };
+
+    /* Execute `mellanox-source` benchmark.
+
+     `mellanox-source` depends on SNABB_PCI_CONNECTX_0 as well as SNABB_CPUS0.
+       - pktsize specifies packet size
+       - conf specifies extra benchmark options
+  */
+  mkMatrixBenchMellanoxSource = { snabb, times, pktsize ? "IMIX", conf ? "", hardware ? "murren", keepShm, sudo, ... }:
+    mkSnabbBenchTest {
+      name = "mellanox-source_pktsize=${pktsize}_packets=100e6_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware keepShm sudo;
+      meta = { inherit pktsize; conf = builtins.replaceStrings [","] [" "] conf; };
+      toCSV = drv: ''
+        score=$(awk '/Tx Rate/ {print $(NF-1)}' < ${drv}/log.txt)
+        ${writeCSV drv "mellanox-source" "Mpps"}
+      '';
+      checkPhase = ''
+        cd src
+        [ -z "$SNABB_CPUS0" ] && (echo "SNABB_CPUS0 not set"; exit 1)
+        [ -z "$SNABB_PCI_CONNECTX_0" ] && (echo "SNABB_PCI_CONNECTX_0 not set"; exit 1)
+        ${sudo} -E ${snabb}/bin/snabb snsh apps/mellanox/benchmark.snabb \
+          -a "$SNABB_PCI_CONNECTX_0" -A "$SNABB_CPUS0" \
+          -m source -w 1 -q 8 -n 100e6 \
+          -s ${pktsize} ${conf} |& tee $out/log.txt
+      '';
+
+    };
+
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -312,5 +369,11 @@ in rec {
 
       interlink-single = params: mkMatrixBenchInterlinkWait (params // {nreceivers = "1";});
       interlink-multi = params: mkMatrixBenchInterlinkWait (params // {nreceivers = "3";});
+
+      mellanox-source-sink-imix = params: mkMatrixBenchMellanoxSourceSink (params // {pktsize = "IMIX";});
+      mellanox-source-sink-64 = params: mkMatrixBenchMellanoxSourceSink (params // {pktsize = "64";});
+
+      mellanox-source-imix = params: mkMatrixBenchMellanoxSource (params // {pktsize = "IMIX";});
+      mellanox-source-64 = params: mkMatrixBenchMellanoxSource (params // {pktsize = "64";});
     };
 }
