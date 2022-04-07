@@ -193,7 +193,7 @@ in rec {
     mkSnabbBenchTest {
       name = "interlink-wait_duration=${duration}_nreceivers=${nreceivers}_snabb=${testing.versionToAttribute snabb.version or ""}";
       inherit snabb times hardware keepShm sudo;
-      meta = { inherit duration nreceivers; };
+      meta = { inherit duration nreceivers; conf = "nreceivers=${nreceivers}"; };
       toCSV = drv: ''
         score=$(awk '/Mpps/ {print $(NF-1)}' < ${drv}/log.txt)
         ${writeCSV drv "interlink-wait" "Mpps"}
