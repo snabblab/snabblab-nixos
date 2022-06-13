@@ -9,11 +9,9 @@ automatically-executed benchmarking campaign.
 knitr::opts_chunk$set(error=TRUE)
 library(ggplot2)
 dat <- read.csv("bench.csv")
-dat$mtu <- as.factor(dat$mtu)
 d <- as.data.frame(dat)
 
 iperf <- subset(d, subset=(benchmark == "iperf"))
-iperf <- subset(iperf, subset=(mtu == "1500"))
 
 l2fwd <- subset(d, subset=(benchmark=="l2fwd"))
 summary(d)
@@ -53,36 +51,6 @@ p + ggtitle("iperf by kernel")
 
 ```{r}
 TukeyHSD(aov(score ~ config, data=iperf))
-```
-
-## l2fwd
-
-These benchmarks summarize DPDK `l2fwd` performance running inside a
-VM with multiple DPDK versions and Virtio-net options.
-
-### Raw data
-
-```{r}
-p <- ggplot(l2fwd, aes(y=score, x=1))
-p <- p + geom_jitter()
-p + ggtitle("l2fwd sample application from DPDK")
-```
-
-### Color by DPDK
-
-```{r}
-p <- ggplot(l2fwd, aes(y=score, x=1, color=dpdk))
-p <- p + geom_jitter()
-p + ggtitle("l2fwd colored by DPDK version")
-```
-
-### Split by DPDK
-
-```{r}
-p <- ggplot(l2fwd, aes(x=config, y=score, color=dpdk))
-p <- p + geom_jitter()
-p <- p + facet_grid(. ~ dpdk)
-p + ggtitle("l2fwd split by DPDK version")
 ```
 
 ### Boxplot

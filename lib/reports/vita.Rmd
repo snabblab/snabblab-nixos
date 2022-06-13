@@ -1,0 +1,157 @@
+---
+title: "Vita benchmark report"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+library(ggplot2)
+results <- as.data.frame(read.csv("bench.csv"))
+```
+
+# vita-loopback
+
+`vita-loopback` is a synthetic benchmark measuring Vita performance on a
+single route with multiple packet sizes.
+
+```{r}
+# Select successful (score present) vita-loopback results
+loopback = subset(results, subset=(benchmark == "vita-loopback" & score))
+```
+
+## Line graph
+
+[Line graph](https://en.wikipedia.org/wiki/Line_graph) for a simple and direct
+look at the results. The Y-scale starts at 0 to put the absolute differences in
+perspective.
+
+```{r}
+p <- ggplot(loopback, aes(y=score, x=id, color=snabb))
+p <- p + theme(legend.position="top")
+p <- p + geom_point()
+p <- p + geom_line()
+p <- p + expand_limits(y=0)
+p <- p + facet_grid(pktsize ~ benchmark, scales = "free")
+p + ggtitle("Sequential test results")
+```
+
+## Box plot
+
+[Box plot](https://en.wikipedia.org/wiki/Box_plot) to summarize the
+distribution of results. The Y-axis origin is free to put focus on the relative
+differences.
+
+```{r}
+p <- ggplot(loopback, aes(x=id, y=score, color=snabb))
+p <- p + theme(legend.position="top")
+p <- p + geom_boxplot(alpha=0.50)
+p <- p + facet_grid(pktsize ~ benchmark, scales = "free")
+p + ggtitle("Summary of test results")
+```
+
+## Density plot
+
+[Density plot](https://en.wikipedia.org/wiki/Density_estimation) showing the
+distribution of results. The curve is high around common values and low around
+rare values. Here we can see how spread out they are, how they cluster
+together, etc.
+
+```{r}
+p <- ggplot(loopback, aes(score, fill = snabb, color = snabb))
+p <- p + theme(legend.position="top")
+p <- p + geom_density(alpha = 0.1)
+p <- p + facet_grid(pktsize ~ benchmark, scales = "free")
+p + ggtitle("Shape (distribution) of test results")
+```
+
+## Cluster analysis
+
+Cluster analysis using density-based spatial clustering of applications with
+noise (DBSCAN).
+
+```{r}
+library(fpc)
+
+cluster_label <- function (prefix) {
+  function (n) if (n == 0) { NA } else { sprintf("%s/%s", prefix, n) }
+}
+
+print_ellipsis <- function (v, n) {
+  cat(v[1:min(length(v), n)])
+  if (length(v) > n) { cat("...") }
+  cat("\n")
+}
+
+plot_clusters <- function (conf) {
+  for (branch in unique(conf$snabb)) {
+    select <- conf$snabb == branch
+    points <- conf$score[select]
+
+    eps <- sd(points)/mean(points) # Coefficient of variation
+    MinPts <- round(length(points)/100) # 1% of total points
+    analysis <- dbscan(points, eps=eps, MinPts=MinPts)
+
+    conf$cluster[select] <- sapply(analysis$cluster, cluster_label(branch))
+  }
+
+  print(ggplot(conf, aes(y=score, x=id, color=cluster))
+        + ggtitle("Sequential test results colored by cluster")
+        + facet_grid(snabb ~ benchmark, scales = "free")
+        + geom_point()
+        + theme(legend.position="top"))
+
+  cat("Cluster samples:\n")
+  nSamples <- 10
+  for (c in unique(conf$cluster[!is.na(conf$cluster)])) {
+    cat(sprintf("%s: ", c))
+    print_ellipsis(conf$id[!is.na(conf$cluster) & conf$cluster==c], nSamples)
+  }
+  for (branch in unique(conf$snabb)) {
+      cat(sprintf("%s/outliers: ", branch))
+      outliers <- conf$id[conf$snabb == branch & is.na(conf$cluster)]
+      print_ellipsis(outliers, nSamples)
+  }
+}
+```
+
+### pktsize=IMIX
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="IMIX")))
+```
+
+### pktsize=60
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="60")))
+```
+
+### pktsize=600
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="600")))
+```
+
+### pktsize=1000
+
+```{r}
+plot_clusters(subset(loopback, subset=(pktsize=="1000")))
+```
+
+
+## Tukey test
+
+Differences between Vita versions.
+
+```{r}
+TukeyHSD(aov(score ~ snabb + pktsize, data=loopback))
+```

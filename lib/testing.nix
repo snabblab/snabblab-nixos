@@ -1,8 +1,8 @@
-{ pkgs }:
+{ pkgs, nixpkgs }:
 
 rec {
   # Function to build test_env qemu images needed for some benchmarks
-  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; };
+  mkNixTestEnv = import ./test_env.nix { pkgs = pkgs; nixpkgs = nixpkgs; };
 
   # Default PCCI assignment values for server groups
   PCIAssignments = {
@@ -10,6 +10,13 @@ rec {
       SNABB_PCI0 = "0000:01:00.0";
       SNABB_PCI_INTEL0 = "0000:01:00.0";
       SNABB_PCI_INTEL1 = "0000:01:00.1";
+    };
+    nfg2 = {
+      SNABB_CPUS = "6-23";
+      SNABB_CPUS0 = "6-11";
+      SNABB_CPUS1 = "12-17";
+      SNABB_PCI_CONNECTX_0 = "0000:81:00.0";
+      SNABB_PCI_CONNECTX_1 = "0000:81:00.1";
     };
     murren = {};
   };
@@ -20,7 +27,7 @@ rec {
     let
       pcis = PCIAssignments."${hardware}" or (throw "No such PCIAssignments group as ${hardware}");
     in  pcis  // {
-      requiredSystemFeatures = [ hardware ];
+      #requiredSystemFeatures = [ hardware ];
     };
 
   # Function for running commands in environment as Snabb expects tests to run
@@ -32,12 +39,13 @@ rec {
                 , needsNixTestEnv ? false # if true, copies over our test env
                 , testNixEnv ? (mkNixTestEnv {}) # qemu images and kernel
                 , alwaysSucceed ? false # if true, the build will succeed even on failure and provide a log
+                , sudo # sudo to use
                 , ...
                 }@attrs:
     pkgs.stdenv.mkDerivation ((getPCIVars hardware) // {
       src = snabb.src;
 
-      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which qemu pkgs.utillinux ];
+      buildInputs = [ pkgs.git pkgs.telnet pkgs.tmux pkgs.numactl pkgs.bc pkgs.iproute pkgs.which qemu pkgs.utillinux pkgs.python3 ];
 
       SNABB_KERNEL_PARAMS = pkgs.lib.optionalString needsNixTestEnv "init=/nix/var/nix/profiles/system/init";
 
@@ -48,10 +56,11 @@ rec {
       buildPhase = ''
         export PATH=$PATH:/var/setuid-wrappers/
         export HOME=$TMPDIR
+        export QEMU=$(which qemu-system-x86_64)
 
         # setup expected directories
-        sudo mkdir -p /var/{run,tmp} /hugetlbfs
-        sudo mount -t hugetlbfs none /hugetlbfs
+        ${sudo} mkdir -p /var/{run,tmp} /hugetlbfs
+        ${sudo} mount -t hugetlbfs none /hugetlbfs
 
         # make sure we reuse the snabb built in another derivation
         ln -s ${snabb}/bin/snabb src/snabb

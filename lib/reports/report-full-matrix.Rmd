@@ -3,7 +3,6 @@ title: "NFV test matrix"
 output:
   html_document:
     toc: true
-    toc_float: true
     toc_depth: 3
 ---
 
@@ -132,18 +131,6 @@ ggplot_distribution(l2fwd0) + facet_wrap(~pktsize, ncol=1) + ggtitle("l2fwd by p
 ggplot_distribution(l2fwd0) + facet_wrap(~config, ncol=2, scales = "free_y", shrink = TRUE) + ggtitle("l2fwd by configuration (MPPS)")
 ```
 
-### DPDK
-
-```{r}
-ggplot_distribution(l2fwd0) + facet_wrap(~dpdk, ncol=2, scales = "free_y", shrink = TRUE) + ggtitle("l2fwd by DPDK (MPPS)")
-```
-
-### DPDK + configuration
-
-```{r}
-ggplot_distribution(l2fwd0) + facet_wrap(dpdk ~ config, scales = "free_y", shrink = TRUE) + ggtitle("l2fwd by DPDK and configuration (MPPS)")
-```
-
 ### QEMU
 
 ```{r}
@@ -155,22 +142,22 @@ ggplot_distribution(l2fwd0) + facet_wrap(~qemu, ncol=2, scales = "free_y", shrin
 Success rate:
 
 ```{r}
-success = summarize(group_by(l2fwd, qemu, dpdk, config, snabb), success = mean(!is.na(score)))
-ggplot(success, aes(qemu, dpdk, fill=success)) +
+success = summarize(group_by(l2fwd, qemu, config, snabb), success = mean(!is.na(score)))
+ggplot(success, aes(qemu, snabb, fill=success)) +
   geom_tile(aes(fill=success)) + scale_fill_gradient(limits=c(0,1), low="red", high="white") +
   geom_text(aes(label = scales::percent(success))) +
-  facet_grid(snabb ~ config) +
+  facet_wrap(~ config) +
   theme(axis.text.x = element_text(angle=45, vjust=1))
 ```
 
 Sucesses:
 
 ```{r}
-summary(subset(l2fwd, subset = !is.na(score), select = c(config, qemu, dpdk, snabb, pktsize)))
+summary(subset(l2fwd, subset = !is.na(score), select = c(config, qemu, snabb, pktsize)))
 ```
 
 Failures:
 
 ```{r}
-summary(subset(l2fwd, subset = is.na(score), select = c(config, qemu, dpdk, snabb, pktsize)))
+summary(subset(l2fwd, subset = is.na(score), select = c(config, qemu, snabb, pktsize)))
 ```
