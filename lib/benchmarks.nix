@@ -264,6 +264,35 @@ in rec {
 
     };
 
+  /* Execute `lwaftr-soft` benchmark.
+
+     `lwaftr-soft` depends on SNABB_CPUS0.
+       - pktsize specifies packet size
+       - conf specifies extra benchmark options
+  */
+  mkMatrixBenchLwaftrSoft = { snabb, times, pktsize ? "60", conf ? "", hardware ? "murren", keepShm, sudo, ... }:
+    mkSnabbBenchTest {
+      name = "lwaftr-soft_pktsize=${pktsize}_snabb=${testing.versionToAttribute snabb.version or ""}";
+      inherit snabb times hardware keepShm sudo;
+      meta = { inherit pktsize; conf = builtins.replaceStrings [","] [" "] conf; };
+      toCSV = drv: ''
+        score=$(awk '/Decap. avg. Mpps:/ {print $(NF-0)}' < ${drv}/log.txt)
+        ${writeCSV drv "lwaftr-soft" "Mpps"}
+      '';
+      checkPhase = ''
+        cd src
+        [ -z "$SNABB_CPUS0" ] && (echo "SNABB_CPUS0 not set"; exit 1)
+        ${sudo} -E ${snabb}/bin/snabb lwaftr generate-configuration \
+          --output lwaftr.conf --pcap-v6 v6.pcap --pcap-v4 v4.pcap \
+          --packet-size ${pktsize} --npackets 10000 \
+          178.79.150.233 65000 8:9:a:b:c:d:e:f 127:2:3:4:5:6:7:128 0
+        ${sudo} -E ${snabb}/bin/snabb lwaftr bench \
+          -D 5 --cpu "$SNABB_CPUS0" \
+          lwaftr.conf v4.pcap v6.pcap |& tee $out/log.txt
+      '';
+
+    };
+
   /* Given a benchmark derivation, benchmark name and a unit,
      write a line of the CSV file using all provided benchmark information.
   */
@@ -375,5 +404,7 @@ in rec {
 
       mellanox-source-imix = params: mkMatrixBenchMellanoxSource (params // {pktsize = "IMIX";});
       mellanox-source-64 = params: mkMatrixBenchMellanoxSource (params // {pktsize = "64";});
+
+      lwaftr-soft = mkMatrixBenchLwaftrSoft;
     };
 }
