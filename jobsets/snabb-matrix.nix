@@ -1,10 +1,10 @@
-# Make a matrix benchmark out of Snabb + QEMU + Linux (for iperf) combinations
+# Make a matrix benchmark out of Snabb versions
 # and generate a report based on the logs
 
 # Specify how many times each benchmark is repeated
 { numTimesRunBenchmark ? 1
 # Collection of Nix packages used
-, nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/37e7e86ddd09d200bbdfd8ba8ec2fd2f0621b728.tar.gz)
+, nixpkgs ? (fetchTarball https://github.com/NixOS/nixpkgs/archive/refs/tags/24.11.tar.gz)
 # Up to 6 different Snabb branches specified using source and name
 , snabbAsrc
 , snabbBsrc ? null
@@ -26,14 +26,8 @@
 # For possible values see keys in the bottom of lib/benchmarks.nix, e.g. [ "iperf-base" ]
 , benchmarkNames ? [ ]
 # Name of reports to be generated
-# For possible values see lib/reports/, e.g. "basic"
+# For possible values see lib/reports/, e.g. "report-by-snabb"
 , reports ? []
-# What kernel versions to benchmark on, for possible values see lib/benchmarks.nix
-, kernelVersions ? ["3.18"]  # fix kernel for now to reduce memory usage
-# What qemu versions to benchmark on, for possible values see lib/benchmarks.nix
-, qemuVersions ? []
-, qemuAsrc ? null
-, qemuAname ? null
 # Optionally keep the shm folders
 , keepShm ? false
 # sudo to use in tests
@@ -59,31 +53,18 @@ let
     (buildNixSnabb snabbFsrc snabbFname)
   ];
 
-  customQemu = buildQemuFromSrc qemuAname qemuAsrc false;
-
-  subKernelPackages = selectKernelPackages kernelVersions;
-  subQemus = (selectQemus qemuVersions) ++ (if qemuAsrc != null then [customQemu] else []);
-
   # Benchmarks using a matrix of software and a number of repeats
   benchmarks-list = with lib;
     if (benchmarkNames == [])
     then throw "'benchmarkNames' input list should contain at least one element of: ${concatStringsSep ", " (builtins.attrNames benchmarks)}"
     else
-    mergeAttrsMap (kPackages:
-      let
-        #74: evaluate mkNixTestEnv early in the loop as it's expensive otherwise
-        testNixEnv = mkNixTestEnv { inherit kPackages; };
-      in
-      mergeAttrsMap (qemu:
-        mergeAttrsMap (snabb:
-          selectBenchmarks benchmarkNames { inherit snabb qemu times kPackages testNixEnv keepShm sudo hardware; }
-        ) snabbs
-      ) subQemus
-    ) subKernelPackages;
+      mergeAttrsMap (snabb:
+        selectBenchmarks benchmarkNames { inherit snabb times keepShm sudo hardware; }
+      ) snabbs;
 
 in rec {
   # All versions of software used in benchmarks
-  software = listDrvToAttrs (snabbs ++ subQemus);
+  software = listDrvToAttrs (snabbs);
   benchmarks = benchmarks-list;
   benchmark-csv = mkBenchmarkCSV (builtins.attrValues benchmarks-list);
   benchmark-reports =
